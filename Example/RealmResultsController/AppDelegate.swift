@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import RealmSwift
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -16,6 +17,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
+//        generateDB()
+        
         return true
     }
 
@@ -40,7 +43,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
-
-
+    
+    
+//    func generateDB() {
+//        let realm = try! Realm()
+//        realm.write {
+//            for i in 0...1000 {
+//                let task = Task()
+//                task.id = i
+//                task.name = randomStringWithLength(10)
+//                task.resolved = arc4random_uniform(2) % 2 == 0
+//                
+//                let user = User()
+//                user.id = i
+//                user.name = randomStringWithLength(10)
+//                user.avatarURL = "http://www.gravatar.com/" + randomStringWithLength(5)
+//                
+//                let project = Project()
+//                project.id = i
+//                project.name = randomStringWithLength(10)
+//                project.projectDrescription = randomStringWithLength(20)
+//                
+//                realm.add(task)
+//                realm.add(user)
+//                realm.add(project)
+//            }
+//        }
+//    }
 }
-
