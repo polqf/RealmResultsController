@@ -141,6 +141,44 @@ class SectionSpec: QuickSpec {
 
 
 
+class CacheDelegateMock: RealmResultsCacheDelegate {
+    
+    static let sharedInstance = CacheDelegateMock()
+    
+    var index = -1
+    var oldIndexPath: NSIndexPath?
+    var indexPath: NSIndexPath?
+    var object: Object?
+    
+    func reset() {
+        index = -1
+        oldIndexPath = nil
+        indexPath = nil
+        object = nil
+    }
+    
+    func didDeleteSection(index: Int) {
+        self.index = index
+    }
+    func didInsertSection(index: Int) {
+        self.index = index
+    }
+    
+    func didInsert<T: Object>(object: T, indexPath: NSIndexPath) {
+        self.object = object as Object
+        self.indexPath = indexPath
+    }
+    func didDelete<T: Object>(object: T, indexPath: NSIndexPath) {
+        self.object = object as Object
+        self.indexPath = indexPath
+    }
+    func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath) {
+        self.object = object as Object
+        self.oldIndexPath = oldIndexPath
+        self.indexPath = newIndexPath
+    }
+}
+
 
 
 class CacheSpec: QuickSpec {
@@ -148,14 +186,135 @@ class CacheSpec: QuickSpec {
     override func spec() {
         
         var cache: RealmResultsCache<Task>!
+        var initialObjects: [Task]!
+        var request: RealmRequest<Task>!
+        var realm: Realm!
+        var predicate: NSPredicate!
+        var sortDescriptors: [SortDescriptor]!
+        var resolvedTasks: [Task]!
+        var notResolvedTasks: [Task]!
+        
+        func initWithKeypath() {
+            predicate = NSPredicate(format: "id < %d", 50)
+            sortDescriptors = [SortDescriptor(property: "name", ascending: true)]
+            request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors, sectionKeyPath: nil)
+            initialObjects = request.execute().toArray(Task.self).sort { $0.name < $1.name }
+            resolvedTasks = initialObjects.filter { $0.resolved }
+            notResolvedTasks = initialObjects.filter { !$0.resolved }
+            cache = RealmResultsCache<Task>(objects: initialObjects, request: request)
+            cache.delegate = CacheDelegateMock.sharedInstance
+        }
+        
+        func initWithoutKeypath() {
+            predicate = NSPredicate(format: "id < %d", 50)
+            sortDescriptors = [SortDescriptor(property: "name", ascending: true)]
+            request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors, sectionKeyPath: "resolved")
+            initialObjects = request.execute().toArray(Task.self)
+            resolvedTasks = initialObjects.filter { $0.resolved }
+            notResolvedTasks = initialObjects.filter { !$0.resolved }
+            cache = RealmResultsCache<Task>(objects: initialObjects, request: request)
+            cache.delegate = CacheDelegateMock.sharedInstance
+        }
         
         beforeSuite {
-//            cache = RealmResultsCache<Task>()
+            RealmTestHelper.loadRealm()
+            realm = try! Realm()
         }
-
         
         describe("init") {
+            context("request has no keypath") {
+                beforeEach {
+                    initWithKeypath()
+                }
+                it("inserts the received objects in one section") {
+                    expect(cache.sections.count) == 1
+                }
+                it("section has all the objects") {
+                    expect(cache.sections.first!.objects.count) == initialObjects.count
+                }
+            }
             
+            context("request has keypath") {
+                beforeEach {
+                    initWithoutKeypath()
+                }
+                it("inserts the objects in 2 sections") {
+                    expect(cache.sections.count) == 2
+                }
+            }
+        }
+        
+        beforeEach {
+            CacheDelegateMock.sharedInstance.reset()
+        }
+        
+        describe("insert") {
+            context("with section keypath") {
+                var newTask: Task!
+                var cacheIndexPath: NSIndexPath!
+                var memoryIndex: Int!
+                var object: Object!
+                var resolvedTasksCopy: [Task]!
+
+                it("beforeAll") {
+                    //create and insert new item in cache
+                    newTask = Task()
+                    newTask.id = -1
+                    newTask.name = "ccbbaa"
+                    newTask.resolved = true
+                    cache.insert([newTask])
+                    
+                    //replicate the behaviour (adding + sorting) in a copy array
+                    resolvedTasksCopy = resolvedTasks
+                    resolvedTasksCopy.append(newTask)
+                    resolvedTasksCopy.sortInPlace {$0.name < $1.name}
+                    memoryIndex = resolvedTasksCopy.indexOf(newTask)!
+                    
+                    //Get the values from the delegate
+                    cacheIndexPath = CacheDelegateMock.sharedInstance.indexPath
+                    object = CacheDelegateMock.sharedInstance.object
+                }
+                it("indexPath is not nil") {
+                    expect(cacheIndexPath).toNot(beNil())
+                }
+                it("indexpath.row is ordered") {
+                    expect(cacheIndexPath.row) == memoryIndex
+                }
+                it("the received object is the same than inserted") {
+                    expect(object) === newTask
+                }
+                it("section is resolved one") {
+                    let section = cache.sections[cacheIndexPath.section]
+                    expect(section.keyPath) == "Optional(1)" //like this because its an optional boolean transformed to string
+                }
+                it("remove from cache") {
+                    cache.delete([newTask])
+                }
+            }
+            
+            context("without section keypath") {
+                
+            }
+        }
+        
+        describe("delete") {
+            context("with section keypath") {
+                
+            }
+            
+            context("without section keypath") {
+                
+            }
+        }
+        
+        describe("update") {
+            context("with section keypath") {
+                
+            }
+            
+            context("without section keypath") {
+                
+            }
         }
     }
 }

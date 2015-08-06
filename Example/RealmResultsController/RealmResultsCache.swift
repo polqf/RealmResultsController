@@ -114,7 +114,7 @@ class RealmResultsCache<T: Object> {
     private func sectionForObject(object: T) -> Section<T> {
         var keyPathValue = defaultKeyPathValue
         if let keyPath = request.sectionKeyPath {
-            keyPathValue = object.valueForKeyPath(keyPath) as! String
+            keyPathValue = String(object.valueForKeyPath(keyPath))
         }
         return sectionForKeyPath(keyPathValue)
     }
