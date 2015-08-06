@@ -28,7 +28,7 @@ class RealmNotificationSpec: QuickSpec {
                 }
                 it("Should have stored the logger in its shared instance") {
                     expect(RealmNotification.sharedInstance.loggers.count).to(equal(1))
-                    expect(RealmNotification.sharedInstance.loggers.first!.notificationToken).to(equal(createdLogger.notificationToken))
+                    expect(RealmNotification.sharedInstance.loggers.first!) === createdLogger
                 }
             }
             context("Retrieve a created logger") {
@@ -38,7 +38,7 @@ class RealmNotificationSpec: QuickSpec {
                 }
                 it("Should have retrieve the logger stored in its shared instance") {
                     expect(RealmNotification.sharedInstance.loggers.count).to(equal(1))
-                    expect(retrievedLogger.notificationToken).to(equal(createdLogger.notificationToken))
+                    expect(retrievedLogger) === createdLogger
                 }
             }
         }
