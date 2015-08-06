@@ -157,10 +157,11 @@ class CacheDelegateMock: RealmResultsCacheDelegate {
         object = nil
     }
     
-    func didDeleteSection(index: Int) {
+    func didInsertSection<T: Object>(section: Section<T>, index: Int) {
         self.index = index
     }
-    func didInsertSection(index: Int) {
+    
+    func didDeleteSection<T: Object>(section: Section<T>, index: Int) {
         self.index = index
     }
     

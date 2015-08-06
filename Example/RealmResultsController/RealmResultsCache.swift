@@ -17,8 +17,8 @@ extension SortDescriptor {
 }
 
 protocol RealmResultsCacheDelegate {
-    func didDeleteSection(index: Int)
-    func didInsertSection(index: Int)
+    func didInsertSection<T: Object>(section: Section<T>, index: Int)
+    func didDeleteSection<T: Object>(section: Section<T>, index: Int)
     func didInsert<T: Object>(object: T, indexPath: NSIndexPath)
     func didDelete<T: Object>(object: T, indexPath: NSIndexPath)
     func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath)
@@ -107,7 +107,7 @@ class RealmResultsCache<T: Object> {
         sections.append(newSection)
         sortSections()
         let index = indexForSection(newSection)!
-        delegate?.didInsertSection(index)
+        delegate?.didInsertSection(newSection, index: index)
         return newSection
     }
     

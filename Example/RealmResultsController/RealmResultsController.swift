@@ -19,7 +19,7 @@ enum RealmResultsChangeType: String {
 protocol RealmResultsControllerDelegate {
     func willChangeResults(controller: AnyObject)
     func didChangeObject<U>(object: U, controller: AnyObject, atIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType)
-    func didChangeSection(section: Int, controller: AnyObject, index: Int, changeType: RealmResultsChangeType)
+    func didChangeSection<T>(section: Section<T>, controller: AnyObject, index: Int, changeType: RealmResultsChangeType)
     func didChangeResults(controller: AnyObject)
 }
 
@@ -48,24 +48,24 @@ class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     //MARK: Cache delegate
     
-    func didDeleteSection(index: Int) {
-        self.delegate?.didChangeSection(index, controller: self, index: index, changeType: .Delete)
-    }
-    
-    func didInsertSection(index: Int) {
-        self.delegate?.didChangeSection(index, controller: self, index: index, changeType: .Insert)
-    }
-    
     func didInsert<T: Object>(object: T, indexPath: NSIndexPath) {
         self.delegate?.didChangeObject(object, controller: self, atIndexPath: indexPath, newIndexPath: indexPath, changeType: .Insert)
+    }
+    
+    func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath) {
+        self.delegate?.didChangeObject(object, controller: self, atIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: .Update)
     }
     
     func didDelete<T: Object>(object: T, indexPath: NSIndexPath) {
         self.delegate?.didChangeObject(object, controller: self, atIndexPath: indexPath, newIndexPath: indexPath, changeType: .Delete)
     }
     
-    func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath) {
-        self.delegate?.didChangeObject(object, controller: self, atIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: .Update)
+    func didInsertSection<T : Object>(section: Section<T>, index: Int) {
+        self.delegate?.didChangeSection(section, controller: self, index: index, changeType: .Insert)
+    }
+    
+    func didDeleteSection<T : Object>(section: Section<T>, index: Int) {
+        self.delegate?.didChangeSection(section, controller: self, index: index, changeType: .Delete)
     }
     
     
