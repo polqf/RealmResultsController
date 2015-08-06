@@ -20,6 +20,7 @@ class SectionSpec: QuickSpec {
         var section: Section<Task>!
         var openTask: Task!
         var resolvedTask: Task!
+    
         
         beforeSuite {
             sortDescriptors = [NSSortDescriptor(key: "name", ascending: false)]
