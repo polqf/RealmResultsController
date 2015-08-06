@@ -13,24 +13,9 @@ import RealmSwift
 
 @testable import RealmResultsController
 
-
-func openRealm() {
-    
-    let defaultRealmPath = Realm.defaultPath
-    let bundleReamPath = NSBundle.mainBundle().resourcePath?.stringByAppendingPathComponent("test.realm")
-    
-    if !NSFileManager.defaultManager().fileExistsAtPath(defaultRealmPath) {
-        try! NSFileManager.defaultManager().copyItemAtPath(bundleReamPath!, toPath: defaultRealmPath)
-    }
-}
-
-
 class SectionSpec: QuickSpec {
     
     override func spec() {
-        
-//        openRealm()
-        
         var sortDescriptors: [NSSortDescriptor]!
         var section: Section<Task>!
         var openTask: Task!
