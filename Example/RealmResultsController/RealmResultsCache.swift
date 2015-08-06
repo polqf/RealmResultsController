@@ -82,11 +82,11 @@ class RealmResultsCache<T: Object> {
         }
     }
     
-    func indexForSection(section: Section<T>) -> Int? {
+    private func indexForSection(section: Section<T>) -> Int? {
         return sections.indexOf(section)
     }
     
-    func sectionForKeyPath(keyPath: String) -> Section<T> {
+    private func sectionForKeyPath(keyPath: String) -> Section<T> {
         let section = sections.filter{$0.keyPath == keyPath}
         if let s = section.first {
             return s
@@ -94,15 +94,15 @@ class RealmResultsCache<T: Object> {
         return createNewSection(keyPath)
     }
     
-    func sortSections() {
+    private func sortSections() {
         sections.sortInPlace { $0.keyPath.localizedCaseInsensitiveCompare($1.keyPath) == NSComparisonResult.OrderedAscending }
     }
     
-    func toNSSortDescriptor(sort: SortDescriptor) -> NSSortDescriptor {
+    private func toNSSortDescriptor(sort: SortDescriptor) -> NSSortDescriptor {
         return NSSortDescriptor(key: sort.property, ascending: sort.ascending)
     }
     
-    func createNewSection(keyPath: String) -> Section<T> {
+    private func createNewSection(keyPath: String) -> Section<T> {
         let newSection = Section<T>(keyPath: keyPath, sortDescriptors: request.sortDescriptors.map(toNSSortDescriptor))
         sections.append(newSection)
         sortSections()
@@ -111,7 +111,7 @@ class RealmResultsCache<T: Object> {
         return newSection
     }
     
-    func sectionForObject(object: T) -> Section<T> {
+    private func sectionForObject(object: T) -> Section<T> {
         var keyPathValue = defaultKeyPathValue
         if let keyPath = request.sectionKeyPath {
             keyPathValue = object.valueForKeyPath(keyPath) as! String
@@ -119,7 +119,7 @@ class RealmResultsCache<T: Object> {
         return sectionForKeyPath(keyPathValue)
     }
     
-    func sectionForOutdateObject(object: T) -> Section<T> {
+    private func sectionForOutdateObject(object: T) -> Section<T> {
         let primaryKey = T.primaryKey()!
         let primaryKeyValue = (object as Object).valueForKey(primaryKey)!
         for section in sections {

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import RealmSwift
 
 struct RealmTestHelper {
     static func loadRealm() {

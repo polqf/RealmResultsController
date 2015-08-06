@@ -142,4 +142,20 @@ class SectionSpec: QuickSpec {
 
 
 
+class CacheSpec: QuickSpec {
+    
+    override func spec() {
+        
+        var cache: RealmResultsCache<Task>!
+        
+        beforeSuite {
+//            cache = RealmResultsCache<Task>()
+        }
+
+        
+        describe("init") {
+            
+        }
+    }
+}
 
