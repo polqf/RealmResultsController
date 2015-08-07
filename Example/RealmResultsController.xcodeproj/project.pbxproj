@@ -11,6 +11,7 @@
 		6A5F153E1B736D5300250E29 /* test.realm in Resources */ = {isa = PBXBuildFile; fileRef = 6A5F153D1B736D5300250E29 /* test.realm */; };
 		6A5F15401B736D7000250E29 /* testmodels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A5F153F1B736D7000250E29 /* testmodels.swift */; };
 		6A68B20C1B735CFB007645A7 /* RealmResultsCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A68B20B1B735CFB007645A7 /* RealmResultsCacheTests.swift */; };
+		6A89A79F1B73BDBA00EE85A5 /* test.realm in Resources */ = {isa = PBXBuildFile; fileRef = 6A5F153D1B736D5300250E29 /* test.realm */; };
 		C127071D1B73944900B66698 /* RealmTestHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C127071C1B73944900B66698 /* RealmTestHelper.swift */; };
 		C14CD75F1B7396D600C5BF92 /* RealmNotificationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14CD75E1B7396D600C5BF92 /* RealmNotificationTests.swift */; };
 		C14CD7611B739E6300C5BF92 /* RealmLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14CD7601B739E6300C5BF92 /* RealmLogger.swift */; };

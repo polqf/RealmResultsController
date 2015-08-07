@@ -198,7 +198,7 @@ class CacheSpec: QuickSpec {
         func initWithKeypath() {
             predicate = NSPredicate(format: "id < %d", 50)
             sortDescriptors = [SortDescriptor(property: "name", ascending: true)]
-            request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors, sectionKeyPath: nil)
+            request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors, sectionKeyPath: "resolved")
             initialObjects = request.execute().toArray(Task.self).sort { $0.name < $1.name }
             resolvedTasks = initialObjects.filter { $0.resolved }
             notResolvedTasks = initialObjects.filter { !$0.resolved }
@@ -209,7 +209,7 @@ class CacheSpec: QuickSpec {
         func initWithoutKeypath() {
             predicate = NSPredicate(format: "id < %d", 50)
             sortDescriptors = [SortDescriptor(property: "name", ascending: true)]
-            request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors, sectionKeyPath: "resolved")
+            request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors, sectionKeyPath: nil)
             initialObjects = request.execute().toArray(Task.self)
             resolvedTasks = initialObjects.filter { $0.resolved }
             notResolvedTasks = initialObjects.filter { !$0.resolved }
@@ -225,7 +225,7 @@ class CacheSpec: QuickSpec {
         describe("init") {
             context("request has no keypath") {
                 beforeEach {
-                    initWithKeypath()
+                    initWithoutKeypath()
                 }
                 it("inserts the received objects in one section") {
                     expect(cache.sections.count) == 1
@@ -237,7 +237,7 @@ class CacheSpec: QuickSpec {
             
             context("request has keypath") {
                 beforeEach {
-                    initWithoutKeypath()
+                    initWithKeypath()
                 }
                 it("inserts the objects in 2 sections") {
                     expect(cache.sections.count) == 2
@@ -259,6 +259,8 @@ class CacheSpec: QuickSpec {
 
                 it("beforeAll") {
                     //create and insert new item in cache
+                    initWithKeypath()
+                    
                     newTask = Task()
                     newTask.id = -1
                     newTask.name = "ccbbaa"
@@ -294,27 +296,188 @@ class CacheSpec: QuickSpec {
             }
             
             context("without section keypath") {
+                var newTask: Task!
+                var cacheIndexPath: NSIndexPath!
+                var memoryIndex: Int!
+                var object: Object!
+                var resolvedTasksCopy: [Task]!
+                
+                it("beforeAll") {
+                    //create and insert new item in cache
+                    initWithoutKeypath()
+                    newTask = Task()
+                    newTask.id = -1
+                    newTask.name = "ccbbaa"
+                    newTask.resolved = true
+                    cache.insert([newTask])
+                    
+                    //replicate the behaviour (adding + sorting) in a copy array
+                    resolvedTasksCopy = resolvedTasks
+                    resolvedTasksCopy.append(newTask)
+                    resolvedTasksCopy.sortInPlace {$0.name < $1.name}
+                    memoryIndex = resolvedTasksCopy.indexOf(newTask)!
+                    
+                    //Get the values from the delegate
+                    cacheIndexPath = CacheDelegateMock.sharedInstance.indexPath
+                    object = CacheDelegateMock.sharedInstance.object
+                }
+                it("indexPath is not nil") {
+                    expect(cacheIndexPath).toNot(beNil())
+                }
+                it("indexpath.row is ordered") {
+                    expect(cacheIndexPath.row) == memoryIndex
+                }
+                it("the received object is the same than inserted") {
+                    expect(object) === newTask
+                }
+                it("section is resolved one") {
+                    let section = cache.sections[cacheIndexPath.section]
+                    expect(section.keyPath) == cache.defaultKeyPathValue
+                }
+                it("remove from cache") {
+                    cache.delete([newTask])
+                }
                 
             }
         }
         
         describe("delete") {
-            context("with section keypath") {
+            context("object was in cache") {
                 
+                var object: Object!
+                var indexPath: NSIndexPath!
+                it("beforeAll") {
+                    initWithoutKeypath()
+                    cache.delete([initialObjects[10]])
+                    object = CacheDelegateMock.sharedInstance.object
+                    indexPath = CacheDelegateMock.sharedInstance.indexPath
+                }
+                it("returns the deleted object") {
+                    expect(object) === initialObjects[10]
+                }
+                it("returns the index of the deleted object") {
+                    expect(indexPath.row) == 10
+                }
+                it("section has one less item") {
+                    expect(cache.sections[indexPath.section].objects.count) == initialObjects.count - 1
+                }
+                it("restore the object") {
+                    cache.insert([initialObjects[10]])
+                }
             }
             
-            context("without section keypath") {
-                
+            context("object was not in cache") {
+                var object: Object?
+                var indexPath: NSIndexPath?
+                var newTask: Task!
+                it("beforeAll") {
+                    initWithoutKeypath()
+                    newTask = Task()
+                    newTask.id = 1500
+                    cache.delete([newTask])
+                    object = CacheDelegateMock.sharedInstance.object
+                    indexPath = CacheDelegateMock.sharedInstance.indexPath
+                }
+                it("returns the nil because no object was deleted") {
+                    expect(object).to(beNil())
+                }
+                it("returns the index of the deleted object") {
+                    expect(indexPath).to(beNil())
+                }
+                it("restore the object") {
+                    cache.insert([initialObjects[10]])
+                }
             }
         }
         
         describe("update") {
-            context("with section keypath") {
-                
+            context("an object that is already in cache (without section or position change)") {
+                var object: Object!
+                var indexPath: NSIndexPath?
+                var oldIndexPath: NSIndexPath?
+                it("beforeAll") {
+                    initWithKeypath()
+                    cache.update([resolvedTasks[5]])
+                    object = CacheDelegateMock.sharedInstance.object
+                    indexPath = CacheDelegateMock.sharedInstance.indexPath
+                    oldIndexPath = CacheDelegateMock.sharedInstance.oldIndexPath
+                }
+                it("returns the updated object") {
+                    expect(object) === resolvedTasks[5]
+                }
+                it("indexPath and oldIndexPath are the same") {
+                    expect(indexPath!) == oldIndexPath!
+                }
+                it("the object didn't change order") {
+                    expect(indexPath!.row) == 5
+                }
             }
             
-            context("without section keypath") {
-                
+            
+            context("an object that it is in cache with section change") {
+                var object: Object!
+                var indexPath: NSIndexPath?
+                var oldIndexPath: NSIndexPath?
+                var myTask: Task!
+                var notResolvedTasksCopy: [Task]!
+                var memoryIndex: Int!
+                it("beforeAll") {
+                    initWithKeypath()
+                    myTask = resolvedTasks[5]
+                    realm.write {
+                        myTask.resolved = false
+                    }
+                    notResolvedTasksCopy = notResolvedTasks
+                    notResolvedTasksCopy.append(myTask)
+                    notResolvedTasksCopy.sortInPlace {$0.name < $1.name}
+                    memoryIndex = notResolvedTasksCopy.indexOf(myTask)
+                    cache.update([myTask])
+                    object = CacheDelegateMock.sharedInstance.object
+                    indexPath = CacheDelegateMock.sharedInstance.indexPath
+                    oldIndexPath = CacheDelegateMock.sharedInstance.oldIndexPath
+                }
+                it("returns the updated object") {
+                    expect(object) === myTask
+                }
+                it("indexPath and oldIndexPath have different sections") {
+                    expect(indexPath?.section) != oldIndexPath?.section
+                }
+                it("the object is inserted in the new section in the correct position") {
+                    expect(indexPath!.row) == memoryIndex
+                }
+                it("original section has one less element") {
+                    expect(cache.sections[oldIndexPath!.section].objects.count) == resolvedTasks.count - 1
+                }
+                it("new section has one more element") {
+                    expect(cache.sections[indexPath!.section].objects.count) == notResolvedTasks.count + 1
+                }
+            }
+            
+            context("an object that is not in the cache (insertion)") {
+                var object: Object!
+                var indexPath: NSIndexPath?
+                var oldIndexPath: NSIndexPath?
+                var myTask: Task!
+                it("beforeAll") {
+                    initWithKeypath()
+                    myTask = Task()
+                    myTask.resolved = true
+                    myTask.id = -3
+                    cache.update([myTask])
+                    object = CacheDelegateMock.sharedInstance.object
+                    indexPath = CacheDelegateMock.sharedInstance.indexPath
+                    oldIndexPath = CacheDelegateMock.sharedInstance.oldIndexPath
+                }
+                it("returns the updated object") {
+                    expect(object) === myTask
+                }
+                it("it is inserted in the correct section") {
+                    let section = cache.sections[indexPath!.section]
+                    expect(section.keyPath) == "Optional(1)" //like this because its an optional boolean transformed to string
+                }
+                it("oldIndexPath is nil") {
+                    expect(oldIndexPath).to(beNil())
+                }
             }
         }
     }

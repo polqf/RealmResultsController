@@ -25,8 +25,11 @@ protocol RealmResultsCacheDelegate {
 }
 
 class Section<T: Object> : NSObject {
-    var keyPath: String = ""
     var objects: NSMutableArray = []
+    public var keyPath: String = ""
+    public var allObjectsd: NSArray {
+        return objects.copy() as! NSArray
+    }
     var sortDescriptors: [NSSortDescriptor] = []
     
     required init(keyPath: String, sortDescriptors: [NSSortDescriptor]) {
