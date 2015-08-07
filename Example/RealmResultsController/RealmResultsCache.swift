@@ -10,12 +10,6 @@ import Foundation
 import RealmSwift
 
 
-extension SortDescriptor {
-    func toNSSortDescriptor() -> NSSortDescriptor {
-        return NSSortDescriptor(key: self.property, ascending: self.ascending)
-    }
-}
-
 protocol RealmResultsCacheDelegate {
     func didInsertSection<T: Object>(section: Section<T>, index: Int)
     func didDeleteSection<T: Object>(section: Section<T>, index: Int)
@@ -23,53 +17,6 @@ protocol RealmResultsCacheDelegate {
     func didDelete<T: Object>(object: T, indexPath: NSIndexPath)
     func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath)
 }
-
-class Section<T: Object> : NSObject {
-    var objects: NSMutableArray = []
-    public var keyPath: String = ""
-    public var allObjectsd: NSArray {
-        return objects.copy() as! NSArray
-    }
-    var sortDescriptors: [NSSortDescriptor] = []
-    
-    required init(keyPath: String, sortDescriptors: [NSSortDescriptor]) {
-        self.keyPath = keyPath
-        self.sortDescriptors = sortDescriptors
-    }
-    
-    func insertSorted(object: T) -> Int {
-        objects.addObject(object)
-        objects.sortUsingDescriptors(sortDescriptors)
-        return objects.indexOfObject(object)
-    }
-    
-    func delete(object: T) -> Int {
-        let index = objects.indexOfObject(object)
-        if index < objects.count {
-            objects.removeObject(object)
-            return index
-        }
-        return -1
-    }
-    
-    func deleteOutdatedObject(object: T) -> Int {
-        let primaryKey = T.primaryKey()!
-        let primaryKeyValue = (object as Object).valueForKey(primaryKey)!
-        var objectToDelete: T?
-        for sectionObject in objects{
-            let value = sectionObject.valueForKey(primaryKey)!
-            if value.isEqual(primaryKeyValue) {
-                objectToDelete = sectionObject as? T
-                break
-            }
-        }
-        if let object = objectToDelete {
-            return delete(object)
-        }
-        return -1
-    }
-}
-
 
 class RealmResultsCache<T: Object> {
     var request: RealmRequest<T>
