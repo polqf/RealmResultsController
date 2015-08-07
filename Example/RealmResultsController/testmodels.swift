@@ -39,37 +39,37 @@ class Project: Object {
         return "id"
     }
 }
-
-
-
-
-func randomStringWithLength (len : Int) -> String {
-    
-    let letters : String = "abcdefghijklmnopqrstuvwxyz"
-    var randomString: String = ""
-    
-    for (var i=0; i < len; i++){
-        let length = UInt32 (letters.characters.count)
-        let rand = Int(arc4random_uniform(length))
-        randomString += letters[rand]
-    }
-    
-    return randomString
-}
-
-
-extension String {
-    
-    subscript (i: Int) -> Character {
-        return self[advance(self.startIndex, i)]
-    }
-    
-    subscript (i: Int) -> String {
-        return String(self[i] as Character)
-    }
-    
-    subscript (r: Range<Int>) -> String {
-        return substringWithRange(Range(start: advance(startIndex, r.startIndex), end: advance(startIndex, r.endIndex)))
-    }
-}
+//
+//
+//
+//
+//func randomStringWithLength (len : Int) -> String {
+//    
+//    let letters : String = "abcdefghijklmnopqrstuvwxyz"
+//    var randomString: String = ""
+//    
+//    for (var i=0; i < len; i++){
+//        let length = UInt32 (letters.characters.count)
+//        let rand = Int(arc4random_uniform(length))
+//        randomString += letters[rand]
+//    }
+//    
+//    return randomString
+//}
+//
+//
+//extension String {
+//    
+//    subscript (i: Int) -> Character {
+//        return self[advance(self.startIndex, i)]
+//    }
+//    
+//    subscript (i: Int) -> String {
+//        return String(self[i] as Character)
+//    }
+//    
+//    subscript (r: Range<Int>) -> String {
+//        return substringWithRange(Range(start: advance(startIndex, r.startIndex), end: advance(startIndex, r.endIndex)))
+//    }
+//}
 
