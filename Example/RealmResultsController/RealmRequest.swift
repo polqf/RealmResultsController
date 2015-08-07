@@ -15,7 +15,6 @@ public struct RealmRequest<T: Object> {
     var predicate: NSPredicate = NSPredicate(value: true)
     var realm: Realm
     var sortDescriptors: [SortDescriptor] = []
-    var sectionKeyPath: String? = ""
     
     func execute() -> Results<T> {
         return  realm.objects(entityType).filter(predicate).sorted(sortDescriptors)

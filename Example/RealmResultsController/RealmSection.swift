@@ -10,11 +10,16 @@ import Foundation
 import RealmSwift
 
 
+public struct RealmSection<U> {
+    var objects: [U]
+    var keyPath: String
+}
+
 class Section<T: Object> : NSObject {
     var objects: NSMutableArray = []
-    public var keyPath: String = ""
-    public var allObjects: NSArray {
-        return objects.copy() as! NSArray
+    var keyPath: String = ""
+    var allObjects: [T] {
+        return objects.map {$0 as! T}
     }
     
     var sortDescriptors: [NSSortDescriptor] = []

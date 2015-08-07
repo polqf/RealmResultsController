@@ -20,16 +20,26 @@ protocol RealmResultsCacheDelegate {
 
 class RealmResultsCache<T: Object> {
     var request: RealmRequest<T>
+    var sectionKeyPath: String? = ""
     var sections: [Section<T>] = []
     let defaultKeyPathValue = "default"
     var delegate: RealmResultsCacheDelegate?
     
-    init(objects: [T], request: RealmRequest<T>) {
+    init(request: RealmRequest<T>, sectionKeyPath: String?) {
         self.request = request
+        self.sectionKeyPath = sectionKeyPath
+    }
+    
+    func populateSections(objects: [T]) {
         for object in objects {
             let section = sectionForObject(object)
             section.insertSorted(object)
         }
+    }
+    
+    func reset(objects: [T]) {
+        sections.removeAll()
+        populateSections(objects)
     }
     
     private func indexForSection(section: Section<T>) -> Int? {
@@ -63,7 +73,7 @@ class RealmResultsCache<T: Object> {
     
     private func sectionForObject(object: T) -> Section<T> {
         var keyPathValue = defaultKeyPathValue
-        if let keyPath = request.sectionKeyPath {
+        if let keyPath = sectionKeyPath {
             keyPathValue = String(object.valueForKeyPath(keyPath))
         }
         return sectionForKeyPath(keyPathValue)

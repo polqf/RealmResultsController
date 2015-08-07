@@ -19,32 +19,62 @@ enum RealmResultsChangeType: String {
 protocol RealmResultsControllerDelegate {
     func willChangeResults(controller: AnyObject)
     func didChangeObject<U>(object: U, controller: AnyObject, atIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType)
-    func didChangeSection<T>(section: Section<T>, controller: AnyObject, index: Int, changeType: RealmResultsChangeType)
+    func didChangeSection<U>(section: RealmSection<U>, controller: AnyObject, index: Int, changeType: RealmResultsChangeType)
     func didChangeResults(controller: AnyObject)
 }
 
-class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
+public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
+    var delegate: RealmResultsControllerDelegate?
+    var cache: RealmResultsCache<T>!
     var request: RealmRequest<T>
     var mapper: (T) -> U
-    var delegate: RealmResultsControllerDelegate?
-    var cache: RealmResultsCache<T>?
+    var sectionKeyPath: String? = ""
+    public var sections: [RealmSection<U>] {
+        return cache.sections.map(realmSectionMapper)
+    }
+    public var allObjects: [U] {
+        return sections.flatMap {$0.objects}
+    }
     
     var temporaryAdded: [T] = []
     var temporaryDeleted: [T] = []
     var temporaryUpdated: [T] = []
 
-    init(request: RealmRequest<T>, mapper: (T)->(U)) {
+    public init(request: RealmRequest<T>, sectionKeyPath: String? ,mapper: (T)->(U)) {
         self.request = request
         self.mapper = mapper
-        self.cache = RealmResultsCache<T>(objects: request.execute().toArray(T.self), request: request)
+        self.sectionKeyPath = sectionKeyPath
+        self.cache = RealmResultsCache<T>(request: request, sectionKeyPath: sectionKeyPath)
         self.cache?.delegate = self
         self.addNotificationObservers()
     }
     
-    func performFetch() -> [U] {
-        return request.execute().map(mapper)
+    public func performFetch() -> [RealmSection<U>] {
+        let newObjects = request.execute().toArray(T.self)
+        cache.reset(newObjects)
+        return sections
     }
     
+    func realmSectionMapper<S>(section: Section<S>) -> RealmSection<U> {
+        let mapped = mapItems(section.allObjects)
+        return RealmSection<U>(objects: mapped, keyPath: section.keyPath)
+    }
+    
+    /**
+    Hackish!
+    if a class has a generic T, and a method has another generic T (or even with another name)
+    and considering that the map function is defined to return a generic T. 
+    If you want to map inside that method, you are going to have a bad time.
+    This method is a wrapper of the map function to work with all the generic mess.
+    
+    :param: items Array of items to map, they should be of type T (defined by the class)
+    if the items are not T, this will crash.
+    
+    :returns: Array of mapped items (they should be U, defined by the class)
+    */
+    private func mapItems<S: Object>(items: [S]) -> [U] {
+        return items.map { mapper($0 as! T) }
+    }
     
     //MARK: Cache delegate
     
@@ -61,11 +91,11 @@ class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     }
     
     func didInsertSection<T : Object>(section: Section<T>, index: Int) {
-        self.delegate?.didChangeSection(section, controller: self, index: index, changeType: .Insert)
+        self.delegate?.didChangeSection(realmSectionMapper(section), controller: self, index: index, changeType: .Insert)
     }
     
     func didDeleteSection<T : Object>(section: Section<T>, index: Int) {
-        self.delegate?.didChangeSection(section, controller: self, index: index, changeType: .Delete)
+        self.delegate?.didChangeSection(realmSectionMapper(section), controller: self, index: index, changeType: .Delete)
     }
     
     
@@ -94,9 +124,9 @@ class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     func finishWriteTransaction() {
         if !pendingChanges() { return }
         self.delegate?.willChangeResults(self)
-        cache?.insert(temporaryAdded)
-        cache?.delete(temporaryDeleted)
-        cache?.update(temporaryUpdated)
+        cache.insert(temporaryAdded)
+        cache.delete(temporaryDeleted)
+        cache.update(temporaryUpdated)
         temporaryAdded.removeAll()
         temporaryDeleted.removeAll()
         temporaryUpdated.removeAll()

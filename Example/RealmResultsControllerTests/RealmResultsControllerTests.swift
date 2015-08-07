@@ -20,7 +20,7 @@ class RealmResultsDelegate: RealmResultsControllerDelegate {
     var sectionIndex: Int = 0
     var changeType: RealmResultsChangeType = .Move
     var object: Task!
-    var section: Section<Task>!
+    var section: RealmSection<Task>!
     
     func willChangeResults(controller: AnyObject) {}
     
@@ -31,11 +31,12 @@ class RealmResultsDelegate: RealmResultsControllerDelegate {
         self.changeType = changeType
     }
     
-    func didChangeSection<T>(section: Section<T>, controller: AnyObject, index: Int, changeType: RealmResultsChangeType) {
-        self.section = section as! Section<Task>
+    func didChangeSection<U>(section: RealmSection<U>, controller: AnyObject, index: Int, changeType: RealmResultsChangeType) {
+        self.section = section as! RealmSection<Task>
         self.sectionIndex = index
         self.changeType = changeType
     }
+
     
     func didChangeResults(controller: AnyObject) {}
 }
@@ -52,8 +53,8 @@ class RealmResultsControllerSpec: QuickSpec {
             RealmTestHelper.loadRealm()
             realm = try! Realm()
             let predicate = NSPredicate(value: true)
-            request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: [], sectionKeyPath: nil)
-            RRC = RealmResultsController<Task, Task>(request: request) { $0 }
+            request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: [])
+            RRC = RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil) { $0 }
             RRC.delegate = RRCDelegate
         }
         
@@ -65,24 +66,39 @@ class RealmResultsControllerSpec: QuickSpec {
             var createdRRC: RealmResultsController<Task, Task>!
             
             beforeEach {
-                createdRRC = RealmResultsController<Task, Task>(request: request) { $0 }
+                createdRRC = RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil) { $0 }
             }
             it("Should have initialized a RRC") {
                 expect(createdRRC).toNot(beNil())
                 expect(createdRRC.request).toNot(beNil())
                 expect(createdRRC.mapper).toNot(beNil())
-                expect(createdRRC.cache?.delegate).toNot(beNil())
-                expect(createdRRC.cache?.defaultKeyPathValue).to(equal("default"))
+                expect(createdRRC.cache.delegate).toNot(beNil())
+                expect(createdRRC.cache.defaultKeyPathValue).to(equal("default"))
+            }
+        }
+        
+        describe("allObjects") {
+            var results: [Task]!
+            beforeEach {
+                RRC.performFetch()
+                results = RRC.allObjects
+            }
+            it("returns 1001 objects") {
+                expect(results.count) == 1001
             }
         }
 
         describe("performFetch()") {
-            var requestResult: [Task]!
+            var requestResult: [RealmSection<Task>]!
+            
             beforeEach {
                 requestResult = RRC.performFetch()
             }
+            it("shoudl return one section") {
+                expect(requestResult.count) == 1
+            }
             it("Should have a fetched 1001 Task objects") {
-                expect(requestResult.count).to(equal(1001))
+                expect(requestResult.first!.objects.count).to(equal(1001))
             }
         }
         describe("didInsert<T: Object>(object:indexPath:)") {
@@ -121,24 +137,24 @@ class RealmResultsControllerSpec: QuickSpec {
             }
         }
         describe("didInsertSection<T : Object>(section:index:)") {
-            let section = Section<Task>(keyPath: "", sortDescriptors: [])
+            let section = Section<Task>(keyPath: "myKeypath", sortDescriptors: [])
             let index = 4
             beforeEach {
                 RRC.didInsertSection(section, index: index)
             }
             it("Should have stored the section in the RealmResultsDelegate instance") {
-                expect(RRCDelegate.section) === section
+                expect(RRCDelegate.section.keyPath) == section.keyPath
                 expect(RRCDelegate.sectionIndex).to(equal(index))
             }
         }
         describe("didDeleteSection<T : Object>(section:index:)") {
-            let section = Section<Task>(keyPath: "", sortDescriptors: [])
+            let section = Section<Task>(keyPath: "anotherKeypath", sortDescriptors: [])
             let index = 3
             beforeEach {
                 RRC.didDeleteSection(section, index: index)
             }
             it("Should have stored the section in the RealmResultsDelegate instance") {
-                expect(RRCDelegate.section) === section
+                expect(RRCDelegate.section.keyPath) == section.keyPath
                 expect(RRCDelegate.sectionIndex).to(equal(index))
             }
         }
