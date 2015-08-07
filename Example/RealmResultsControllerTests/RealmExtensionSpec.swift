@@ -13,7 +13,7 @@ import RealmSwift
 
 
 
-class CacheSpec: QuickSpec {
+class RealmExtensionSpec: QuickSpec {
     
     override func spec() {
         
