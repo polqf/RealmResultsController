@@ -38,16 +38,7 @@ class RealmExtensionSpec: QuickSpec {
             taskToTest.id = 1500
             taskToTest.name = "testingName1"
             realm.write {
-                realm.add(taskToTest)
-            }
-            
-            myTask = Task()
-            myTask.id = 123456
-            myTask.name = "23424"
-//            print((myTask.dynamicType as Object.Type).className())
-            realm.write {
-                realm.addNotified(myTask)
-                //                        realm.addNotified(object, update: true)
+                realm.addNotified([taskToTest])
             }
         }
     
@@ -63,26 +54,31 @@ class RealmExtensionSpec: QuickSpec {
             }
             
             
-//            context("the object does not have a valid primaryKey setted") {
-//                var myTask: User!
-//                beforeEach {
-//                    self.cleanLoggers()
-////                    myTask = User()
-////                    myTask.id = 123456
-////                    myTask.name = "23424"
-////                    realm.write {
-////                        realm.addNotified(myTask)
-////                        //                        realm.addNotified(object, update: true)
-////                    }
-//                    
-//                }
-//                it("trying to add the same object again, will update it") {
-//                    expect(myTask.realm).toNot(beNil())
-//                }
-//                it("clean") {
-//                    self.cleanLoggers()
-//                }
-//            }
+            context("the object already exists on DB") {
+                var myTask: Task!
+                var fetchedTask: Task!
+                beforeEach {
+                    self.cleanLoggers()
+                    
+                    fetchedTask = realm.objectForPrimaryKey(Task.self, key: 1)
+                    
+                    myTask = Task()
+                    myTask.id = 1
+                    myTask.name = "test"
+                    realm.write {
+                        realm.addNotified([myTask], update: true)
+                    }
+                }
+                it("trying to add the same object again, will update it") {
+                    expect(myTask.realm).toNot(beNil())
+                }
+                it("fetched tasks and updated one are the same") {
+                    expect(fetchedTask) == myTask
+                }
+                it("clean") {
+                    self.cleanLoggers()
+                }
+            }
             
             context("the Model does not have primaryKey") {
                 var object: Dummy!
@@ -124,6 +120,30 @@ class RealmExtensionSpec: QuickSpec {
             }
             it("clean") {
                 self.cleanLoggers()
+            }
+            
+            context("the Model does not have primaryKey") {
+                var object: [String: AnyObject]!
+                beforeEach {
+                    self.cleanLoggers()
+                    object = ["name": "hola"]
+                    realm.write {
+                        realm.createNotified(Dummy.self, value: object, update: true)
+                    }
+                }
+                it("will add it to the realm") {
+//                    expect(object.realm).toNot(beNil())
+                }
+                it("won't use a logger") {
+                    expect(RealmNotification.sharedInstance.loggers.count) == 0
+                }
+                it("clean") {
+                    self.cleanLoggers()
+                }
+            }
+            
+            context("the model has primaryKey but the dictionary doesn't") {
+                
             }
         }
         

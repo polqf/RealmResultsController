@@ -14,7 +14,7 @@ extension Realm {
     func addNotified<N: Object>(object: N, var update: Bool = false) {
         defer { add(object, update: update) }
         
-        guard let primaryKey = object.dynamicType.primaryKey() else { return } // Return if it does not have primary key
+        guard let primaryKey = object.dynamicType.primaryKey() else { return }
         let primaryKeyValue = (object as Object).valueForKey(primaryKey)!
         
         if let _ = objectForPrimaryKey(object.dynamicType.self, key: primaryKeyValue) {
@@ -31,17 +31,16 @@ extension Realm {
         }
     }
     
-    public func createNotified<T: Object>(type: T.Type, value: AnyObject = [:], var update: Bool = false) -> T {
+    public func createNotified<T: Object>(type: T.Type, value: AnyObject = [:], var update: Bool = false) -> T? {
         let createBlock = {
             return self.create(type, value: value, update: update)
         }
         
         var create = true
-        guard let primaryKey = T.primaryKey() else { return createBlock() } // Return if it does not have primary key
-        guard let primaryKeyValue = value[primaryKey] else { return createBlock() }
-        guard let pk = primaryKeyValue else { return createBlock() }
+        guard let primaryKey = T.primaryKey() else { return nil }
+        guard let primaryKeyValue = value.valueForKey(primaryKey) else { return nil }
         
-        if let _ = objectForPrimaryKey(type, key: pk) {
+        if let _ = objectForPrimaryKey(type, key: primaryKeyValue) {
             create = false
             update = true
         }
