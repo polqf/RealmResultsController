@@ -49,6 +49,10 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         self.addNotificationObservers()
     }
     
+    deinit {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
     public func performFetch() -> [RealmSection<U>] {
         let newObjects = request.execute().toArray(T.self)
         cache.reset(newObjects)
@@ -106,13 +110,17 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     }
     
     @objc func didReceiveRealmChanges(notification: NSNotification){
-        guard case let dictionary as [String: [Object]] = notification.object else { return }
-        temporaryAdded = dictionary["added"]?.filter({$0 is T && request.predicate.evaluateWithObject($0)}) as! [T]
-        temporaryDeleted = dictionary["deleted"]?.filter({$0 is T && request.predicate.evaluateWithObject($0)}) as! [T]
-        temporaryUpdated = dictionary["updated"]?.filter({$0 is T && request.predicate.evaluateWithObject($0)}) as! [T]
-        temporaryUpdated = dictionary["updated"]?.filter({$0 is T && request.predicate.evaluateWithObject($0)}) as! [T]
-        temporaryDeleted.extend(dictionary["updated"]?.filter({$0 is T && !request.predicate.evaluateWithObject($0)}) as! [T])
-        finishWriteTransaction()
+        let lockQueue = dispatch_queue_create("com.test.LockQueue", nil)
+        dispatch_sync(lockQueue) {
+            guard case let dictionary as [String: [Object]] = notification.object else { return }
+            self.temporaryAdded = dictionary["added"]?.filter({$0 is T && self.request.predicate.evaluateWithObject($0)}) as! [T]
+            self.temporaryDeleted = dictionary["deleted"]?.filter({$0 is T && self.request.predicate.evaluateWithObject($0)}) as! [T]
+            self.temporaryUpdated = dictionary["updated"]?.filter({$0 is T && self.request.predicate.evaluateWithObject($0)}) as! [T]
+            self.temporaryUpdated = dictionary["updated"]?.filter({$0 is T && self.request.predicate.evaluateWithObject($0)}) as! [T]
+            self.temporaryDeleted.extend(dictionary["updated"]?.filter({$0 is T && !self.request.predicate.evaluateWithObject($0)}) as! [T])
+            self.finishWriteTransaction()
+        }
+        
     }
 
     func pendingChanges() -> Bool{
@@ -132,4 +140,5 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         temporaryUpdated.removeAll()
         self.delegate?.didChangeResults(self)
     }
+    
 }

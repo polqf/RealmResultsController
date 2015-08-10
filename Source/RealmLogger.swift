@@ -26,6 +26,9 @@ class RealmLogger {
     }
     
     func finishRealmTransaction() {
+        if realm.path.hasSuffix("testingRealm") {
+            return //Don't send notifications for testing realm. Hackish :(
+        }
         let dictionary = ["added": self.temporaryAdded, "deleted": self.temporaryDeleted, "updated": self.temporaryUpdated]
         NSNotificationCenter.defaultCenter().postNotificationName("realmChanges", object: dictionary)
         cleanAll()

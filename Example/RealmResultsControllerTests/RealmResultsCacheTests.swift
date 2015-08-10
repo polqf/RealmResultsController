@@ -362,6 +362,11 @@ class CacheSpec: QuickSpec {
                 it("new section has one more element") {
                     expect(cache.sections[indexPath!.section].objects.count) == notResolvedTasks.count + 1
                 }
+                it("restoreIt!") {
+                    realm.write {
+                        myTask.resolved = true
+                    }
+                }
             }
             
             context("an object that is not in the cache (insertion)") {

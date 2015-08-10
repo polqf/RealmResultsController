@@ -12,7 +12,7 @@ import RealmSwift
 struct RealmTestHelper {
     static func loadRealm() {
         let defaultRealmPath = Realm.defaultPath
-        let bundleReamPath = NSBundle.mainBundle().resourcePath?.stringByAppendingPathComponent("test.realm")
+        let bundleReamPath: String? = NSBundle.mainBundle().resourcePath! + "test.realm"
         
         if !NSFileManager.defaultManager().fileExistsAtPath(defaultRealmPath) {
             try! NSFileManager.defaultManager().copyItemAtPath(bundleReamPath!, toPath: defaultRealmPath)

@@ -10,14 +10,14 @@ import Foundation
 import RealmSwift
 
 extension Realm {
-    
-    func addNotified<T: Object>(object: T, var update: Bool = false) {
+        
+    func addNotified<N: Object>(object: N, var update: Bool = false) {
         defer { add(object, update: update) }
         
         guard let primaryKey = object.dynamicType.primaryKey() else { return } // Return if it does not have primary key
-        guard let primaryKeyValue = (object as Object).valueForKey(primaryKey) else { return }
+        let primaryKeyValue = (object as Object).valueForKey(primaryKey)!
         
-        if let _ = objectForPrimaryKey(object.dynamicType, key: primaryKeyValue) {
+        if let _ = objectForPrimaryKey(object.dynamicType.self, key: primaryKeyValue) {
             RealmNotification.loggerForRealm(self).didUpdate(object)
             return
         }
@@ -43,7 +43,7 @@ extension Realm {
         
         if let _ = objectForPrimaryKey(type, key: pk) {
             create = false
-            update = false
+            update = true
         }
         let createdObject = createBlock()
         
@@ -66,12 +66,7 @@ extension Realm {
             deleteNotified(object)
         }
     }
-    
-    public func deleteAllNotified() {
-        deleteAll()
-//        RealmNotification.didRemoveAllObjects()
-    }
-    
+ 
     public func execute<T: Object>(request: RealmRequest<T>) -> Results<T> {
         return objects(request.entityType).filter(request.predicate).sorted(request.sortDescriptors)
     }
