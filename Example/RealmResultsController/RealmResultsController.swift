@@ -16,7 +16,7 @@ enum RealmResultsChangeType: String {
     case Move
 }
 
-protocol RealmResultsControllerDelegate {
+protocol RealmResultsControllerDelegate: class {
     func willChangeResults(controller: AnyObject)
     func didChangeObject<U>(object: U, controller: AnyObject, atIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType)
     func didChangeSection<U>(section: RealmSection<U>, controller: AnyObject, index: Int, changeType: RealmResultsChangeType)
@@ -24,7 +24,7 @@ protocol RealmResultsControllerDelegate {
 }
 
 public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
-    var delegate: RealmResultsControllerDelegate?
+    weak var delegate: RealmResultsControllerDelegate?
     var cache: RealmResultsCache<T>!
     var request: RealmRequest<T>
     var mapper: (T) -> U

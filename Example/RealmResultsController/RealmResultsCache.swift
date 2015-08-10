@@ -10,7 +10,7 @@ import Foundation
 import RealmSwift
 
 
-protocol RealmResultsCacheDelegate {
+protocol RealmResultsCacheDelegate: class {
     func didInsertSection<T: Object>(section: Section<T>, index: Int)
     func didDeleteSection<T: Object>(section: Section<T>, index: Int)
     func didInsert<T: Object>(object: T, indexPath: NSIndexPath)
@@ -23,7 +23,7 @@ class RealmResultsCache<T: Object> {
     var sectionKeyPath: String? = ""
     var sections: [Section<T>] = []
     let defaultKeyPathValue = "default"
-    var delegate: RealmResultsCacheDelegate?
+    weak var delegate: RealmResultsCacheDelegate?
     
     init(request: RealmRequest<T>, sectionKeyPath: String?) {
         self.request = request

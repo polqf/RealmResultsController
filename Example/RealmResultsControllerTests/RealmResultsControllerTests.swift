@@ -58,6 +58,11 @@ class RealmResultsControllerSpec: QuickSpec {
             RRC.delegate = RRCDelegate
         }
         
+        afterSuite {
+            RRC.delegate = nil
+            RRC = nil
+        }
+        
         describe("init(request:mapper:)") {
             var createdRRC: RealmResultsController<Task, Task>!
             
@@ -210,10 +215,5 @@ class RealmResultsControllerSpec: QuickSpec {
                 }
             }
         }
-        
-        afterSuite {
-            RRC.delegate = nil
-            RRC = nil
-        }        
     }
 }
