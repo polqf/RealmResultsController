@@ -27,8 +27,7 @@ class RealmLoggerSpec: QuickSpec {
         var realm: Realm!
         var logger: RealmLogger!
         beforeSuite {
-            RealmTestHelper.loadRealm()
-            realm = try! Realm()
+            realm = Realm(inMemoryIdentifier: "testingRealm")
             logger = RealmLogger(realm: realm)
         }
         
@@ -52,7 +51,7 @@ class RealmLoggerSpec: QuickSpec {
                 logger.temporary.append(newObject)
                 logger.temporary.append(updatedObject)
                 logger.temporary.append(deletedObject)
-                NSNotificationCenter.defaultCenter().addObserver(NotificationListener.sharedInstance, selector: "notificationReceived:", name: "realmChanges", object: nil)
+                NSNotificationCenter.defaultCenter().addObserver(NotificationListener.sharedInstance, selector: "notificationReceived:", name: "realmChangesTest", object: nil)
                 logger.finishRealmTransaction()
             }
             afterEach {
@@ -78,8 +77,12 @@ class RealmLoggerSpec: QuickSpec {
         describe("didAdd<T: Object>(object: T)") {
             let newObject = Task()
             beforeEach {
+                logger.cleanAll()
                 newObject.name = "New Task"
                 logger.didAdd(newObject)
+            }
+            afterEach {
+                logger.cleanAll()
             }
             it("Should be added to the temporaryAdded array") {
                 expect(logger.temporary.count).to(equal(1))
@@ -90,8 +93,12 @@ class RealmLoggerSpec: QuickSpec {
         describe("didUpdate<T: Object>(object: T)") {
             let updatedObject = Task()
             beforeEach {
+                logger.cleanAll()
                 updatedObject.name = "Updated Task"
                 logger.didUpdate(updatedObject)
+            }
+            afterEach {
+                logger.cleanAll()
             }
             it("Should be added to the temporaryAdded array") {
                 expect(logger.temporary.count).to(equal(1))
@@ -102,8 +109,12 @@ class RealmLoggerSpec: QuickSpec {
         describe("didDelete<T: Object>(object: T)") {
             let deletedObject = Task()
             beforeEach {
+                logger.cleanAll()
                 deletedObject.name = "Deleted Task"
                 logger.didDelete(deletedObject)
+            }
+            afterEach {
+                logger.cleanAll()
             }
             it("Should be added to the temporaryAdded array") {
                 expect(logger.temporary.count).to(equal(1))
@@ -114,6 +125,7 @@ class RealmLoggerSpec: QuickSpec {
         describe("finishRealmTransaction()") {
             let newObject = RealmChange(type: Task.self, primaryKey: "", action: .Create)
             beforeEach {
+                logger.cleanAll()
                 logger.temporary.append(newObject)
                 logger.cleanAll()
             }

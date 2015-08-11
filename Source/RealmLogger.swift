@@ -43,6 +43,7 @@ class RealmLogger {
     
     func finishRealmTransaction() {
         if realm.path.hasSuffix("testingRealm") {
+            NSNotificationCenter.defaultCenter().postNotificationName("realmChangesTest", object: temporary)
             return //Don't send notifications for testing realm. Hackish :(
         }
         NSNotificationCenter.defaultCenter().postNotificationName("realmChanges", object: temporary)
@@ -62,7 +63,8 @@ class RealmLogger {
     }
     
     func addObject<T: Object>(object: T, action: RealmAction) {
-        let primaryKeyValue = (object as Object).valueForKey(T.primaryKey()!)
+        let primaryKey = T.primaryKey()!
+        let primaryKeyValue = (object as Object).valueForKey(primaryKey)
         let realmChange = RealmChange(type: object.dynamicType, primaryKey: primaryKeyValue!, action: action)
         temporary.append(realmChange)
     }

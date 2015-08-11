@@ -19,13 +19,13 @@ class RealmResultsDelegate: RealmResultsControllerDelegate {
     var newIndexPath: NSIndexPath?
     var sectionIndex: Int = 0
     var changeType: RealmResultsChangeType = .Move
-    var object: Task!
+    var object: Task?
     var section: RealmSection<Task>!
     
     func willChangeResults(controller: AnyObject) {}
     
     func didChangeObject<U>(object: U, controller: AnyObject, atIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
-        self.object = object as! Task
+        self.object = object as? Task
         self.oldIndexPath = atIndexPath
         self.newIndexPath = newIndexPath
         self.changeType = changeType
@@ -57,7 +57,7 @@ class RealmResultsControllerSpec: QuickSpec {
             RRC = RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil) { $0 }
             RRC.delegate = RRCDelegate
         }
-        
+
         afterSuite {
             RRC.delegate = nil
             RRC = nil
@@ -127,13 +127,12 @@ class RealmResultsControllerSpec: QuickSpec {
             }
         }
         describe("didDelete<T: Object>(object:indexPath:)") {
-            let object = Task()
             let indexPath = NSIndexPath(forRow: 1, inSection: 2)
             beforeEach {
                 RRC.didDelete(indexPath)
             }
             it("Should have stored the object in the RealmResultsDelegate instance") {
-                expect(RRCDelegate.object) === object
+                expect(RRCDelegate.object).to(beNil())
                 expect(RRCDelegate.newIndexPath) === indexPath
             }
         }
@@ -172,9 +171,9 @@ class RealmResultsControllerSpec: QuickSpec {
                     temporaryDeleted = RRC.temporaryDeleted
                 }
                 it("Should have the same temporary arrays as previously") {
-                    expect(temporaryAdded) == RRC.temporaryAdded
-                    expect(temporaryUpdated) == RRC.temporaryUpdated
-                    expect(temporaryDeleted.count) == RRC.temporaryDeleted.count
+                    expect(temporaryAdded).to(equal(RRC.temporaryAdded))
+                    expect(temporaryUpdated).to(equal(RRC.temporaryUpdated))
+                    expect(temporaryDeleted.count).to(equal(RRC.temporaryDeleted.count))
                 }
             }
         }

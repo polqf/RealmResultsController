@@ -190,22 +190,22 @@ class RealmExtensionSpec: QuickSpec {
         }
         
         describe("deleteNotified (array)") {
-            var refetchedTask: Task!
+            var refetchedTask: Task?
 
             beforeEach {
                 refetchedTask = realm.objectForPrimaryKey(Task.self, key: 1500)
+                
                 realm.write {
                     realm.deleteNotified([refetchedTask])
                 }
             }
             it("object in DB is invalidated") {
-                expect(refetchedTask.invalidated).to(beTruthy())
+                expect(refetchedTask?.invalidated).to(beTruthy())
             }
             afterEach {
                 self.cleanLoggers()
             }
         }
-        
         
         describe("execute") {
             var request: RealmRequest<Task>!
