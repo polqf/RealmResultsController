@@ -12,10 +12,9 @@ import RealmSwift
 
 public struct RealmRequest<T: Object> {
     var entityType: T.Type { return T.self }
-    var predicate: NSPredicate = NSPredicate()
+    var predicate: NSPredicate = NSPredicate(value: true)
     var realm: Realm
     var sortDescriptors: [SortDescriptor] = []
-    var sectionKeyPath: String? = ""
     
     func execute() -> Results<T> {
         return  realm.objects(entityType).filter(predicate).sorted(sortDescriptors)

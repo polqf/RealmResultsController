@@ -10,83 +10,43 @@ import Foundation
 import RealmSwift
 
 
-extension SortDescriptor {
-    func toNSSortDescriptor() -> NSSortDescriptor {
-        return NSSortDescriptor(key: self.property, ascending: self.ascending)
-    }
-}
-
-protocol RealmResultsCacheDelegate {
-    func didDeleteSection(index: Int)
-    func didInsertSection(index: Int)
+protocol RealmResultsCacheDelegate: class {
+    func didInsertSection<T: Object>(section: Section<T>, index: Int)
+    func didDeleteSection<T: Object>(section: Section<T>, index: Int)
     func didInsert<T: Object>(object: T, indexPath: NSIndexPath)
-    func didDelete<T: Object>(object: T, indexPath: NSIndexPath)
     func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath)
+    func didDelete(indexPath: NSIndexPath)
 }
-
-class Section<T: Object> : NSObject {
-    var keyPath: String = ""
-    var objects: NSMutableArray = []
-    var sortDescriptors: [NSSortDescriptor] = []
-    
-    required init(keyPath: String, sortDescriptors: [NSSortDescriptor]) {
-        self.keyPath = keyPath
-        self.sortDescriptors = sortDescriptors
-    }
-    
-    func insertSorted(object: T) -> Int {
-        objects.addObject(object)
-        objects.sortUsingDescriptors(sortDescriptors)
-        return objects.indexOfObject(object)
-    }
-    
-    func delete(object: T) -> Int {
-        let index = objects.indexOfObject(object)
-        if index < objects.count {
-            objects.removeObject(object)
-            return index
-        }
-        return -1
-    }
-    
-    func deleteOutdatedObject(object: T) -> Int {
-        let primaryKey = T.primaryKey()!
-        let primaryKeyValue = (object as Object).valueForKey(primaryKey)!
-        var objectToDelete: T?
-        for sectionObject in objects{
-            let value = sectionObject.valueForKey(primaryKey)!
-            if value.isEqual(primaryKeyValue) {
-                objectToDelete = sectionObject as? T
-                break
-            }
-        }
-        if let object = objectToDelete {
-            return delete(object)
-        }
-        return -1
-    }
-}
-
 
 class RealmResultsCache<T: Object> {
     var request: RealmRequest<T>
+    var sectionKeyPath: String? = ""
     var sections: [Section<T>] = []
     let defaultKeyPathValue = "default"
-    var delegate: RealmResultsCacheDelegate?
+    weak var delegate: RealmResultsCacheDelegate?
     
-    init(objects: [T], request: RealmRequest<T>) {
+    init(request: RealmRequest<T>, sectionKeyPath: String?) {
         self.request = request
+        self.sectionKeyPath = sectionKeyPath
+    }
+    
+    func populateSections(objects: [T]) {
         for object in objects {
             let section = sectionForObject(object)
             section.insertSorted(object)
         }
     }
     
-    func indexForSection(section: Section<T>) -> Int? {
+    func reset(objects: [T]) {
+        sections.removeAll()
+        populateSections(objects)
+    }
+    
+    private func indexForSection(section: Section<T>) -> Int? {
         return sections.indexOf(section)
     }
     
-    func sectionForKeyPath(keyPath: String) -> Section<T> {
+    private func sectionForKeyPath(keyPath: String) -> Section<T> {
         let section = sections.filter{$0.keyPath == keyPath}
         if let s = section.first {
             return s
@@ -94,32 +54,36 @@ class RealmResultsCache<T: Object> {
         return createNewSection(keyPath)
     }
     
-    func sortSections() {
+    private func sortSections() {
         sections.sortInPlace { $0.keyPath.localizedCaseInsensitiveCompare($1.keyPath) == NSComparisonResult.OrderedAscending }
     }
     
-    func toNSSortDescriptor(sort: SortDescriptor) -> NSSortDescriptor {
+    private func toNSSortDescriptor(sort: SortDescriptor) -> NSSortDescriptor {
         return NSSortDescriptor(key: sort.property, ascending: sort.ascending)
     }
     
-    func createNewSection(keyPath: String) -> Section<T> {
+    private func createNewSection(keyPath: String) -> Section<T> {
         let newSection = Section<T>(keyPath: keyPath, sortDescriptors: request.sortDescriptors.map(toNSSortDescriptor))
         sections.append(newSection)
         sortSections()
         let index = indexForSection(newSection)!
-        delegate?.didInsertSection(index)
+        delegate?.didInsertSection(newSection, index: index)
         return newSection
     }
     
-    func sectionForObject(object: T) -> Section<T> {
+    private func sectionForObject(object: T) -> Section<T> {
         var keyPathValue = defaultKeyPathValue
-        if let keyPath = request.sectionKeyPath {
-            keyPathValue = object.valueForKeyPath(keyPath) as! String
+        if let keyPath = sectionKeyPath {
+            keyPathValue = String(object.valueForKeyPath(keyPath))
         }
         return sectionForKeyPath(keyPathValue)
     }
     
-    func sectionForOutdateObject(object: T) -> Section<T> {
+    private func sectionForRealmChange(object: RealmChange) -> Section<T> {
+        return sectionForKeyPath(String(object.primaryKey))
+    }
+    
+    private func sectionForOutdateObject(object: T) -> Section<T> {
         let primaryKey = T.primaryKey()!
         let primaryKeyValue = (object as Object).valueForKey(primaryKey)!
         for section in sections {
@@ -142,13 +106,13 @@ class RealmResultsCache<T: Object> {
         }
     }
     
-    func delete(objects: [T]) {
+    func delete(objects: [RealmChange]) {
         for object in objects {
-            let section = sectionForObject(object)
+            let section = sectionForRealmChange(object)
             let index = section.delete(object)
             guard index >= 0 else { return }
             let indexPath = NSIndexPath(forRow: index, inSection: indexForSection(section)!)
-            delegate?.didDelete(object, indexPath: indexPath)
+            delegate?.didDelete(indexPath)
         }
     }
     
