@@ -194,9 +194,8 @@ class RealmExtensionSpec: QuickSpec {
 
             beforeEach {
                 refetchedTask = realm.objectForPrimaryKey(Task.self, key: 1500)
-                
                 realm.write {
-                    realm.deleteNotified([refetchedTask])
+                    realm.deleteNotified([refetchedTask!])
                 }
             }
             it("object in DB is invalidated") {
