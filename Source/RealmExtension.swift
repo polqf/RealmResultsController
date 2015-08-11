@@ -56,8 +56,8 @@ extension Realm {
     }
     
     public func deleteNotified(object: Object) {
-        delete(object)
         RealmNotification.loggerForRealm(self).didDelete(object)
+        delete(object)
     }
     
     public func deleteNotified<S: SequenceType where S.Generator.Element: Object>(objects: S) {

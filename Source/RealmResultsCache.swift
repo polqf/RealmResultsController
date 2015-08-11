@@ -79,8 +79,13 @@ class RealmResultsCache<T: Object> {
         return sectionForKeyPath(keyPathValue)
     }
     
-    private func sectionForRealmChange(object: RealmChange) -> Section<T> {
-        return sectionForKeyPath(String(object.primaryKey))
+    private func sectionForRealmChange(object: RealmChange) -> Section<T>? {
+        for section in sections {
+            if let _ = section.objectForPrimaryKey(object.primaryKey) {
+                return section
+            }
+        }
+        return nil
     }
     
     private func sectionForOutdateObject(object: T) -> Section<T> {
@@ -108,7 +113,7 @@ class RealmResultsCache<T: Object> {
     
     func delete(objects: [RealmChange]) {
         for object in objects {
-            let section = sectionForRealmChange(object)
+            guard let section = sectionForRealmChange(object) else { return }
             let index = section.delete(object)
             guard index >= 0 else { return }
             let indexPath = NSIndexPath(forRow: index, inSection: indexForSection(section)!)

@@ -30,7 +30,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     var mapper: (T) -> U
     var sectionKeyPath: String? = ""
     var backgroundRealm: Realm?
-    let backgroundQueue = dispatch_queue_create("com.RRC.\(arc4random_uniform(100))", DISPATCH_QUEUE_SERIAL)
+    let backgroundQueue = dispatch_queue_create("com.RRC.\(arc4random_uniform(1000))", DISPATCH_QUEUE_SERIAL)
     public var sections: [RealmSection<U>] {
         return cache.sections.map(realmSectionMapper)
     }

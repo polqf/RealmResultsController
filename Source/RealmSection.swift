@@ -36,7 +36,7 @@ class Section<T: Object> : NSObject {
     }
     
     func delete(change: RealmChange) -> Int {
-        guard let object = objectForPrimaryKey(change) else { return -1 }
+        guard let object = objectForPrimaryKey(change.primaryKey) else { return -1 }
         return delete(object)
     }
     
