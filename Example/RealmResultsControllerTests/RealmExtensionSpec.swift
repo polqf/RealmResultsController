@@ -27,24 +27,21 @@ class RealmExtensionSpec: QuickSpec {
     override func spec() {
         
         var realm: Realm!
-        var taskToTest: Task!
-        var manager: RealmNotification!
-        var myTask: Task!
+        var taskToTest: Task?
 
         beforeSuite {
-            manager = RealmNotification.sharedInstance
             realm = Realm(inMemoryIdentifier: "testingRealm")
             taskToTest = Task()
-            taskToTest.id = 1500
-            taskToTest.name = "testingName1"
+            taskToTest!.id = 1500
+            taskToTest!.name = "testingName1"
             realm.write {
-                realm.addNotified([taskToTest])
+                realm.addNotified([taskToTest!])
             }
         }
     
         describe("addNotified (array)") {
             it("task is inserted") {
-                expect(taskToTest.realm).toNot(beNil())
+                expect(taskToTest!.realm).toNot(beNil())
             }
             it("crates a logger for this realm") {
                 expect(RealmNotification.sharedInstance.loggers.count) == 1
@@ -55,7 +52,7 @@ class RealmExtensionSpec: QuickSpec {
             
             
             context("the object already exists on DB") {
-                var myTask: Task!
+                var myTask: Task?
                 var fetchedTask: Task!
                 beforeEach {
                     self.cleanLoggers()
@@ -63,14 +60,14 @@ class RealmExtensionSpec: QuickSpec {
                     fetchedTask = realm.objectForPrimaryKey(Task.self, key: 1)
                     
                     myTask = Task()
-                    myTask.id = 1
-                    myTask.name = "test"
+                    myTask!.id = 1
+                    myTask!.name = "test"
                     realm.write {
-                        realm.addNotified([myTask], update: true)
+                        realm.addNotified(myTask!, update: true)
                     }
                 }
                 it("trying to add the same object again, will update it") {
-                    expect(myTask.realm).toNot(beNil())
+                    expect(myTask!.realm).toNot(beNil())
                 }
                 it("fetched tasks and updated one are the same") {
                     expect(fetchedTask) == myTask
@@ -108,9 +105,9 @@ class RealmExtensionSpec: QuickSpec {
             var refetchedTask: Task!
             it("beforeAll") {
                 realm.write {
-                    realm.createNotified(Task.self, value: ["id":1500, "name": "testingName2"], update: true)
+                    realm.createNotified(Task.self, value: ["id":1501, "name": "testingName2"], update: true)
                 }
-                refetchedTask = realm.objectForPrimaryKey(Task.self, key: 1500)
+                refetchedTask = realm.objectForPrimaryKey(Task.self, key: 1501)
             }
             it("task is updated") {
                 expect(refetchedTask.name) == "testingName2"
@@ -122,17 +119,42 @@ class RealmExtensionSpec: QuickSpec {
                 self.cleanLoggers()
             }
             
-            context("the Model does not have primaryKey") {
-                var object: [String: AnyObject]!
+            context("the object already exists on DB") {
+                var myTask: [String: AnyObject]!
+                var fetchedTask: Task!
                 beforeEach {
                     self.cleanLoggers()
+                    myTask = ["name": "hola", "id": 1501, "resolved": 1]
+                    realm.write {
+                        realm.createNotified(Task.self, value: myTask, update: true)
+                    }
+                    fetchedTask = realm.objectForPrimaryKey(Task.self, key: 1501)
+
+                }
+                it("trying to add the same object again, will update it") {
+                    expect(fetchedTask.name) == "hola"
+                }
+                it("clean") {
+                    self.cleanLoggers()
+                }
+            }
+
+            
+            context("the Model does not have primaryKey") {
+                var object: [String: AnyObject]!
+                var totalObjectsBefore: Int!
+                var totalObjectsAfter: Int!
+                beforeEach {
+                    self.cleanLoggers()
+                    totalObjectsBefore = realm.objects(Task).count
                     object = ["name": "hola"]
                     realm.write {
                         realm.createNotified(Dummy.self, value: object, update: true)
                     }
+                    totalObjectsAfter = realm.objects(Task).count
                 }
-                it("will add it to the realm") {
-//                    expect(object.realm).toNot(beNil())
+                it("won't add it to the realm") {
+                    expect(totalObjectsBefore) == totalObjectsAfter
                 }
                 it("won't use a logger") {
                     expect(RealmNotification.sharedInstance.loggers.count) == 0
@@ -143,7 +165,27 @@ class RealmExtensionSpec: QuickSpec {
             }
             
             context("the model has primaryKey but the dictionary doesn't") {
-                
+                var object: [String: AnyObject]!
+                var totalObjectsBefore: Int!
+                var totalObjectsAfter: Int!
+                beforeEach {
+                    self.cleanLoggers()
+                    totalObjectsBefore = realm.objects(Task).count
+                    object = ["name": "hola"]
+                    realm.write {
+                        realm.createNotified(Task.self, value: object, update: true)
+                    }
+                    totalObjectsAfter = realm.objects(Task).count
+                }
+                it("won't add it to the realm") {
+                    expect(totalObjectsBefore) == totalObjectsAfter
+                }
+                it("won't use a logger") {
+                    expect(RealmNotification.sharedInstance.loggers.count) == 0
+                }
+                it("clean") {
+                    self.cleanLoggers()
+                }
             }
         }
         
