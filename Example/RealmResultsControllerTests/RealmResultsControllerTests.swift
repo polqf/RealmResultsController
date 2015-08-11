@@ -172,9 +172,9 @@ class RealmResultsControllerSpec: QuickSpec {
                     temporaryDeleted = RRC.temporaryDeleted
                 }
                 it("Should have the same temporary arrays as previously") {
-                    expect(temporaryAdded).to(equal(RRC.temporaryAdded))
-                    expect(temporaryUpdated).to(equal(RRC.temporaryUpdated))
-                    expect(temporaryDeleted).to(equal(RRC.temporaryDeleted))
+                    expect(temporaryAdded) == RRC.temporaryAdded
+                    expect(temporaryUpdated) == RRC.temporaryUpdated
+                    expect(temporaryDeleted.count) == RRC.temporaryDeleted.count
                 }
             }
         }
