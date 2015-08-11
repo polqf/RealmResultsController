@@ -55,6 +55,8 @@ class RealmResultsControllerSpec: QuickSpec {
             let predicate = NSPredicate(value: true)
             request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: [])
             RRC = RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil) { $0 }
+            RRC.backgroundQueue = dispatch_get_main_queue()
+            RRC.backgroundRealm = try! Realm()
             RRC.delegate = RRCDelegate
         }
 
@@ -171,9 +173,9 @@ class RealmResultsControllerSpec: QuickSpec {
                     temporaryDeleted = RRC.temporaryDeleted
                 }
                 it("Should have the same temporary arrays as previously") {
-                    expect(temporaryAdded).to(equal(RRC.temporaryAdded))
-                    expect(temporaryUpdated).to(equal(RRC.temporaryUpdated))
-                    expect(temporaryDeleted.count).to(equal(RRC.temporaryDeleted.count))
+                    expect(temporaryAdded).toEventually(equal(RRC.temporaryAdded))
+                    expect(temporaryUpdated).toEventually(equal(RRC.temporaryUpdated))
+                    expect(temporaryDeleted.count).toEventually(equal(RRC.temporaryDeleted.count))
                 }
             }
         }

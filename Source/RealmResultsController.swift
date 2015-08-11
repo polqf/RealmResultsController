@@ -30,7 +30,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     var mapper: (T) -> U
     var sectionKeyPath: String? = ""
     var backgroundRealm: Realm?
-    let backgroundQueue = dispatch_queue_create("com.RRC.\(arc4random_uniform(1000))", DISPATCH_QUEUE_SERIAL)
+    var backgroundQueue = dispatch_queue_create("com.RRC.\(arc4random_uniform(1000))", DISPATCH_QUEUE_SERIAL)
     public var sections: [RealmSection<U>] {
         return cache.sections.map(realmSectionMapper)
     }
@@ -51,12 +51,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         self.cache?.delegate = self
         self.addNotificationObservers()
         dispatch_async(backgroundQueue) {
-            do {
-                self.backgroundRealm = try Realm()
-            }
-            catch {
-                print("Error getting Realm in background thread")
-            }
+            self.backgroundRealm = try! Realm()
         }
     }
     
@@ -118,7 +113,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     //MARK: Realm Notifications
     
-    func addNotificationObservers() {
+    private func addNotificationObservers() {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "didReceiveRealmChanges:", name: "realmChanges", object: nil)
     }
     
@@ -130,7 +125,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         }
     }
     
-    func refetchObjects(objects: [RealmChange]) {
+    private func refetchObjects(objects: [RealmChange]) {
         guard let bgRealm = backgroundRealm else { return }
         for object in objects where object.type == T.self {
             if object.action == RealmAction.Delete {
@@ -149,13 +144,13 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         }
     }
 
-    func pendingChanges() -> Bool{
+    private func pendingChanges() -> Bool{
         return temporaryAdded.count > 0 ||
             temporaryDeleted.count > 0 ||
             temporaryUpdated.count > 0
     }
     
-    func finishWriteTransaction() {
+    private func finishWriteTransaction() {
         if !pendingChanges() { return }
         self.delegate?.willChangeResults(self)
         cache.insert(temporaryAdded)
