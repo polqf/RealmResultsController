@@ -144,7 +144,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         }
     }
 
-    private func pendingChanges() -> Bool{
+    func pendingChanges() -> Bool{
         return temporaryAdded.count > 0 ||
             temporaryDeleted.count > 0 ||
             temporaryUpdated.count > 0
