@@ -162,6 +162,12 @@ class RealmResultsControllerSpec: QuickSpec {
         }
         
         describe("didReceiveRealmChanges(notification:)") {
+            beforeEach {
+                RRC = RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil) { $0 }
+                RRC.backgroundQueue = dispatch_get_main_queue()
+                RRC.backgroundRealm = try! Realm()
+                RRC.delegate = RRCDelegate
+            }
             context("If the notification has the wrong format") {
                 var temporaryAdded: [Task] = []
                 var temporaryDeleted: [RealmChange] = []
@@ -176,6 +182,39 @@ class RealmResultsControllerSpec: QuickSpec {
                     expect(temporaryAdded).toEventually(equal(RRC.temporaryAdded))
                     expect(temporaryUpdated).toEventually(equal(RRC.temporaryUpdated))
                     expect(temporaryDeleted.count).toEventually(equal(RRC.temporaryDeleted.count))
+                    expect(RRC.cache.sections.count).toEventually(equal(0))
+                }
+            }
+            context("If the notification is EMPTY") {
+                let notifObject: [RealmChange] = []
+                beforeEach {
+                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
+                }
+                it("Should not have added anything to the cache") {
+                    expect(RRC.cache.sections.count).toEventually(equal(0))
+                }
+            }
+            context("If the notification has the CORRECT format") {
+                let createChange = RealmChange(type: Task.self, primaryKey: -1, action: .Create)
+                let updateChange = RealmChange(type: Task.self, primaryKey: -2, action: .Update)
+                let deleteChange = RealmChange(type: Task.self, primaryKey: -3, action: .Delete)
+                let notifObject: [RealmChange] = [createChange, updateChange, deleteChange]
+                beforeEach {
+                    RRC.backgroundRealm!.write {
+                        let task1 = Task()
+                        task1.id = -1
+                        let task2 = Task()
+                        task2.id = -2
+                        let task3 = Task()
+                        task3.id = -3
+                        RRC.backgroundRealm?.add(task1)
+                        RRC.backgroundRealm?.add(task2)
+                        RRC.backgroundRealm?.add(task3)
+                    }
+                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
+                }
+                it("Should have the fetched objects added on the cache") {
+                    expect(RRC.cache.sections.count).toEventually(equal(1))
                 }
             }
         }
@@ -200,6 +239,7 @@ class RealmResultsControllerSpec: QuickSpec {
                     expect(RRC.pendingChanges()).to(beTruthy())
                 }
             }
+
         }
         describe("finishWriteTransaction()") {
             var cacheSections: [Section<Task>]!
