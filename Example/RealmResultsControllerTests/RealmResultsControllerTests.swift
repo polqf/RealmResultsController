@@ -130,7 +130,7 @@ class RealmResultsControllerSpec: QuickSpec {
             let object = Task()
             let indexPath = NSIndexPath(forRow: 1, inSection: 2)
             beforeEach {
-                RRC.didDelete(object, indexPath: indexPath)
+                RRC.didDelete(indexPath)
             }
             it("Should have stored the object in the RealmResultsDelegate instance") {
                 expect(RRCDelegate.object) === object
@@ -163,7 +163,7 @@ class RealmResultsControllerSpec: QuickSpec {
         describe("didReceiveRealmChanges(notification:)") {
             context("If the notification has the wrong format") {
                 var temporaryAdded: [Task] = []
-                var temporaryDeleted: [Task] = []
+                var temporaryDeleted: [RealmChange] = []
                 var temporaryUpdated: [Task] = []
                 beforeEach {
                     RRC.didReceiveRealmChanges(NSNotification(name: "", object: nil))

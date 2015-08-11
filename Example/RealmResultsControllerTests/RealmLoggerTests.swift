@@ -15,10 +15,10 @@ import RealmSwift
 
 class NotificationListener {
     static let sharedInstance = NotificationListener()
-    var dictionary: [String : AnyObject] = [:]
+    var array: [RealmChange] = []
     
     @objc func notificationReceived(notification: NSNotification) {
-        dictionary = notification.object as! [String : AnyObject]
+        array = notification.object as! [RealmChange]
     }
 }
 
@@ -44,14 +44,14 @@ class RealmLoggerSpec: QuickSpec {
         }
         
         describe("finishRealmTransaction()") {
-            let newObject = Task()
-            let updatedObject = Task()
-            let deletedObject = Task()
+            let newObject = RealmChange(type: Task.self, primaryKey: "", action: .Create)
+            let updatedObject = RealmChange(type: Task.self, primaryKey: "", action: .Update)
+            let deletedObject = RealmChange(type: Task.self, primaryKey: "", action: .Delete)
             beforeEach {
                 logger.cleanAll()
-                logger.temporaryAdded.append(newObject)
-                logger.temporaryUpdated.append(updatedObject)
-                logger.temporaryDeleted.append(deletedObject)
+                logger.temporary.append(newObject)
+                logger.temporary.append(updatedObject)
+                logger.temporary.append(deletedObject)
                 NSNotificationCenter.defaultCenter().addObserver(NotificationListener.sharedInstance, selector: "notificationReceived:", name: "realmChanges", object: nil)
                 logger.finishRealmTransaction()
             }
@@ -59,13 +59,18 @@ class RealmLoggerSpec: QuickSpec {
                 NSNotificationCenter.defaultCenter().removeObserver(self)
             }
             it("Should have received a notification with a valid dictionary") {
-                let addedArray = NotificationListener.sharedInstance.dictionary["added"] as! [Task]
-                let updatedArray = NotificationListener.sharedInstance.dictionary["updated"] as! [Task]
-                let deletedArray = NotificationListener.sharedInstance.dictionary["deleted"] as! [Task]
-                
-                expect(addedArray.first!) === newObject
-                expect(updatedArray.first!) === updatedObject
-                expect(deletedArray.first!) === deletedObject
+                let notificationArray = NotificationListener.sharedInstance.array
+                var createdObject: Bool = false
+                var updatedObject: Bool = false
+                var deletedObject: Bool = false
+                for object: RealmChange in notificationArray {
+                    if object.action == RealmAction.Create { createdObject = true}
+                    if object.action == RealmAction.Update { updatedObject = true}
+                    if object.action == RealmAction.Delete { deletedObject = true}
+                }
+                expect(createdObject).to(beTruthy())
+                expect(updatedObject).to(beTruthy())
+                expect(deletedObject).to(beTruthy())
             }
 
         }
@@ -77,8 +82,8 @@ class RealmLoggerSpec: QuickSpec {
                 logger.didAdd(newObject)
             }
             it("Should be added to the temporaryAdded array") {
-                expect(logger.temporaryAdded.count).to(equal(1))
-                expect(logger.temporaryAdded.first!) === newObject
+                expect(logger.temporary.count).to(equal(1))
+                expect(logger.temporary.first!.action).to(equal(RealmAction.Create))
             }
         }
         
@@ -89,8 +94,8 @@ class RealmLoggerSpec: QuickSpec {
                 logger.didUpdate(updatedObject)
             }
             it("Should be added to the temporaryAdded array") {
-                expect(logger.temporaryUpdated.count).to(equal(1))
-                expect(logger.temporaryUpdated.first!) === updatedObject
+                expect(logger.temporary.count).to(equal(1))
+                expect(logger.temporary.first!.action).to(equal(RealmAction.Update))
             }
         }
         
@@ -101,23 +106,19 @@ class RealmLoggerSpec: QuickSpec {
                 logger.didDelete(deletedObject)
             }
             it("Should be added to the temporaryAdded array") {
-                expect(logger.temporaryDeleted.count).to(equal(1))
-                expect(logger.temporaryDeleted.first!) === deletedObject
+                expect(logger.temporary.count).to(equal(1))
+                expect(logger.temporary.first!.action).to(equal(RealmAction.Delete))
             }
         }
         
         describe("finishRealmTransaction()") {
-            let newObject = Task()
+            let newObject = RealmChange(type: Task.self, primaryKey: "", action: .Create)
             beforeEach {
-                logger.temporaryAdded.append(newObject)
-                logger.temporaryUpdated.append(newObject)
-                logger.temporaryDeleted.append(newObject)
+                logger.temporary.append(newObject)
                 logger.cleanAll()
             }
             it("Should remove all the objects in each temporary array") {
-                expect(logger.temporaryDeleted.count).to(equal(0))
-                expect(logger.temporaryUpdated.count).to(equal(0))
-                expect(logger.temporaryAdded.count).to(equal(0))
+                expect(logger.temporary.count).to(equal(0))
             }
         }
 

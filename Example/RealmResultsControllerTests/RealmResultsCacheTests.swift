@@ -41,8 +41,7 @@ class CacheDelegateMock: RealmResultsCacheDelegate {
         self.object = object as Object
         self.indexPath = indexPath
     }
-    func didDelete<T: Object>(object: T, indexPath: NSIndexPath) {
-        self.object = object as Object
+    func didDelete(indexPath: NSIndexPath) {
         self.indexPath = indexPath
     }
     func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath) {
