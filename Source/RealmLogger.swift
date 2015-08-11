@@ -9,24 +9,6 @@
 import Foundation
 import RealmSwift
 
-enum RealmAction {
-    case Create
-    case Update
-    case Delete
-}
-
-class RealmChange {
-    var type: Object.Type
-    var primaryKey: AnyObject
-    var action: RealmAction
-    
-    init<T:Object>(type: T.Type, primaryKey: AnyObject, action: RealmAction) {
-        self.type = type
-        self.primaryKey = primaryKey
-        self.action = action
-    }
-}
-
 class RealmLogger {
     var realm: Realm
     var temporary: [RealmChange] = []
