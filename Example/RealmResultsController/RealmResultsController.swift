@@ -29,6 +29,8 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     var request: RealmRequest<T>
     var mapper: (T) -> U
     var sectionKeyPath: String? = ""
+    var backgroundRealm: Realm?
+    let backgroundQueue = dispatch_queue_create("com.RRC.\(arc4random_uniform(100))", DISPATCH_QUEUE_SERIAL)
     public var sections: [RealmSection<U>] {
         return cache.sections.map(realmSectionMapper)
     }
@@ -36,9 +38,10 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         return sections.flatMap {$0.objects}
     }
     
+    
     var temporaryAdded: [T] = []
-    var temporaryDeleted: [T] = []
     var temporaryUpdated: [T] = []
+    var temporaryDeleted: [RealmChange] = []
 
     public init(request: RealmRequest<T>, sectionKeyPath: String? ,mapper: (T)->(U)) {
         self.request = request
@@ -47,6 +50,14 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         self.cache = RealmResultsCache<T>(request: request, sectionKeyPath: sectionKeyPath)
         self.cache?.delegate = self
         self.addNotificationObservers()
+        dispatch_async(backgroundQueue) {
+            do {
+                self.backgroundRealm = try Realm()
+            }
+            catch {
+                print("Error getting Realm in background thread")
+            }
+        }
     }
     
     deinit {
@@ -80,6 +91,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         return items.map { mapper($0 as! T) }
     }
     
+    
     //MARK: Cache delegate
     
     func didInsert<T: Object>(object: T, indexPath: NSIndexPath) {
@@ -90,7 +102,8 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         self.delegate?.didChangeObject(object, controller: self, atIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: .Update)
     }
     
-    func didDelete<T: Object>(object: T, indexPath: NSIndexPath) {
+    func didDelete(indexPath: NSIndexPath) {
+        let object = U.self
         self.delegate?.didChangeObject(object, controller: self, atIndexPath: indexPath, newIndexPath: indexPath, changeType: .Delete)
     }
     
@@ -109,18 +122,31 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "didReceiveRealmChanges:", name: "realmChanges", object: nil)
     }
     
-    @objc func didReceiveRealmChanges(notification: NSNotification){
-        let lockQueue = dispatch_queue_create("com.test.LockQueue", nil)
-        dispatch_sync(lockQueue) {
-            guard case let dictionary as [String: [Object]] = notification.object else { return }
-            self.temporaryAdded = dictionary["added"]?.filter({$0 is T && self.request.predicate.evaluateWithObject($0)}) as! [T]
-            self.temporaryDeleted = dictionary["deleted"]?.filter({$0 is T && self.request.predicate.evaluateWithObject($0)}) as! [T]
-            self.temporaryUpdated = dictionary["updated"]?.filter({$0 is T && self.request.predicate.evaluateWithObject($0)}) as! [T]
-            self.temporaryUpdated = dictionary["updated"]?.filter({$0 is T && self.request.predicate.evaluateWithObject($0)}) as! [T]
-            self.temporaryDeleted.extend(dictionary["updated"]?.filter({$0 is T && !self.request.predicate.evaluateWithObject($0)}) as! [T])
-            self.finishWriteTransaction()
+    @objc func didReceiveRealmChanges(notification: NSNotification) {
+        dispatch_async(backgroundQueue) {
+                guard case let objects as [RealmChange] = notification.object else { return }
+                self.refetchObjects(objects)
+                self.finishWriteTransaction()
         }
-        
+    }
+    
+    func refetchObjects(objects: [RealmChange]) {
+        guard let bgRealm = backgroundRealm else { return }
+        for object in objects where object.type == T.self {
+            if object.action == RealmAction.Delete {
+                temporaryDeleted.append(object)
+                continue
+            }
+            guard let fetchedObject = bgRealm.objectForPrimaryKey(object.type, key: object.primaryKey) else { continue }
+            let passesPredicate = self.request.predicate.evaluateWithObject(fetchedObject)
+
+            if object.action == RealmAction.Create && passesPredicate {
+                temporaryAdded.append(fetchedObject as! T)
+            }
+            if object.action == RealmAction.Update {
+                passesPredicate ? temporaryUpdated.append(fetchedObject as! T) : temporaryDeleted.append(object)
+            }
+        }
     }
 
     func pendingChanges() -> Bool{

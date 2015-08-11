@@ -14,8 +14,8 @@ protocol RealmResultsCacheDelegate: class {
     func didInsertSection<T: Object>(section: Section<T>, index: Int)
     func didDeleteSection<T: Object>(section: Section<T>, index: Int)
     func didInsert<T: Object>(object: T, indexPath: NSIndexPath)
-    func didDelete<T: Object>(object: T, indexPath: NSIndexPath)
     func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath)
+    func didDelete(indexPath: NSIndexPath)
 }
 
 class RealmResultsCache<T: Object> {
@@ -79,6 +79,10 @@ class RealmResultsCache<T: Object> {
         return sectionForKeyPath(keyPathValue)
     }
     
+    private func sectionForRealmChange(object: RealmChange) -> Section<T> {
+        return sectionForKeyPath(String(object.primaryKey))
+    }
+    
     private func sectionForOutdateObject(object: T) -> Section<T> {
         let primaryKey = T.primaryKey()!
         let primaryKeyValue = (object as Object).valueForKey(primaryKey)!
@@ -102,13 +106,13 @@ class RealmResultsCache<T: Object> {
         }
     }
     
-    func delete(objects: [T]) {
+    func delete(objects: [RealmChange]) {
         for object in objects {
-            let section = sectionForObject(object)
+            let section = sectionForRealmChange(object)
             let index = section.delete(object)
             guard index >= 0 else { return }
             let indexPath = NSIndexPath(forRow: index, inSection: indexForSection(section)!)
-            delegate?.didDelete(object, indexPath: indexPath)
+            delegate?.didDelete(indexPath)
         }
     }
     

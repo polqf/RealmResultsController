@@ -35,6 +35,11 @@ class Section<T: Object> : NSObject {
         return objects.indexOfObject(object)
     }
     
+    func delete(change: RealmChange) -> Int {
+        guard let object = objectForPrimaryKey(change) else { return -1 }
+        return delete(object)
+    }
+    
     func delete(object: T) -> Int {
         let index = objects.indexOfObject(object)
         if index < objects.count {
@@ -44,17 +49,21 @@ class Section<T: Object> : NSObject {
         return -1
     }
     
+    func objectForPrimaryKey(value: AnyObject) -> T? {
+        for object in objects {
+            let primaryKey = T.primaryKey()!
+            let primaryKeyValue = object.valueForKey(primaryKey)!
+            if primaryKeyValue.isEqual(value){
+                return (object as? T)
+            }
+        }
+        return nil
+    }
+    
     func deleteOutdatedObject(object: T) -> Int {
         let primaryKey = T.primaryKey()!
         let primaryKeyValue = (object as Object).valueForKey(primaryKey)!
-        var objectToDelete: T?
-        for sectionObject in objects{
-            let value = sectionObject.valueForKey(primaryKey)!
-            if value.isEqual(primaryKeyValue) {
-                objectToDelete = sectionObject as? T
-                break
-            }
-        }
+        let objectToDelete: T? = objectForPrimaryKey(primaryKeyValue)
         if let object = objectToDelete {
             return delete(object)
         }
