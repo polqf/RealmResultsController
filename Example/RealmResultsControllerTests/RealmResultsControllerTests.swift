@@ -54,7 +54,7 @@ class RealmResultsControllerSpec: QuickSpec {
             realm = try! Realm()
             let predicate = NSPredicate(value: true)
             request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: [])
-            RRC = RealmResultsController<Task, Task>(forTESTRequest: request, sectionKeyPath: nil) { $0 }
+            RRC = RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil) { $0 }
             RRC.delegate = RRCDelegate
         }
 
@@ -175,10 +175,10 @@ class RealmResultsControllerSpec: QuickSpec {
                     temporaryDeleted = RRC.temporaryDeleted
                 }
                 it("Should have the same temporary arrays as previously") {
-                    expect(temporaryAdded).toEventually(equal(RRC.temporaryAdded))
-                    expect(temporaryUpdated).toEventually(equal(RRC.temporaryUpdated))
-                    expect(temporaryDeleted.count).toEventually(equal(RRC.temporaryDeleted.count))
-                    expect(RRC.cache.sections.count).toEventually(equal(0))
+                    expect(temporaryAdded).to(equal(RRC.temporaryAdded))
+                    expect(temporaryUpdated).to(equal(RRC.temporaryUpdated))
+                    expect(temporaryDeleted.count).to(equal(RRC.temporaryDeleted.count))
+                    expect(RRC.cache.sections.count).to(equal(0))
                 }
             }
             context("If the notification is EMPTY") {
@@ -187,7 +187,26 @@ class RealmResultsControllerSpec: QuickSpec {
                     RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
                 }
                 it("Should not have added anything to the cache") {
-                    expect(RRC.cache.sections.count).toEventually(equal(0))
+                    expect(RRC.cache.sections.count).to(equal(0))
+                }
+            }
+            context("If the notification has UNSAVED objects") {
+                let notifObject: [RealmChange] = [RealmChange(type: Task.self, primaryKey: -9999999, action: .Create)]
+                beforeEach {
+                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
+                }
+                it("Should not have added anything to the cache") {
+                    expect(RRC.cache.sections.count).to(equal(0))
+                }
+            }
+            context("If there is NO backgroundRealm") {
+                let notifObject: [RealmChange] = [RealmChange(type: Task.self, primaryKey: -9999999, action: .Create)]
+                beforeEach {
+                    RRC.backgroundRealm = nil
+                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
+                }
+                it("Should not have added anything to the cache") {
+                    expect(RRC.cache.sections.count).to(equal(0))
                 }
             }
             context("If the notification has the CORRECT format") {
@@ -215,7 +234,8 @@ class RealmResultsControllerSpec: QuickSpec {
                     }
                 }
                 it("Should have the fetched objects added on the cache") {
-                    expect(RRC.cache.sections.count).toEventually(equal(1))
+                    expect(RRC.cache.sections.count).to(equal(1))
+                    expect(RRC.cache.sections.first!.allObjects.count).to(equal(2))
                 }
             }
         }
