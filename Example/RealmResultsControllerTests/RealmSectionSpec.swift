@@ -43,7 +43,7 @@ class SectionSpec: QuickSpec {
             }
         }
         
-        describe("insertSorted") {
+        describe("insertSorted(object:)") {
             
             var index: Int!
             context("when the section is empty") {
@@ -71,7 +71,7 @@ class SectionSpec: QuickSpec {
             }
         }
         
-        describe("delete") {
+        describe("delete(object:)") {
             var originalIndex: Int!
             var index: Int!
             context("when the object exists in section") {
@@ -104,7 +104,19 @@ class SectionSpec: QuickSpec {
             }
         }
         
-        describe("deleteOutdatedObject") {
+        describe("delete(change:)") {
+            context("If the section does not have object for the RealmChange primaryKey") {
+                var index: Int!
+                beforeEach {
+                    index = section.delete(RealmChange(type: Task.self, primaryKey: "", action: .Create))
+                }
+                it("returns index -1") {
+                    expect(index).to(equal(-1))
+                }
+            }
+        }
+        
+        describe("deleteOutdatedObject(object:)") {
             var originalIndex: Int!
             var index: Int!
             context("when the object exists in section") {
@@ -112,7 +124,7 @@ class SectionSpec: QuickSpec {
                     section = Section<Task>(keyPath: "keyPath", sortDescriptors: sortDescriptors)
                     section.insertSorted(resolvedTask)
                     originalIndex = section.insertSorted(openTask)
-                    index = section.delete(openTask)
+                    index = section.deleteOutdatedObject(openTask)
                 }
                 it("removes it from array") {
                     expect(section.objects.containsObject(openTask)).to(beFalsy())
@@ -128,7 +140,7 @@ class SectionSpec: QuickSpec {
                     section.insertSorted(resolvedTask)
                     section.insertSorted(openTask)
                     anotherTask = Task()
-                    index = section.delete(anotherTask)
+                    index = section.deleteOutdatedObject(anotherTask)
                 }
                 it("returns index -1") {
                     expect(index).to(equal(-1))
