@@ -54,9 +54,7 @@ class RealmResultsControllerSpec: QuickSpec {
             realm = try! Realm()
             let predicate = NSPredicate(value: true)
             request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: [])
-            RRC = RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil) { $0 }
-            RRC.backgroundQueue = dispatch_get_main_queue()
-            RRC.backgroundRealm = try! Realm()
+            RRC = RealmResultsController<Task, Task>(forTESTRequest: request, sectionKeyPath: nil) { $0 }
             RRC.delegate = RRCDelegate
         }
 
@@ -163,9 +161,7 @@ class RealmResultsControllerSpec: QuickSpec {
         
         describe("didReceiveRealmChanges(notification:)") {
             beforeEach {
-                RRC = RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil) { $0 }
-                RRC.backgroundQueue = dispatch_get_main_queue()
-                RRC.backgroundRealm = try! Realm()
+                RRC = RealmResultsController<Task, Task>(forTESTRequest: request, sectionKeyPath: nil) { $0 }
                 RRC.delegate = RRCDelegate
             }
             context("If the notification has the wrong format") {
@@ -195,23 +191,28 @@ class RealmResultsControllerSpec: QuickSpec {
                 }
             }
             context("If the notification has the CORRECT format") {
-                let createChange = RealmChange(type: Task.self, primaryKey: -1, action: .Create)
-                let updateChange = RealmChange(type: Task.self, primaryKey: -2, action: .Update)
-                let deleteChange = RealmChange(type: Task.self, primaryKey: -3, action: .Delete)
+                let createChange = RealmChange(type: Task.self, primaryKey: -111, action: .Create)
+                let updateChange = RealmChange(type: Task.self, primaryKey: -222, action: .Update)
+                let deleteChange = RealmChange(type: Task.self, primaryKey: -333, action: .Delete)
                 let notifObject: [RealmChange] = [createChange, updateChange, deleteChange]
+                let task1 = Task()
+                let task2 = Task()
+                let task3 = Task()
                 beforeEach {
                     RRC.backgroundRealm!.write {
-                        let task1 = Task()
-                        task1.id = -1
-                        let task2 = Task()
-                        task2.id = -2
-                        let task3 = Task()
-                        task3.id = -3
+                        task1.id = -111
+                        task2.id = -222
+                        task3.id = -333
                         RRC.backgroundRealm?.add(task1)
                         RRC.backgroundRealm?.add(task2)
                         RRC.backgroundRealm?.add(task3)
                     }
                     RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
+                }
+                afterEach {
+                    RRC.backgroundRealm?.write {
+                        RRC.backgroundRealm?.delete([task1, task2, task3])
+                    }
                 }
                 it("Should have the fetched objects added on the cache") {
                     expect(RRC.cache.sections.count).toEventually(equal(1))

@@ -25,6 +25,7 @@ protocol RealmResultsControllerDelegate: class {
 
 public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     weak var delegate: RealmResultsControllerDelegate?
+    var _test: Bool = false
     var cache: RealmResultsCache<T>!
     var request: RealmRequest<T>
     var mapper: (T) -> U
@@ -38,7 +39,6 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         return sections.flatMap {$0.objects}
     }
     
-    
     var temporaryAdded: [T] = []
     var temporaryUpdated: [T] = []
     var temporaryDeleted: [RealmChange] = []
@@ -51,6 +51,14 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         self.cache?.delegate = self
         self.addNotificationObservers()
         dispatch_async(backgroundQueue) {
+            self.backgroundRealm = try! Realm()
+        }
+    }
+    
+    convenience init(forTESTRequest request: RealmRequest<T>, sectionKeyPath: String?, mapper: (T)->(U)) {
+        self.init(request: request, sectionKeyPath: sectionKeyPath, mapper: mapper)
+        self._test = true
+        dispatch_sync(backgroundQueue) {
             self.backgroundRealm = try! Realm()
         }
     }
@@ -118,11 +126,12 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     }
     
     @objc func didReceiveRealmChanges(notification: NSNotification) {
-        dispatch_async(backgroundQueue) {
+        let block: () -> () = {
                 guard case let objects as [RealmChange] = notification.object else { return }
                 self.refetchObjects(objects)
                 self.finishWriteTransaction()
         }
+        _test ? dispatch_sync(backgroundQueue, block) : dispatch_async(backgroundQueue, block)
     }
     
     private func refetchObjects(objects: [RealmChange]) {

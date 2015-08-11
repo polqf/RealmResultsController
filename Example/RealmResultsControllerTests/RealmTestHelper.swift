@@ -10,12 +10,18 @@ import Foundation
 import RealmSwift
 
 struct RealmTestHelper {
+    static var firstTime = true
+    
     static func loadRealm() {
+        if !firstTime { return }
+        firstTime = false
+        
         let defaultRealmPath = Realm.defaultPath
         let bundleReamPath: String? = NSBundle.mainBundle().resourcePath! + "/test.realm"
         
-        if !NSFileManager.defaultManager().fileExistsAtPath(defaultRealmPath) {
-            try! NSFileManager.defaultManager().copyItemAtPath(bundleReamPath!, toPath: defaultRealmPath)
+        if NSFileManager.defaultManager().fileExistsAtPath(defaultRealmPath) {
+            try! NSFileManager.defaultManager().removeItemAtPath(defaultRealmPath)
         }
+        try! NSFileManager.defaultManager().copyItemAtPath(bundleReamPath!, toPath: defaultRealmPath)
     }
 }
