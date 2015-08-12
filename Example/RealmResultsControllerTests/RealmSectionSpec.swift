@@ -108,7 +108,7 @@ class SectionSpec: QuickSpec {
             context("If the section does not have object for the RealmChange primaryKey") {
                 var index: Int!
                 beforeEach {
-                    index = section.delete(RealmChange(type: Task.self, primaryKey: "", action: .Create))
+                    index = section.delete(RealmChange(type: Task.self, primaryKey: "", action: .Create, mirror: nil))
                 }
                 it("returns index -1") {
                     expect(index).to(equal(-1))

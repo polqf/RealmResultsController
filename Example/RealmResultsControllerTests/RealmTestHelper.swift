@@ -25,3 +25,4 @@ struct RealmTestHelper {
         try! NSFileManager.defaultManager().copyItemAtPath(bundleReamPath!, toPath: defaultRealmPath)
     }
 }
+

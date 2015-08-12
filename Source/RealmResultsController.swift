@@ -35,9 +35,9 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     var sections: [RealmSection<U>] {
         return cache.sections.map(realmSectionMapper)
     }
-//    public var allObjects: [U] {
-//        return sections.flatMap {$0.objects}
-//    }
+    public var allObjects: [U] {
+        return sections.flatMap {$0.objects}
+    }
     public var numberOfSections: Int {
         return cache.sections.count
     }
@@ -72,7 +72,6 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     public func objectAt(indexPath: NSIndexPath) -> U {
         // TODO: make sure the indexPath exists
         let object = cache.sections[indexPath.section].allObjects[indexPath.row]
-        print("name: \((object as! TaskModel).name)")
         return self.mapper(object)
     }
     
@@ -86,7 +85,6 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     }
     
     func realmSectionMapper<S>(section: Section<S>) -> RealmSection<U> {
-        //        let mapped = mapItems(section.allObjects)
         return RealmSection<U>(objects: nil, keyPath: section.keyPath)
     }
     

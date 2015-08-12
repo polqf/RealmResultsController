@@ -201,7 +201,7 @@ class CacheSpec: QuickSpec {
                     expect(section.keyPath) == "Optional(1)" //like this because its an optional boolean transformed to string
                 }
                 it("remove from cache") {
-                    let change = RealmChange(type: Task.self, primaryKey: -1, action: .Delete)
+                    let change = RealmChange(type: Task.self, primaryKey: -1, action: .Delete, mirror: newTask)
                     cache.delete([change])
                 }
             }
@@ -246,7 +246,7 @@ class CacheSpec: QuickSpec {
                     expect(section.keyPath) == cache.defaultKeyPathValue
                 }
                 it("remove from cache") {
-                    let change = RealmChange(type: Task.self, primaryKey: -1, action: .Delete)
+                    let change = RealmChange(type: Task.self, primaryKey: -1, action: .Delete, mirror: newTask)
                     cache.delete([change])
                 }
                 
@@ -262,7 +262,7 @@ class CacheSpec: QuickSpec {
                     initWithoutKeypath()
                     let primaryKey = Task.primaryKey()
                     let primaryKeyValue = (initialObjects[10] as Object).valueForKey(primaryKey!)
-                    let change = RealmChange(type: Task.self, primaryKey: primaryKeyValue!, action: .Delete)
+                    let change = RealmChange(type: Task.self, primaryKey: primaryKeyValue!, action: .Delete, mirror: getMirror(initialObjects[10]))
                     cache.delete([change])
                     object = CacheDelegateMock.sharedInstance.object
                     indexPath = CacheDelegateMock.sharedInstance.indexPath
@@ -292,7 +292,7 @@ class CacheSpec: QuickSpec {
                     
                     let primaryKey = Task.primaryKey()
                     let primaryKeyValue = (newTask as Object).valueForKey(primaryKey!)
-                    let change = RealmChange(type: Task.self, primaryKey: primaryKeyValue!, action: .Delete)
+                    let change = RealmChange(type: Task.self, primaryKey: primaryKeyValue!, action: .Delete, mirror: newTask)
                     
                     cache.delete([change])
                     object = CacheDelegateMock.sharedInstance.object
