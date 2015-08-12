@@ -60,10 +60,7 @@ class Project: Object {
         return "id"
     }
 }
-//
-//
-//
-//
+
 //func randomStringWithLength (len : Int) -> String {
 //    
 //    let letters : String = "abcdefghijklmnopqrstuvwxyz"

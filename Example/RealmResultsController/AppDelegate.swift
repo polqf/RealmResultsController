@@ -17,8 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
-//        generateDB()
-        
+//        generateDB()        
         return true
     }
 //
@@ -44,7 +43,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 //    }
 //    
-    
+//    
 //    func generateDB() {
 //        let realm = try! Realm()
 //        realm.write {
@@ -53,7 +52,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //                task.id = i
 //                task.name = randomStringWithLength(10)
 //                task.resolved = arc4random_uniform(2) % 2 == 0
-//                
+//                task.projectID = Int(arc4random_uniform(3))
+//
+//                let taskModel = TaskModel()
+//                taskModel.id = i
+//                taskModel.name = randomStringWithLength(10)
+//                taskModel.resolved = arc4random_uniform(2) % 2 == 0
+//                taskModel.projectID = Int(arc4random_uniform(3))
+//
 //                let user = User()
 //                user.id = i
 //                user.name = randomStringWithLength(10)
@@ -65,6 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //                project.projectDrescription = randomStringWithLength(20)
 //                
 //                realm.add(task)
+//                realm.add(taskModel)
 //                realm.add(user)
 //                realm.add(project)
 //            }

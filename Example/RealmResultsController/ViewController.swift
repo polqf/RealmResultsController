@@ -15,7 +15,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     let tableView: UITableView = UITableView(frame: CGRectZero, style: .Grouped)
     var rrc: RealmResultsController<TaskModel, Task>?
-    let realm: Realm = try! Realm()
+    var realm: Realm!
     let button: UIButton = UIButton()
     
     required init?(coder aDecoder: NSCoder) {
@@ -24,6 +24,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        realm = try! Realm()
         realm.write {
             self.realm.deleteAll()
         }
