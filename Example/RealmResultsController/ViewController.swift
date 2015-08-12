@@ -24,8 +24,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        return
-        realm = try! Realm()
+        realm = try! Realm(path: NSBundle.mainBundle().resourcePath! + "/example.realm")
         realm.write {
             self.realm.deleteAll()
         }
@@ -48,7 +47,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             }
         }
     }
-    
+
     func setupSubviews() {
         let height: CGFloat = 50
         button.frame = CGRectMake(0, view.frame.height - height, view.frame.width, height)
@@ -62,7 +61,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         tableView.dataSource = self
         view.addSubview(tableView)
     }
-    
+
     func addNewObject() {
         realm.write {
             let task = TaskModel()
