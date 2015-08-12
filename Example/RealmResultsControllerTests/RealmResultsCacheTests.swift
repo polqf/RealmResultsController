@@ -211,7 +211,7 @@ class CacheSpec: QuickSpec {
                 }
                 it("section is resolved one") {
                     let section = cache.sections[cacheIndexPath.section]
-                    expect(section.keyPath) == "Optional(1)" //like this because its an optional boolean transformed to string
+                    expect(section.keyPath) == "1" //like this because its an optional boolean transformed to string
                 }
                 it("remove from cache") {
                     let change = RealmChange(type: Task.self, primaryKey: -1, action: .Delete, mirror: newTask)
@@ -224,7 +224,7 @@ class CacheSpec: QuickSpec {
                 var cacheIndexPath: NSIndexPath!
                 var memoryIndex: Int!
                 var object: Object!
-                var resolvedTasksCopy: [Task]!
+                var tasksCopy: [Task]!
                 
                 it("beforeAll") {
                     //create and insert new item in cache
@@ -236,10 +236,10 @@ class CacheSpec: QuickSpec {
                     cache.insert([newTask])
                     
                     //replicate the behaviour (adding + sorting) in a copy array
-                    resolvedTasksCopy = resolvedTasks
-                    resolvedTasksCopy.append(newTask)
-                    resolvedTasksCopy.sortInPlace {$0.name < $1.name}
-                    memoryIndex = resolvedTasksCopy.indexOf(newTask)!
+                    tasksCopy = initialObjects
+                    tasksCopy.append(newTask)
+                    tasksCopy.sortInPlace {$0.name < $1.name}
+                    memoryIndex = tasksCopy.indexOf(newTask)!
                     
                     //Get the values from the delegate
                     cacheIndexPath = CacheDelegateMock.sharedInstance.indexPath
@@ -445,7 +445,7 @@ class CacheSpec: QuickSpec {
                 }
                 it("it is inserted in the correct section") {
                     let section = cache.sections[indexPath!.section]
-                    expect(section.keyPath) == "Optional(1)" //like this because its an optional boolean transformed to string
+                    expect(section.keyPath) == "1" //like this because its an optional boolean transformed to string
                 }
                 it("oldIndexPath is nil") {
                     expect(oldIndexPath).to(beNil())

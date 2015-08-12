@@ -99,11 +99,15 @@ class RealmResultsControllerSpec: QuickSpec {
         }
         
         describe("objectAt:") {
+            var object: Task?
+            var fetchedObject: Task?
             beforeEach {
                 RRC.performFetch()
+                fetchedObject = RRC.cache.sections[0].objects[5] as! Task
+                object = RRC.objectAt(NSIndexPath(forRow: 5, inSection: 0))
             }
             it("returns the correct object") {
-                
+                expect(object) == fetchedObject
             }
         }
         

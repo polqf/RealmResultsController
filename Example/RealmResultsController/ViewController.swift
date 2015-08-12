@@ -24,6 +24,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        return
         realm = try! Realm()
         realm.write {
             self.realm.deleteAll()
