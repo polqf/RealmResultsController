@@ -48,23 +48,22 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func setupSubviews() {
-        tableView.frame = view.frame
+        let height: CGFloat = 50
+        button.frame = CGRectMake(0, view.frame.height - height, view.frame.width, height)
+        button.backgroundColor = UIColor.redColor()
+        button.setTitle("Add Row", forState: .Normal)
+        button.addTarget(self, action: "addNewObject", forControlEvents: .TouchUpInside)
+        view.addSubview(button)
+
+        tableView.frame = CGRectMake(0, 0, view.frame.width, view.frame.height - height)
         tableView.delegate = self
         tableView.dataSource = self
         view.addSubview(tableView)
-        
-        button.frame = CGRectMake(view.frame.width - 50, 20, 30, 30)
-        button.backgroundColor = UIColor.redColor()
-        button.titleLabel?.text = "Add"
-        button.addTarget(self, action: "addNewObject", forControlEvents: .TouchUpInside)
-        view.addSubview(button)
     }
     
     func addNewObject() {
         realm.write {
             let task = TaskModel()
-            //            let array = [1,10,100,101,102,103,104,105,106,107,108,109]
-            //            let array2 = ["A","B","C","D","E","F","G","H","I","J","K"]
             task.id = Int(arc4random_uniform(1000))
             task.projectID = Int(arc4random_uniform(3))
             task.name = "Task-\(task.id)"
@@ -76,12 +75,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     // MARK: Table view protocols
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        print("sections: \(rrc!.numberOfSections)")
         return rrc!.numberOfSections
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print("number: \(rrc!.numberOfObjectsAt(section))")
         return rrc!.numberOfObjectsAt(section)
     }
     
@@ -91,7 +88,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             cell = UITableViewCell(style: .Default, reuseIdentifier: "celltask")
         }
         let task = rrc!.objectAt(indexPath)
-        print("task project: \(task.projectID)")
         cell?.textLabel?.text = task.name + " :: " + String(task.projectID)
         return cell!
     }
@@ -106,18 +102,19 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return rrc?.sections[section].keyPath
+        let keyPath: String = rrc!.sections[section].keyPath
+        return "ProjectID \(keyPath)"
     }
     
     // MARK: RealmResult
     
     func willChangeResults(controller: AnyObject) {
-        print("💚💚💚💚")
+        print("🎁 willChangeResults")
         tableView.beginUpdates()
     }
     
     func didChangeObject<U>(object: U, controller: AnyObject, atIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
-        print("💜 DID CHANGE: \(changeType) at indexPath \(newIndexPath.row)")
+        print("🎁 didChangeObject oldIndex:\(atIndexPath) toIndex:\(newIndexPath) changeType:\(changeType)")
         switch changeType {
         case .Delete:
             tableView.deleteRowsAtIndexPaths([newIndexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
@@ -136,6 +133,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func didChangeSection<U>(section: RealmSection<U>, controller: AnyObject, index: Int, changeType: RealmResultsChangeType) {
+        print("🎁 didChangeSection index:\(index) changeType:\(changeType)")
         switch changeType {
         case .Delete:
             tableView.deleteSections(NSIndexSet(index: index), withRowAnimation: UITableViewRowAnimation.Automatic)
@@ -149,8 +147,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func didChangeResults(controller: AnyObject) {
+        print("🎁 didChangeResults")
         tableView.endUpdates()
-        print("❤️❤️❤️❤️❤️")
     }
     
 }

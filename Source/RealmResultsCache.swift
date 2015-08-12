@@ -75,7 +75,7 @@ class RealmResultsCache<T: Object> {
         var keyPathValue = defaultKeyPathValue
         if let keyPath = sectionKeyPath {
 //TODO:            if keyPath.isEmpty { return }
-            keyPathValue = String(object.valueForKeyPath(keyPath))
+            keyPathValue = String(object.valueForKeyPath(keyPath)!)
         }
         return sectionForKeyPath(keyPathValue)
     }
