@@ -14,6 +14,27 @@ class Task: Object {
     dynamic var id = 0
     dynamic var name = ""
     dynamic var resolved = false
+    dynamic var projectID = 0
+    
+    override static func primaryKey() -> String? {
+        return "id"
+    }
+    
+    static func map(model: TaskModel) -> Task {
+        let task = Task()
+        task.id = model.id
+        task.name = model.name
+        task.resolved = model.resolved
+        task.projectID = model.projectID
+        return task
+    }
+}
+
+class TaskModel: Object {
+    dynamic var id = 0
+    dynamic var name = ""
+    dynamic var resolved = false
+    dynamic var projectID = 0
     
     override static func primaryKey() -> String? {
         return "id"

@@ -10,7 +10,6 @@
 		5B56D4F7EC752B118648824F /* Pods_RealmResultsControllerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3FF4643582632F20218042BA /* Pods_RealmResultsControllerTests.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		6A1010FC1B74A83600321CE6 /* RealmSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A1010FB1B74A83600321CE6 /* RealmSection.swift */; };
 		6A5F153E1B736D5300250E29 /* test.realm in Resources */ = {isa = PBXBuildFile; fileRef = 6A5F153D1B736D5300250E29 /* test.realm */; };
-		6A5F15401B736D7000250E29 /* testmodels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A5F153F1B736D7000250E29 /* testmodels.swift */; };
 		C11D6BDE1B7A096B000B8398 /* RealmNotificationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14CD75E1B7396D600C5BF92 /* RealmNotificationTests.swift */; };
 		C11D6BE01B7A09CE000B8398 /* RealmSectionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A1010FD1B74C5BB00321CE6 /* RealmSectionSpec.swift */; };
 		C11D6BE21B7A09EB000B8398 /* RealmExtensionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A1010FF1B74C92200321CE6 /* RealmExtensionSpec.swift */; };
@@ -31,6 +30,7 @@
 		C1D871121B72673E00C0ED18 /* RealmResultsCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D8710D1B72673E00C0ED18 /* RealmResultsCache.swift */; };
 		C1D871131B72673E00C0ED18 /* RealmResultsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D8710E1B72673E00C0ED18 /* RealmResultsController.swift */; };
 		C1E549C81B73BDD500341B47 /* test.realm in Resources */ = {isa = PBXBuildFile; fileRef = 6A5F153D1B736D5300250E29 /* test.realm */; };
+		C1FF2B7F1B7B9597009A445B /* TestModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1FF2B7E1B7B9597009A445B /* TestModels.swift */; };
 		D1BDA79C501CA4A1963D372C /* Pods_RealmResultsController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44E5CE9FDE8DC6B3FAF16C9 /* Pods_RealmResultsController.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 /* End PBXBuildFile section */
 
@@ -52,7 +52,6 @@
 		6A1010FD1B74C5BB00321CE6 /* RealmSectionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmSectionSpec.swift; sourceTree = "<group>"; };
 		6A1010FF1B74C92200321CE6 /* RealmExtensionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmExtensionSpec.swift; sourceTree = "<group>"; };
 		6A5F153D1B736D5300250E29 /* test.realm */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.realm; sourceTree = "<group>"; };
-		6A5F153F1B736D7000250E29 /* testmodels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = testmodels.swift; sourceTree = "<group>"; };
 		6A68B20B1B735CFB007645A7 /* RealmResultsCacheTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmResultsCacheTests.swift; sourceTree = "<group>"; };
 		76F011E22AB395738511F746 /* Pods-RealmResultsController.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RealmResultsController.release.xcconfig"; path = "Pods/Target Support Files/Pods-RealmResultsController/Pods-RealmResultsController.release.xcconfig"; sourceTree = "<group>"; };
 		7E8CF748C81AACEADEF68C91 /* Pods-RealmResultsControllerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RealmResultsControllerTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-RealmResultsControllerTests/Pods-RealmResultsControllerTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -76,6 +75,7 @@
 		C1D8710D1B72673E00C0ED18 /* RealmResultsCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RealmResultsCache.swift; path = ../../Source/RealmResultsCache.swift; sourceTree = "<group>"; };
 		C1D8710E1B72673E00C0ED18 /* RealmResultsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RealmResultsController.swift; path = ../../Source/RealmResultsController.swift; sourceTree = "<group>"; };
 		C1E549C91B73BE0A00341B47 /* RealmResultsControllerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmResultsControllerTests.swift; sourceTree = "<group>"; };
+		C1FF2B7E1B7B9597009A445B /* TestModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestModels.swift; sourceTree = "<group>"; };
 		E44E5CE9FDE8DC6B3FAF16C9 /* Pods_RealmResultsController.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RealmResultsController.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -145,7 +145,7 @@
 				C1D871091B72673300C0ED18 /* Source */,
 				C18C37641B72670F008DE6A6 /* AppDelegate.swift */,
 				C18C37661B72670F008DE6A6 /* ViewController.swift */,
-				6A5F153F1B736D7000250E29 /* testmodels.swift */,
+				C1FF2B7E1B7B9597009A445B /* TestModels.swift */,
 				C18C37681B72670F008DE6A6 /* Main.storyboard */,
 				C18C376B1B72670F008DE6A6 /* Assets.xcassets */,
 				C18C376D1B72670F008DE6A6 /* LaunchScreen.storyboard */,
@@ -391,11 +391,11 @@
 				C18C37671B72670F008DE6A6 /* ViewController.swift in Sources */,
 				C1D871131B72673E00C0ED18 /* RealmResultsController.swift in Sources */,
 				C11D6BE81B7A0F72000B8398 /* RealmChange.swift in Sources */,
+				C1FF2B7F1B7B9597009A445B /* TestModels.swift in Sources */,
 				C1D871101B72673E00C0ED18 /* RealmNotification.swift in Sources */,
 				C14CD7611B739E6300C5BF92 /* RealmLogger.swift in Sources */,
 				C18C37651B72670F008DE6A6 /* AppDelegate.swift in Sources */,
 				C1D871121B72673E00C0ED18 /* RealmResultsCache.swift in Sources */,
-				6A5F15401B736D7000250E29 /* testmodels.swift in Sources */,
 				6A1010FC1B74A83600321CE6 /* RealmSection.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
