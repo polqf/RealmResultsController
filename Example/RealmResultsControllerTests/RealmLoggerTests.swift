@@ -43,9 +43,9 @@ class RealmLoggerSpec: QuickSpec {
         }
         
         describe("finishRealmTransaction()") {
-            let newObject = RealmChange(type: Task.self, primaryKey: "", action: .Create)
-            let updatedObject = RealmChange(type: Task.self, primaryKey: "", action: .Update)
-            let deletedObject = RealmChange(type: Task.self, primaryKey: "", action: .Delete)
+            let newObject = RealmChange(type: Task.self, primaryKey: "", action: .Create, mirror: nil)
+            let updatedObject = RealmChange(type: Task.self, primaryKey: "", action: .Update, mirror: nil)
+            let deletedObject = RealmChange(type: Task.self, primaryKey: "", action: .Delete, mirror: nil)
             beforeEach {
                 logger.cleanAll()
                 logger.temporary.append(newObject)
@@ -123,7 +123,7 @@ class RealmLoggerSpec: QuickSpec {
         }
         
         describe("finishRealmTransaction()") {
-            let newObject = RealmChange(type: Task.self, primaryKey: "", action: .Create)
+            let newObject = RealmChange(type: Task.self, primaryKey: "", action: .Create, mirror: nil)
             beforeEach {
                 logger.cleanAll()
                 logger.temporary.append(newObject)

@@ -35,9 +35,6 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     var sections: [RealmSection<U>] {
         return cache.sections.map(realmSectionMapper)
     }
-    public var allObjects: [U] {
-        return sections.flatMap {$0.objects}
-    }
     public var numberOfSections: Int {
         return cache.sections.count
     }
