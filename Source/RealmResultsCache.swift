@@ -74,6 +74,7 @@ class RealmResultsCache<T: Object> {
     private func sectionForObject(object: T) -> Section<T> {
         var keyPathValue = defaultKeyPathValue
         if let keyPath = sectionKeyPath {
+//TODO:            if keyPath.isEmpty { return }
             keyPathValue = String(object.valueForKeyPath(keyPath))
         }
         return sectionForKeyPath(keyPathValue)
@@ -118,6 +119,10 @@ class RealmResultsCache<T: Object> {
             guard index >= 0 else { return }
             let indexPath = NSIndexPath(forRow: index, inSection: indexForSection(section)!)
             delegate?.didDelete(indexPath)
+            if section.objects.count == 0 {
+                sections.removeAtIndex(indexPath.section)
+                delegate?.didDeleteSection(section, index: indexPath.section)
+            }
         }
     }
     

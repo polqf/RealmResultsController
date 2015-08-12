@@ -26,17 +26,20 @@ protocol RealmResultsControllerDelegate: class {
 public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     weak var delegate: RealmResultsControllerDelegate?
     var _test: Bool = false
+    var populating: Bool = false
     var cache: RealmResultsCache<T>!
     var request: RealmRequest<T>
     var mapper: (T) -> U
     var sectionKeyPath: String? = ""
-    var backgroundRealm: Realm?
     var backgroundQueue = dispatch_queue_create("com.RRC.\(arc4random_uniform(1000))", DISPATCH_QUEUE_SERIAL)
-    public var sections: [RealmSection<U>] {
+    var sections: [RealmSection<U>] {
         return cache.sections.map(realmSectionMapper)
     }
-    public var allObjects: [U] {
-        return sections.flatMap {$0.objects}
+//    public var allObjects: [U] {
+//        return sections.flatMap {$0.objects}
+//    }
+    public var numberOfSections: Int {
+        return cache.sections.count
     }
     
     var temporaryAdded: [T] = []
@@ -50,32 +53,41 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         self.cache = RealmResultsCache<T>(request: request, sectionKeyPath: sectionKeyPath)
         self.cache?.delegate = self
         self.addNotificationObservers()
-        dispatch_async(backgroundQueue) {
-            self.backgroundRealm = try! Realm()
-        }
     }
     
     convenience init(forTESTRequest request: RealmRequest<T>, sectionKeyPath: String?, mapper: (T)->(U)) {
         self.init(request: request, sectionKeyPath: sectionKeyPath, mapper: mapper)
         self._test = true
-        dispatch_sync(backgroundQueue) {
-            self.backgroundRealm = try! Realm()
-        }
     }
     
     deinit {
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
+    public func numberOfObjectsAt(sectionIndex: Int) -> Int {
+        
+        return cache.sections[sectionIndex].objects.count
+    }
+    
+    public func objectAt(indexPath: NSIndexPath) -> U {
+        // TODO: make sure the indexPath exists
+        let object = cache.sections[indexPath.section].allObjects[indexPath.row]
+        print("name: \((object as! TaskModel).name)")
+        return self.mapper(object)
+    }
+    
     public func performFetch() -> [RealmSection<U>] {
-        let newObjects = request.execute().toArray(T.self)
-        cache.reset(newObjects)
+        populating = true
+        request.execute().toArray(T.self)
+        let objects = self.request.execute().toArray(T.self).map(getMirror)
+        self.cache.reset(objects)
+        populating = false
         return sections
     }
     
     func realmSectionMapper<S>(section: Section<S>) -> RealmSection<U> {
-        let mapped = mapItems(section.allObjects)
-        return RealmSection<U>(objects: mapped, keyPath: section.keyPath)
+        //        let mapped = mapItems(section.allObjects)
+        return RealmSection<U>(objects: nil, keyPath: section.keyPath)
     }
     
     /**
@@ -98,24 +110,40 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     //MARK: Cache delegate
     
     func didInsert<T: Object>(object: T, indexPath: NSIndexPath) {
-        self.delegate?.didChangeObject(object, controller: self, atIndexPath: indexPath, newIndexPath: indexPath, changeType: .Insert)
+        dispatch_async(dispatch_get_main_queue()) {
+            self.delegate?.didChangeObject(object, controller: self, atIndexPath: indexPath, newIndexPath: indexPath, changeType: .Insert)
+        }
     }
     
     func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath) {
-        self.delegate?.didChangeObject(object, controller: self, atIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: .Update)
+        dispatch_async(dispatch_get_main_queue()) {
+            var changeType: RealmResultsChangeType = .Update
+            if oldIndexPath != newIndexPath {
+                changeType = .Move
+            }
+            self.delegate?.didChangeObject(object, controller: self, atIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: changeType)
+        }
     }
     
     func didDelete(indexPath: NSIndexPath) {
-        let object = U.self
-        self.delegate?.didChangeObject(object, controller: self, atIndexPath: indexPath, newIndexPath: indexPath, changeType: .Delete)
+        dispatch_async(dispatch_get_main_queue()) {
+            let object = U.self
+            self.delegate?.didChangeObject(object, controller: self, atIndexPath: indexPath, newIndexPath: indexPath, changeType: .Delete)
+        }
     }
     
     func didInsertSection<T : Object>(section: Section<T>, index: Int) {
-        self.delegate?.didChangeSection(realmSectionMapper(section), controller: self, index: index, changeType: .Insert)
+        if populating { return }
+        dispatch_async(dispatch_get_main_queue()) {
+            self.delegate?.didChangeSection(realmSectionMapper(section), controller: self, index: index, changeType: .Insert)
+        }
     }
     
     func didDeleteSection<T : Object>(section: Section<T>, index: Int) {
-        self.delegate?.didChangeSection(realmSectionMapper(section), controller: self, index: index, changeType: .Delete)
+        if populating { return }
+        dispatch_async(dispatch_get_main_queue()) {
+            self.delegate?.didChangeSection(realmSectionMapper(section), controller: self, index: index, changeType: .Delete)
+        }
     }
     
     
@@ -135,20 +163,19 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     }
     
     private func refetchObjects(objects: [RealmChange]) {
-        guard let bgRealm = backgroundRealm else { return }
-        for object in objects where object.type == T.self {
+        for object in objects {
+            if String(object.type) != String(T.self) { continue }
             if object.action == RealmAction.Delete {
                 temporaryDeleted.append(object)
                 continue
             }
-            guard let fetchedObject = bgRealm.objectForPrimaryKey(object.type, key: object.primaryKey) else { continue }
-            let passesPredicate = self.request.predicate.evaluateWithObject(fetchedObject)
+            let passesPredicate = self.request.predicate.evaluateWithObject(object.mirror as! T)
 
             if object.action == RealmAction.Create && passesPredicate {
-                temporaryAdded.append(fetchedObject as! T)
+                temporaryAdded.append(object.mirror as! T)
             }
             if object.action == RealmAction.Update {
-                passesPredicate ? temporaryUpdated.append(fetchedObject as! T) : temporaryDeleted.append(object)
+                passesPredicate ? temporaryUpdated.append(object.mirror as! T) : temporaryDeleted.append(object)
             }
         }
     }
@@ -161,14 +188,18 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     private func finishWriteTransaction() {
         if !pendingChanges() { return }
-        self.delegate?.willChangeResults(self)
+        dispatch_async(dispatch_get_main_queue()) {
+            self.delegate?.willChangeResults(self)
+        }
         cache.insert(temporaryAdded)
         cache.delete(temporaryDeleted)
         cache.update(temporaryUpdated)
         temporaryAdded.removeAll()
         temporaryDeleted.removeAll()
         temporaryUpdated.removeAll()
-        self.delegate?.didChangeResults(self)
+        dispatch_async(dispatch_get_main_queue()) {
+            self.delegate?.didChangeResults(self)
+        }
     }
     
 }

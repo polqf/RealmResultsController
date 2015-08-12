@@ -9,6 +9,36 @@
 import Foundation
 import RealmSwift
 
+
+func getMirror<T: Object>(object: T) -> T {
+    let newObject = object.dynamicType.init()
+    let mirror = Mirror(reflecting: object)
+    for c in mirror.children.enumerate() {
+        let key = c.1.0
+        guard let k = key else { continue }
+        let value = (object as Object).valueForKey(k)
+        guard let v = value else { continue }
+//        print("🎄Setting \(k) to \(value)")
+        (newObject as Object).setValue(v, forKey: k)
+    }
+    return newObject
+}
+//
+//extension Object {
+//    func getMirror() -> Object {
+//        let object = self.dynamicType.init()
+//        let mirror = Mirror(reflecting: self)
+//        for c in mirror.children.enumerate() {
+//            let key = c.1.0
+//            print("🎄Setting \(c)")
+//            let value = c.1.1 as! AnyObject
+//            guard let k = key else { continue }
+//            (object as Object).setValue(value, forKey: k)
+//        }
+//        return object
+//    }
+//}
+
 class RealmLogger {
     var realm: Realm
     var temporary: [RealmChange] = []
@@ -44,12 +74,13 @@ class RealmLogger {
     func addObject<T: Object>(object: T, action: RealmAction) {
         let primaryKey = object.dynamicType.primaryKey()!
         let primaryKeyValue = (object as Object).valueForKey(primaryKey)
-        let realmChange = RealmChange(type: object.dynamicType, primaryKey: primaryKeyValue!, action: action)
+        let realmChange = RealmChange(type: object.dynamicType, primaryKey: primaryKeyValue!, action: action, mirror: getMirror(object))
         temporary.append(realmChange)
     }
     
     func cleanAll() {
         temporary.removeAll()
     }
+    
 }
 
