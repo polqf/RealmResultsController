@@ -88,11 +88,10 @@ func getMirror<T: Object>(object: T) -> T {
     let newObject = object.dynamicType.init()
     let mirror = Mirror(reflecting: object)
     for c in mirror.children.enumerate() {
-        let key = c.1.0
-        guard let k = key else { continue }
-        let value = (object as Object).valueForKey(k)
+        guard let key = c.1.0 else { continue }
+        let value = (object as Object).valueForKey(key)
         guard let v = value else { continue }
-        (newObject as Object).setValue(v, forKey: k)
+        (newObject as Object).setValue(v, forKey: key)
     }
     return newObject
 }

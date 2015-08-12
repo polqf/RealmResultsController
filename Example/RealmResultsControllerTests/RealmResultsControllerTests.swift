@@ -54,7 +54,7 @@ class RealmResultsControllerSpec: QuickSpec {
             realm = try! Realm()
             let predicate = NSPredicate(value: true)
             request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: [])
-            RRC = RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil) { $0 }
+            RRC = RealmResultsController<Task, Task>(forTESTRequest: request, sectionKeyPath: nil) { $0 }
             RRC.delegate = RRCDelegate
         }
 
@@ -78,17 +78,35 @@ class RealmResultsControllerSpec: QuickSpec {
             }
         }
         
-        describe("allObjects") {
-            var results: [Task]!
+        describe("numberOfSections") {
             beforeEach {
                 RRC.performFetch()
-                results = RRC.allObjects
             }
-            it("returns 1001 objects") {
-                expect(results.count) == 1001
+            it("has 1 section") {
+                expect(RRC.numberOfSections) == 1
             }
         }
-
+        
+        describe("numberOfObjectsAt:") {
+            var total: Int = 0
+            beforeEach {
+                RRC.performFetch()
+                total = RRC.numberOfObjectsAt(0)
+            }
+            it("has 1001 objects in the first section") {
+                expect(total) == 1001
+            }
+        }
+        
+        describe("objectAt:") {
+            beforeEach {
+                RRC.performFetch()
+            }
+            it("returns the correct object") {
+                
+            }
+        }
+        
         describe("performFetch()") {
             var requestResult: [RealmSection<Task>]!
             
@@ -99,7 +117,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 expect(requestResult.count) == 1
             }
             it("Should have a fetched 1001 Task objects") {
-                expect(requestResult.first!.objects.count).to(equal(1001))
+                expect(RRC.cache.sections.first!.objects.count) == 1001
             }
         }
         describe("didInsert<T: Object>(object:indexPath:)") {
@@ -190,47 +208,33 @@ class RealmResultsControllerSpec: QuickSpec {
                     expect(RRC.cache.sections.count).to(equal(0))
                 }
             }
-            context("If the notification has UNSAVED objects") {
-                let notifObject: [RealmChange] = [RealmChange(type: Task.self, primaryKey: -9999999, action: .Create)]
-                beforeEach {
-                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
-                }
-                it("Should not have added anything to the cache") {
-                    expect(RRC.cache.sections.count).to(equal(0))
-                }
-            }
-            context("If there is NO backgroundRealm") {
-                let notifObject: [RealmChange] = [RealmChange(type: Task.self, primaryKey: -9999999, action: .Create)]
-                beforeEach {
-                    RRC.backgroundRealm = nil
-                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
-                }
-                it("Should not have added anything to the cache") {
-                    expect(RRC.cache.sections.count).to(equal(0))
-                }
-            }
+            
             context("If the notification has the CORRECT format") {
-                let createChange = RealmChange(type: Task.self, primaryKey: -111, action: .Create)
-                let updateChange = RealmChange(type: Task.self, primaryKey: -222, action: .Update)
-                let deleteChange = RealmChange(type: Task.self, primaryKey: -333, action: .Delete)
-                let notifObject: [RealmChange] = [createChange, updateChange, deleteChange]
+                var createChange: RealmChange!
+                var updateChange: RealmChange!
+                var deleteChange: RealmChange!
+                var notifObject: [RealmChange] = []
                 let task1 = Task()
                 let task2 = Task()
                 let task3 = Task()
                 beforeEach {
-                    RRC.backgroundRealm!.write {
+                    RRC.request.realm.write {
                         task1.id = -111
                         task2.id = -222
                         task3.id = -333
-                        RRC.backgroundRealm?.add(task1)
-                        RRC.backgroundRealm?.add(task2)
-                        RRC.backgroundRealm?.add(task3)
+                        RRC.request.realm.add(task1)
+                        RRC.request.realm.add(task2)
+                        RRC.request.realm.add(task3)
                     }
+                    createChange = RealmChange(type: Task.self, primaryKey: -111, action: .Create, mirror: getMirror(task1))
+                    updateChange = RealmChange(type: Task.self, primaryKey: -222, action: .Update, mirror: getMirror(task2))
+                    deleteChange = RealmChange(type: Task.self, primaryKey: -333, action: .Delete, mirror: getMirror(task3))
+                    notifObject = [createChange, updateChange, deleteChange]
                     RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
                 }
                 afterEach {
-                    RRC.backgroundRealm?.write {
-                        RRC.backgroundRealm?.delete([task1, task2, task3])
+                    RRC.request.realm.write {
+                        RRC.request.realm.delete([task1, task2, task3])
                     }
                 }
                 it("Should have the fetched objects added on the cache") {

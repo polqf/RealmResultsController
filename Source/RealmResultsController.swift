@@ -102,16 +102,30 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     }
     
     
-    //MARK: Cache delegate
+    func executeOnCorrectThread(block: ()->()) {
+        _test ? dispatch_sync(backgroundQueue, block) : dispatch_async(backgroundQueue, block)
+    }
     
-    func didInsert<T: Object>(object: T, indexPath: NSIndexPath) {
-        dispatch_async(dispatch_get_main_queue()) {
-            self.delegate?.didChangeObject(object, controller: self, atIndexPath: indexPath, newIndexPath: indexPath, changeType: .Insert)
+    func executeOnMainThread(block: ()->()) {
+        if NSThread.currentThread().isMainThread {
+            block()
+        }
+        else {
+            dispatch_async(dispatch_get_main_queue(), block)
         }
     }
     
+    //MARK: Cache delegate
+    
+    func didInsert<T: Object>(object: T, indexPath: NSIndexPath) {
+        executeOnMainThread {
+            self.delegate?.didChangeObject(object, controller: self, atIndexPath: indexPath, newIndexPath: indexPath, changeType: .Insert)
+        }
+
+    }
+    
     func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath) {
-        dispatch_async(dispatch_get_main_queue()) {
+        executeOnMainThread {
             var changeType: RealmResultsChangeType = .Update
             if oldIndexPath != newIndexPath {
                 changeType = .Move
@@ -121,7 +135,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     }
     
     func didDelete(indexPath: NSIndexPath) {
-        dispatch_async(dispatch_get_main_queue()) {
+        executeOnMainThread {
             let object = U.self
             self.delegate?.didChangeObject(object, controller: self, atIndexPath: indexPath, newIndexPath: indexPath, changeType: .Delete)
         }
@@ -129,14 +143,14 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     func didInsertSection<T : Object>(section: Section<T>, index: Int) {
         if populating { return }
-        dispatch_async(dispatch_get_main_queue()) {
+        executeOnMainThread {
             self.delegate?.didChangeSection(realmSectionMapper(section), controller: self, index: index, changeType: .Insert)
         }
     }
     
     func didDeleteSection<T : Object>(section: Section<T>, index: Int) {
         if populating { return }
-        dispatch_async(dispatch_get_main_queue()) {
+        executeOnMainThread {
             self.delegate?.didChangeSection(realmSectionMapper(section), controller: self, index: index, changeType: .Delete)
         }
     }
@@ -154,7 +168,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
                 self.refetchObjects(objects)
                 self.finishWriteTransaction()
         }
-        _test ? dispatch_sync(backgroundQueue, block) : dispatch_async(backgroundQueue, block)
+        executeOnCorrectThread(block)
     }
     
     private func refetchObjects(objects: [RealmChange]) {
@@ -164,6 +178,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
                 temporaryDeleted.append(object)
                 continue
             }
+            
             let passesPredicate = self.request.predicate.evaluateWithObject(object.mirror as! T)
 
             if object.action == RealmAction.Create && passesPredicate {
@@ -183,7 +198,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     private func finishWriteTransaction() {
         if !pendingChanges() { return }
-        dispatch_async(dispatch_get_main_queue()) {
+        executeOnMainThread {
             self.delegate?.willChangeResults(self)
         }
         cache.insert(temporaryAdded)
@@ -192,7 +207,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         temporaryAdded.removeAll()
         temporaryDeleted.removeAll()
         temporaryUpdated.removeAll()
-        dispatch_async(dispatch_get_main_queue()) {
+        executeOnMainThread {
             self.delegate?.didChangeResults(self)
         }
     }

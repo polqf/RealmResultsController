@@ -116,7 +116,6 @@ class RealmResultsCache<T: Object> {
         for object in objects {
             guard let section = sectionForRealmChange(object) else { return }
             let index = section.delete(object)
-            guard index >= 0 else { return }
             let indexPath = NSIndexPath(forRow: index, inSection: indexForSection(section)!)
             delegate?.didDelete(indexPath)
             if section.objects.count == 0 {

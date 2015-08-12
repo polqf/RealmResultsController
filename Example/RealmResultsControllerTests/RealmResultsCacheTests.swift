@@ -90,6 +90,19 @@ class CacheSpec: QuickSpec {
             cache.delegate = CacheDelegateMock.sharedInstance
         }
         
+        // Init with only one object with ID = 0
+        func initEmpty() {
+            predicate = NSPredicate(format: "id < %d", 1)
+            sortDescriptors = [SortDescriptor(property: "name", ascending: true)]
+            request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
+            initialObjects = request.execute().toArray(Task.self).sort { $0.name < $1.name }
+            resolvedTasks = initialObjects.filter { $0.resolved }
+            notResolvedTasks = initialObjects.filter { !$0.resolved }
+            cache = RealmResultsCache<Task>(request: request, sectionKeyPath: "resolved")
+            cache.populateSections(initialObjects)
+            cache.delegate = CacheDelegateMock.sharedInstance
+        }
+        
         beforeSuite {
             RealmTestHelper.loadRealm()
             realm = try! Realm()
@@ -306,6 +319,40 @@ class CacheSpec: QuickSpec {
                 }
                 it("restore the object") {
                     cache.insert([initialObjects[10]])
+                }
+            }
+            
+            context("delete last object of section") {
+                var object: Object?
+                var indexPath: NSIndexPath?
+                var newTask: Task!
+                var deletedSection: Int = -1
+                it("beforeAll") {
+                    initEmpty()
+                    newTask = Task()
+                    newTask.id = 0
+                    
+                    let primaryKey = Task.primaryKey()
+                    let primaryKeyValue = (newTask as Object).valueForKey(primaryKey!)
+                    let change = RealmChange(type: Task.self, primaryKey: primaryKeyValue!, action: .Delete, mirror: newTask)
+                    
+                    
+                    cache.delete([change])
+                    object = CacheDelegateMock.sharedInstance.object
+                    indexPath = CacheDelegateMock.sharedInstance.indexPath
+                    deletedSection = CacheDelegateMock.sharedInstance.index
+                }
+                it("returns nil") {
+                    expect(object).to(beNil())
+                }
+                it("deleted section at corret index") {
+                    expect(deletedSection) == 0
+                }
+                it("returns the index of the deleted object") {
+                    expect(indexPath!.row) == 0
+                }
+                it("section has been deleted") {
+                    expect(cache.sections.count) == 0
                 }
             }
         }
