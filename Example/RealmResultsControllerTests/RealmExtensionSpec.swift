@@ -13,11 +13,6 @@ import RealmSwift
 
 @testable import RealmResultsController
 
-class Dummy: Object {
-    dynamic var id: Int = 0
-}
-
-
 class RealmExtensionSpec: QuickSpec {
     
     func cleanLoggers() {

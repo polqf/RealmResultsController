@@ -61,6 +61,10 @@ class Project: Object {
     }
 }
 
+class Dummy: Object {
+    dynamic var id: Int = 0
+}
+
 //func randomStringWithLength (len : Int) -> String {
 //    
 //    let letters : String = "abcdefghijklmnopqrstuvwxyz"
