@@ -16,7 +16,7 @@ struct RealmTestHelper {
         if !firstTime { return }
         firstTime = false
         
-        let defaultRealmPath = Realm.defaultPath
+        let defaultRealmPath = Realm.Configuration.defaultConfiguration.path!
         let bundleReamPath: String? = NSBundle.mainBundle().resourcePath! + "/test.realm"
         
         if NSFileManager.defaultManager().fileExistsAtPath(defaultRealmPath) {

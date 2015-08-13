@@ -73,29 +73,27 @@ class RealmExtensionSpec: QuickSpec {
                     self.cleanLoggers()
                 }
             }
-//            
-//            context("the Model does not have primaryKey") {
-//                var object: Dummy!
-//                beforeEach {
-//                    self.cleanLoggers()
-//                    object = Dummy()
-//                    object.id = 1
-//                    realm.write {
-//                        realm.addNotified(object)
-//                    }
-//                }
-//                it("will add it to the realm") {
-//                    expect(object.realm).toNot(beNil())
-//                }
-//                it("won't use a logger") {
-//                    expect(RealmNotification.sharedInstance.loggers.count) == 0
-//                }
-//                it("clean") {
-//                    self.cleanLoggers()
-//                }
-//            }
-//            
-//            
+            
+            context("the Model does not have primaryKey") {
+                var object: Dummy!
+                beforeEach {
+                    self.cleanLoggers()
+                    object = Dummy()
+                    object.id = 1
+                    realm.write {
+                        realm.addNotified(object)
+                    }
+                }
+                it("will add it to the realm") {
+                    expect(object.realm).toNot(beNil())
+                }
+                it("won't use a logger") {
+                    expect(RealmNotification.sharedInstance.loggers.count) == 0
+                }
+                it("clean") {
+                    self.cleanLoggers()
+                }
+            }
         }
         
         describe("createNotified") {

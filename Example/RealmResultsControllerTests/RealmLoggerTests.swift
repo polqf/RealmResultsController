@@ -27,7 +27,8 @@ class RealmLoggerSpec: QuickSpec {
         var realm: Realm!
         var logger: RealmLogger!
         beforeSuite {
-            realm = try! Realm(inMemoryIdentifier: "testingRealm")
+            let configuration = Realm.Configuration(inMemoryIdentifier: "testingRealm")
+            realm = try! Realm(configuration: configuration)
             logger = RealmLogger(realm: realm)
         }
         

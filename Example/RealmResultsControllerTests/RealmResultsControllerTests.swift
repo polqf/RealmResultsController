@@ -32,7 +32,7 @@ class RealmResultsDelegate: RealmResultsControllerDelegate {
     }
     
     func didChangeSection<U>(section: RealmSection<U>, controller: AnyObject, index: Int, changeType: RealmResultsChangeType) {
-        self.section = section as! RealmSection<Task>
+        self.section = section as? RealmSection<Task>
         self.sectionIndex = index
         self.changeType = changeType
     }
