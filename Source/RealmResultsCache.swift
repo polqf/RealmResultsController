@@ -131,14 +131,6 @@ class RealmResultsCache<T: Object> {
         return sectionForKeyPath(key)
     }
     
-    func willChange() {
-        temporarySections = sections.map(Section.sectionFrom)
-    }
-    
-    func didChange() {
-
-    }
-    
     func insert(objects: [T]) {
         let mirrorsArray = sortedMirrors(objects)
         for object in mirrorsArray {
@@ -154,8 +146,7 @@ class RealmResultsCache<T: Object> {
         let mutArray = NSMutableArray(array: mirrors)
         let sorts = request.sortDescriptors.map(toNSSortDescriptor)
         mutArray.sortUsingDescriptors(sorts)
-        let mirrorsArray = (mutArray as AnyObject as! [T])
-        return mirrorsArray
+        return mutArray as AnyObject as! [T]
     }
     
     func delete(objects: [T]) {
