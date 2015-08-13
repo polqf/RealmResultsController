@@ -113,11 +113,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             task3.name = "Task-\(task3.id)"
             self.realm.addNotified(task3, update: true)  
         }
-        
-//        
-//        realm.write {
-//            
-//        }
     }
     
     

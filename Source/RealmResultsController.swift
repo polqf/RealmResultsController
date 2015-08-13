@@ -255,7 +255,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         var objectsToUpdate: [T] = []
         for object in temporaryUpdated {
             let type = cache.updateType(object)
-            if type != RealmCacheUpdateType.ObjectToSamePosition {
+            if type == RealmCacheUpdateType.Move {
                 objectsToMove.append(object)
                 continue
             }

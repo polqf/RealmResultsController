@@ -9,6 +9,10 @@
 import Foundation
 import RealmSwift
 
+enum RealmCacheUpdateType: String {
+    case Move
+    case Update
+}
 
 protocol RealmResultsCacheDelegate: class {
     func didInsertSection<T: Object>(section: Section<T>, index: Int)
@@ -52,14 +56,6 @@ class RealmResultsCache<T: Object> {
         return section!
     }
     
-    
-    private func indexForSectionKeyPath(keypath: String) -> Int {
-        let section = createNewSection(keypath)
-        let index = indexForSection(section)!
-        sections.removeAtIndex(index)
-        return index
-    }
-    
     private func indexForSection(section: Section<T>) -> Int? {
         return sections.indexOf(section)
     }
@@ -94,7 +90,7 @@ class RealmResultsCache<T: Object> {
     private func keyPathForObject(object: T) -> String {
         var keyPathValue = defaultKeyPathValue
         if let keyPath = sectionKeyPath {
-            //TODO: if keyPath.isEmpty { return }
+            if keyPath.isEmpty { return  defaultKeyPathValue }
             if NSThread.currentThread().isMainThread {
                 keyPathValue = String(object.valueForKeyPath(keyPath)!)
             }
@@ -105,15 +101,6 @@ class RealmResultsCache<T: Object> {
             }
         }
         return keyPathValue
-    }
-    
-    private func sectionForRealmChange(object: RealmChange) -> Section<T>? {
-        for section in sections {
-            if let _ = section.objectForPrimaryKey(object.primaryKey) {
-                return section
-            }
-        }
-        return nil
     }
     
     private func sectionForOutdateObject(object: T) -> Section<T>? {
@@ -213,9 +200,4 @@ class RealmResultsCache<T: Object> {
             delegate?.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: .Update)
         }
     }
-}
-
-enum RealmCacheUpdateType: String {
-    case Move
-    case Update
 }
