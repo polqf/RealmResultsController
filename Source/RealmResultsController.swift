@@ -36,16 +36,31 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     var mapper: (T) -> U
     var sectionKeyPath: String? = ""
     var backgroundQueue = dispatch_queue_create("com.RRC.\(arc4random_uniform(1000))", DISPATCH_QUEUE_SERIAL)
-    var sections: [RealmSection<U>] {
-        return cache.sections.map(realmSectionMapper)
-    }
-    public var numberOfSections: Int {
-        return cache.sections.count
-    }
     
     var temporaryAdded: [T] = []
     var temporaryUpdated: [T] = []
     var temporaryDeleted: [T] = []
+
+    /**
+    All results separated by the sectionKeyPath in RealmSection<U>
+    
+    Warning: This is computed variable that maps all the avaliable sections using the mapper. Could be an expensive operation
+    */
+    var sections: [RealmSection<U>] {
+        return cache.sections.map(realmSectionMapper)
+    }
+    
+    /// Number of sections in the RealmResultsController
+    public var numberOfSections: Int {
+        return cache.sections.count
+    }
+    
+    deinit {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
+    
+    //MARK: Initializers
 
     /**
     Create a RealmResultsController with a Request, a SectionKeypath to group the results and a mapper.
@@ -60,11 +75,11 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     NOTE2: Realm does not support sorting by KeyPaths, so you must only use properties of the model
     you want to fetch and not KeyPath to any relationship
     
-    :param: request        Request to fetch objects
-    :param: sectionKeyPath KeyPath to group the results by sections
-    :param: mapper         Mapper to map the results.
+    - param: request        Request to fetch objects
+    - param: sectionKeyPath KeyPath to group the results by sections
+    - param: mapper         Mapper to map the results.
     
-    :returns: Self
+    - returns: Self
     */
     public init(request: RealmRequest<T>, sectionKeyPath: String? ,mapper: (T)->(U)) throws {
         self.request = request
@@ -89,10 +104,10 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     NOTE: If sectionKeyPath is used, it must be equal to the property used in the first SortDescriptor
     of the RealmRequest. If not, RRC will throw an error
     
-    :param: request        Request to fetch objects
-    :param: sectionKeyPath keyPath to group the results of the request
+    - param: request        Request to fetch objects
+    - param: sectionKeyPath keyPath to group the results of the request
     
-    :returns: self
+    - returns: self
     */
     public convenience init(request: RealmRequest<T>, sectionKeyPath: String?) throws {
         try self.init(request: request, sectionKeyPath: sectionKeyPath) { (object: T) -> (U) in
@@ -100,32 +115,21 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         }
     }
     
-    convenience init(forTESTRequest request: RealmRequest<T>, sectionKeyPath: String?, mapper: (T)->(U)) throws {
+    private convenience init(forTESTRequest request: RealmRequest<T>, sectionKeyPath: String?, mapper: (T)->(U)) throws {
         try self.init(request: request, sectionKeyPath: sectionKeyPath, mapper: mapper)
         self._test = true
     }
     
-    deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
-    }
     
-    public func keyPathIsValid(keyPath: String?, sorts: [SortDescriptor]) -> Bool {
-        if keyPath == nil { return true }
-        guard let firstSort = sorts.first else { return false }
-        return keyPath == firstSort.property
-    }
+    //MARK: Fetch
     
-    public func numberOfObjectsAt(sectionIndex: Int) -> Int {
-        
-        return cache.sections[sectionIndex].objects.count
-    }
+    /**
+    Fetches the initial data for the RealmResultsController
     
-    public func objectAt(indexPath: NSIndexPath) -> U {
-        // TODO: make sure the indexPath exists
-        let object = cache.sections[indexPath.section].allObjects[indexPath.row]
-        return self.mapper(object)
-    }
+    Atention: Must be called after creating
     
+    - returns: [RealmSection<U>]
+    */
     public func performFetch() -> [RealmSection<U>] {
         populating = true
         let objects = self.request.execute().toArray(T.self).map(getMirror)
@@ -133,42 +137,43 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         populating = false
         return sections
     }
+
     
-    func realmSectionMapper<S>(section: Section<S>) -> RealmSection<U> {
+    //MARK: Helpers
+    
+    /**
+    Returns the number of objects at a given section index
+    
+    - param: sectionIndex Int
+    
+    - returns: the objects count at the sectionIndex
+    */
+    public func numberOfObjectsAt(sectionIndex: Int) -> Int {
+        return cache.sections[sectionIndex].objects.count
+    }
+
+    /**
+    Returns the mapped object at a given NSIndexPath
+    
+    - param: indexPath IndexPath for the desired object
+    
+    - returns: the object as U (mapped)
+    */
+    public func objectAt(indexPath: NSIndexPath) -> U {
+        let object = cache.sections[indexPath.section].allObjects[indexPath.row]
+        return self.mapper(object)
+    }
+
+    private func keyPathIsValid(keyPath: String?, sorts: [SortDescriptor]) -> Bool {
+        if keyPath == nil { return true }
+        guard let firstSort = sorts.first else { return false }
+        return keyPath == firstSort.property
+    }
+    
+    private func realmSectionMapper<S>(section: Section<S>) -> RealmSection<U> {
         return RealmSection<U>(objects: nil, keyPath: section.keyPath)
     }
     
-    /**
-    Hackish!
-    if a class has a generic T, and a method has another generic T (or even with another name)
-    and considering that the map function is defined to return a generic T. 
-    If you want to map inside that method, you are going to have a bad time.
-    This method is a wrapper of the map function to work with all the generic mess.
-    
-    NOTE: not used for the moment, leave it here in case we need it.
-    
-    :param: items Array of items to map, they should be of type T (defined by the class)
-    if the items are not T, this will crash.
-    
-    :returns: Array of mapped items (they should be U, defined by the class)
-    */
-//    private func mapItems<S: Object>(items: [S]) -> [U] {
-//        return items.map { mapper($0 as! T) }
-//    }
-    
-    
-    func executeOnCorrectThread(block: ()->()) {
-        _test ? dispatch_sync(backgroundQueue, block) : dispatch_async(backgroundQueue, block)
-    }
-    
-    func executeOnMainThread(block: ()->()) {
-        if NSThread.currentThread().isMainThread {
-            block()
-        }
-        else {
-            dispatch_async(dispatch_get_main_queue(), block)
-        }
-    }
     
     //MARK: Cache delegate
     
@@ -272,6 +277,36 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         temporaryUpdated.removeAll()
         executeOnMainThread {
             self.delegate?.didChangeResults(self)
+        }
+    }
+    
+    
+    //MARK: Threads management
+    
+    /**
+    Hackish!
+    if a class has a generic T, and a method has another generic T (or even with another name)
+    and considering that the map function is defined to return a generic T.
+    If you want to map inside that method, you are going to have a bad time.
+    This method is a wrapper of the map function to work with all the generic mess.
+    
+    NOTE: not used for the moment, leave it here in case we need it.
+    
+    :param: items Array of items to map, they should be of type T (defined by the class)
+    if the items are not T, this will crash.
+    
+    :returns: Array of mapped items (they should be U, defined by the class)
+    */
+    func executeOnCorrectThread(block: ()->()) {
+        _test ? dispatch_sync(backgroundQueue, block) : dispatch_async(backgroundQueue, block)
+    }
+    
+    func executeOnMainThread(block: ()->()) {
+        if NSThread.currentThread().isMainThread {
+            block()
+        }
+        else {
+            dispatch_async(dispatch_get_main_queue(), block)
         }
     }
     
