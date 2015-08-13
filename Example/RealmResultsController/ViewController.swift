@@ -39,18 +39,25 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         rrc!.performFetch()
         setupSubviews()
     }
-    
-    override func viewDidAppear(animated: Bool) {
-        addNewObject()
-    }
-    
+
     func populateDB() {
         realm.write {
             for i in 0...4 {
                 let task = TaskModel()
                 task.id = i
                 task.name = "Task-\(i)"
-                task.projectID = Int(arc4random_uniform(2))
+                task.projectID = 1
+                let user = User()
+                user.id = i
+                user.name = String(Int(arc4random_uniform(1000)))
+                task.user = user
+                self.realm.add(task)
+            }
+            for i in 10...11 {
+                let task = TaskModel()
+                task.id = i
+                task.name = "Task-\(i)"
+                task.projectID = 1
                 let user = User()
                 user.id = i
                 user.name = String(Int(arc4random_uniform(1000)))
@@ -76,16 +83,41 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
     func addNewObject() {
         realm.write {
+            
+            let task4 = self.realm.objectForPrimaryKey(TaskModel.self, key: 10)
+            let task5 = self.realm.objectForPrimaryKey(TaskModel.self, key: 3)
+            let task6 = self.realm.objectForPrimaryKey(TaskModel.self, key: 11)
+            self.realm.deleteNotified(task4!)
+            self.realm.deleteNotified(task5!)
+            self.realm.deleteNotified(task6!)
+            
+            
             let task = TaskModel()
-            task.id = Int(arc4random_uniform(5))
-            task.projectID = Int(arc4random_uniform(3))
+            task.id = 5
+            task.projectID = 1
+//            task.name = String(Int(arc4random_uniform(1000))) + "Task-\(task.id)"
             task.name = "Task-\(task.id)"
-            let user = User()
-            user.name = String(Int(arc4random_uniform(1000)))
-            user.id = Int(arc4random_uniform(1000))
-            task.user = user
             self.realm.addNotified(task, update: true)
+//            
+            let task2 = TaskModel()
+            task2.id = 9
+            task2.projectID = 1
+//            task2.name = String(Int(arc4random_uniform(1000))) + "Task-\(task2.id)"
+            task2.name = "Task-\(task2.id)"
+            self.realm.addNotified(task2, update: true)
+            
+            let task3 = TaskModel()
+            task3.id = 10
+            task3.projectID = 2
+//            task3.name = String(Int(arc4random_uniform(1000))) + "Task-\(task3.id)"
+            task3.name = "Task-\(task3.id)"
+            self.realm.addNotified(task3, update: true)  
         }
+        
+//        
+//        realm.write {
+//            
+//        }
     }
     
     
@@ -96,6 +128,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        print("🎀 Section: \(section): \(rrc!.numberOfObjectsAt(section))")
         return rrc!.numberOfObjectsAt(section)
     }
     
@@ -128,12 +161,12 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     // MARK: RealmResult
     
     func willChangeResults(controller: AnyObject) {
-        print("🎁 willChangeResults")
+        print("🎁 WILL")
         tableView.beginUpdates()
     }
     
     func didChangeObject<U>(object: U, controller: AnyObject, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
-        print("🎁 didChangeObject oldIndex:\(oldIndexPath) toIndex:\(newIndexPath) changeType:\(changeType)")
+        print("🎁 didChangeObject from: [\(oldIndexPath.section):\(oldIndexPath.row)] to: [\(newIndexPath.section):\(newIndexPath.row)] --> \(changeType)")
         switch changeType {
         case .Delete:
             tableView.deleteRowsAtIndexPaths([newIndexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
@@ -152,7 +185,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func didChangeSection<U>(section: RealmSection<U>, controller: AnyObject, index: Int, changeType: RealmResultsChangeType) {
-        print("🎁 didChangeSection index:\(index) changeType:\(changeType)")
+        print("🎁 didChangeSection \(index) --> \(changeType)")
         switch changeType {
         case .Delete:
             tableView.deleteSections(NSIndexSet(index: index), withRowAnimation: UITableViewRowAnimation.Automatic)
@@ -166,7 +199,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func didChangeResults(controller: AnyObject) {
-        print("🎁 didChangeResults")
+        print("🎁 DID")
         tableView.endUpdates()
     }
     
