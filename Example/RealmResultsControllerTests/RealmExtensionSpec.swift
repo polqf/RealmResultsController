@@ -29,7 +29,7 @@ class RealmExtensionSpec: QuickSpec {
             taskToTest = Task()
             taskToTest!.id = 1500
             taskToTest!.name = "testingName1"
-            
+            self.cleanLoggers()
             realm.write {
                 realm.addNotified([taskToTest!])
             }

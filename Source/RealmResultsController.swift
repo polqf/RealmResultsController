@@ -43,13 +43,46 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     var temporaryUpdated: [T] = []
     var temporaryDeleted: [RealmChange] = []
 
-    public init(request: RealmRequest<T>, sectionKeyPath: String? , mapper: (T)->(U)) {
+    /**
+    Create a RealmResultsController with a Request, a SectionKeypath to group the results and a mapper.
+    This init NEEDS a mapper, and all the Realm Models (T) will be transformed using the mapper
+    to objects of type (U). Done this way to avoid using Realm objects that are not thread safe.
+    And to decouple the Model layer of the View Layer.
+    If you want the RRC to return Realm objects that are thread safe, you should use the init
+    that doesn't require a mapper.
+    
+    :param: request        Request to fetch objects
+    :param: sectionKeyPath KeyPath to group the results by sections
+    :param: mapper         Mapper to map the results.
+    
+    :returns: Self
+    */
+    public init(request: RealmRequest<T>, sectionKeyPath: String? ,mapper: (T)->(U)) {
         self.request = request
         self.mapper = mapper
         self.sectionKeyPath = sectionKeyPath
         self.cache = RealmResultsCache<T>(request: request, sectionKeyPath: sectionKeyPath)
         self.cache?.delegate = self
         self.addNotificationObservers()
+    }
+    
+    /**
+    This INIT does not require a mapper, instead will use an empty mapper.
+    If you plan to use this INIT, you should create the RRC specifiyng T = U
+    Ex: let RRC = RealmResultsController<TaskModel, TaskModel>....
+    
+    All objects sent to the delegate of the RRC will be of the model type but
+    they will be "mirrors", i.e. they don't belong to any Realm DB.
+    
+    :param: request        Request to fetch objects
+    :param: sectionKeyPath keyPath to group the results of the request
+    
+    :returns: self
+    */
+    public convenience init(request: RealmRequest<T>, sectionKeyPath: String?) {
+        self.init(request: request, sectionKeyPath: sectionKeyPath) { (object: T) -> (U) in
+            return object as! U
+        }
     }
     
     convenience init(forTESTRequest request: RealmRequest<T>, sectionKeyPath: String?, mapper: (T)->(U)) {

@@ -36,6 +36,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         setupSubviews()
     }
     
+    override func viewDidAppear(animated: Bool) {
+        addNewObject()
+    }
+    
     func populateDB() {
         realm.write {
             for i in 0...9 {
