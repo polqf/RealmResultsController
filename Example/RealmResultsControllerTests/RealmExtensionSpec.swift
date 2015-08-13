@@ -25,7 +25,8 @@ class RealmExtensionSpec: QuickSpec {
         var taskToTest: Task?
 
         beforeSuite {
-            realm = Realm(inMemoryIdentifier: "testingRealm")
+            let configuration = Realm.Configuration(inMemoryIdentifier: "testingRealm")
+            realm = try! Realm(configuration: configuration)
             taskToTest = Task()
             taskToTest!.id = 1500
             taskToTest!.name = "testingName1"

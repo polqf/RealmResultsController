@@ -98,6 +98,50 @@ class RealmResultsControllerSpec: QuickSpec {
                     expect(sameType).to(beTruthy())
                 }
             }
+            
+            context("KeyPath Is not the same as the first sortDescriptor") {
+                var exceptionDetected: Bool = false
+                
+                beforeEach {
+                    do  {
+                        let request = RealmRequest<Task>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [SortDescriptor(property: "name")])
+                        let _ = try RealmResultsController<Task, TaskModel>(request: request, sectionKeyPath: "something", mapper: Task.mapTask)
+                    } catch {
+                        exceptionDetected = true
+                    }
+                }
+                it("it launches an exception") {
+                    expect(exceptionDetected).to(beTruthy())
+                }
+            }
+        }
+        
+        //Without Mapper
+        describe("init(request:)") {
+            var createdRRC: RealmResultsController<Task, Task>!
+            
+            beforeEach {
+                createdRRC = try! RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil)
+            }
+            it("Should have initialized a RRC") {
+                expect(createdRRC).toNot(beNil())
+                expect(createdRRC.request).toNot(beNil())
+                expect(createdRRC.mapper).toNot(beNil())
+                expect(createdRRC.cache.delegate).toNot(beNil())
+                expect(createdRRC.cache.defaultKeyPathValue).to(equal("default"))
+            }
+            
+            context("the mapper returns an object of the same type") {
+                var sameType: Bool = false
+                beforeEach {
+                    createdRRC.performFetch()
+                    let object = createdRRC.objectAt(NSIndexPath(forRow: 0, inSection: 0))
+                    sameType = object.isKindOfClass(Task)
+                }
+                it("returns mapped object") {
+                    expect(sameType).to(beTruthy())
+                }
+            }
         }
         
         describe("numberOfSections") {
