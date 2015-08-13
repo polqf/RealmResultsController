@@ -15,7 +15,7 @@ protocol RealmResultsCacheDelegate: class {
     func didDeleteSection<T: Object>(section: Section<T>, index: Int)
     func didInsert<T: Object>(object: T, indexPath: NSIndexPath)
     func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType)
-    func didDelete(indexPath: NSIndexPath)
+    func didDelete<T: Object>(object: T, indexPath: NSIndexPath)
 }
 
 class RealmResultsCache<T: Object> {
@@ -152,20 +152,28 @@ class RealmResultsCache<T: Object> {
     
     func sortedMirrors(mirrors: [T]) -> [T] {
         let mutArray = NSMutableArray(array: mirrors)
-        mutArray.sortUsingDescriptors(request.sortDescriptors.map(toNSSortDescriptor))
+        let sorts = request.sortDescriptors.map(toNSSortDescriptor)
+        mutArray.sortUsingDescriptors(sorts)
         let mirrorsArray = (mutArray as AnyObject as! [T])
         return mirrorsArray
     }
     
-    func delete(objects: [RealmChange]) {
-        let mirrors = objects.map { $0.mirror! as! T }
-        let mirrorsArray = sortedMirrors(mirrors).reverse()
+    func delete(objects: [T]) {
+        
+        var outdated: [T] = []
+        for object in objects {
+            guard let section = sectionForOutdateObject(object) else { return }
+            let index = section.indexForOutdatedObject(object)
+            outdated.append(section.objects.objectAtIndex(index) as! T)
+        }
+        
+        let mirrorsArray = sortedMirrors(outdated).reverse() as [T]
         
         for object in mirrorsArray {
             guard let section = sectionForOutdateObject(object) else { return }
             let index = section.deleteOutdatedObject(object)
             let indexPath = NSIndexPath(forRow: index, inSection: indexForSection(section)!)
-            delegate?.didDelete(indexPath)
+            delegate?.didDelete(object, indexPath: indexPath)
             if section.objects.count == 0 {
                 sections.removeAtIndex(indexPath.section)
                 delegate?.didDeleteSection(section, index: indexPath.section)

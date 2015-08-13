@@ -42,7 +42,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
     func populateDB() {
         realm.write {
-            for i in 0...4 {
+            for i in 0...3 {
                 let task = TaskModel()
                 task.id = i
                 task.name = "Task-\(i)"
@@ -53,11 +53,11 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                 task.user = user
                 self.realm.add(task)
             }
-            for i in 10...11 {
+            for i in 10...12 {
                 let task = TaskModel()
                 task.id = i
                 task.name = "Task-\(i)"
-                task.projectID = 1
+                task.projectID = 3
                 let user = User()
                 user.id = i
                 user.name = String(Int(arc4random_uniform(1000)))
@@ -93,22 +93,22 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             
             
             let task = TaskModel()
-            task.id = 5
-            task.projectID = 1
+            task.id = 2
+            task.projectID = 0
 //            task.name = String(Int(arc4random_uniform(1000))) + "Task-\(task.id)"
             task.name = "Task-\(task.id)"
             self.realm.addNotified(task, update: true)
 //            
             let task2 = TaskModel()
-            task2.id = 9
-            task2.projectID = 1
+            task2.id = 1
+            task2.projectID = 2
 //            task2.name = String(Int(arc4random_uniform(1000))) + "Task-\(task2.id)"
             task2.name = "Task-\(task2.id)"
             self.realm.addNotified(task2, update: true)
             
             let task3 = TaskModel()
             task3.id = 10
-            task3.projectID = 2
+            task3.projectID = 6
 //            task3.name = String(Int(arc4random_uniform(1000))) + "Task-\(task3.id)"
             task3.name = "Task-\(task3.id)"
             self.realm.addNotified(task3, update: true)  
@@ -166,7 +166,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func didChangeObject<U>(object: U, controller: AnyObject, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
-        print("🎁 didChangeObject from: [\(oldIndexPath.section):\(oldIndexPath.row)] to: [\(newIndexPath.section):\(newIndexPath.row)] --> \(changeType)")
+        print("🎁 didChangeObject \((object as! TaskModel).name) from: [\(oldIndexPath.section):\(oldIndexPath.row)] to: [\(newIndexPath.section):\(newIndexPath.row)] --> \(changeType)")
         switch changeType {
         case .Delete:
             tableView.deleteRowsAtIndexPaths([newIndexPath], withRowAnimation: UITableViewRowAnimation.Automatic)

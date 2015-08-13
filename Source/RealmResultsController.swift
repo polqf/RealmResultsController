@@ -45,7 +45,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     var temporaryAdded: [T] = []
     var temporaryUpdated: [T] = []
-    var temporaryDeleted: [RealmChange] = []
+    var temporaryDeleted: [T] = []
 
     /**
     Create a RealmResultsController with a Request, a SectionKeypath to group the results and a mapper.
@@ -185,9 +185,8 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         }
     }
     
-    func didDelete(indexPath: NSIndexPath) {
+    func didDelete<T: Object>(object: T, indexPath: NSIndexPath) {
         executeOnMainThread {
-            let object = U.self
             self.delegate?.didChangeObject(object, controller: self, oldIndexPath: indexPath, newIndexPath: indexPath, changeType: .Delete)
         }
     }
@@ -225,7 +224,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         for object in objects {
             if String(object.type) != String(T.self) { continue }
             if object.action == RealmAction.Delete {
-                temporaryDeleted.append(object)
+                temporaryDeleted.append(object.mirror as! T)
                 continue
             }
             
@@ -235,7 +234,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
                 temporaryAdded.append(object.mirror as! T)
             }
             if object.action == RealmAction.Update {
-                passesPredicate ? temporaryUpdated.append(object.mirror as! T) : temporaryDeleted.append(object)
+                passesPredicate ? temporaryUpdated.append(object.mirror as! T) : temporaryDeleted.append(object.mirror as! T)
             }
         }
     }
@@ -251,9 +250,23 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         executeOnMainThread {
             self.delegate?.willChangeResults(self)
         }
+        
+        var objectsToMove: [T] = []
+        var objectsToUpdate: [T] = []
+        for object in temporaryUpdated {
+            let type = cache.updateType(object)
+            if type != RealmCacheUpdateType.ObjectToSamePosition {
+                objectsToMove.append(object)
+                continue
+            }
+            objectsToUpdate.append(object)
+        }
+        
+        temporaryDeleted.extend(objectsToMove)
+        temporaryAdded.extend(objectsToMove)
         cache.delete(temporaryDeleted)
         cache.insert(temporaryAdded)
-        cache.update(temporaryUpdated)
+        cache.update(objectsToUpdate)
         temporaryAdded.removeAll()
         temporaryDeleted.removeAll()
         temporaryUpdated.removeAll()
