@@ -225,5 +225,19 @@ class RealmExtensionSpec: QuickSpec {
                 self.cleanLoggers()
             }
         }
+        describe("getMirror()") {
+            context("If the object has an optional nil value") {
+                var mirrored: Dummy!
+                let initial: Dummy = Dummy()
+                beforeEach {
+                    initial.id = 4
+                    mirrored = getMirror(initial)
+                }
+                it("Should have a nil 'optionalNilValue'") {
+                    expect(mirrored.optionalNilValue).to(beNil())
+                    expect(mirrored.id).to(equal(4))
+                }
+            }
+        }
     }
 }

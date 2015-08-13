@@ -15,6 +15,7 @@ class Task: Object {
     dynamic var name = ""
     dynamic var resolved = false
     dynamic var projectID = 0
+    dynamic var user: User = User()
     
     override static func primaryKey() -> String? {
         return "id"
@@ -26,6 +27,7 @@ class Task: Object {
         task.name = model.name
         task.resolved = model.resolved
         task.projectID = model.projectID
+        task.user = model.user
         return task
     }
 }
@@ -35,6 +37,7 @@ class TaskModel: Object {
     dynamic var name = ""
     dynamic var resolved = false
     dynamic var projectID = 0
+    dynamic var user: User = User()
     
     override static func primaryKey() -> String? {
         return "id"
@@ -63,6 +66,7 @@ class Project: Object {
 
 class Dummy: Object {
     dynamic var id: Int = 0
+    dynamic var optionalNilValue: Project?
 }
 
 //func randomStringWithLength (len : Int) -> String {

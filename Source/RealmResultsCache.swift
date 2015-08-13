@@ -75,7 +75,14 @@ class RealmResultsCache<T: Object> {
         var keyPathValue = defaultKeyPathValue
         if let keyPath = sectionKeyPath {
 //TODO:            if keyPath.isEmpty { return }
-            keyPathValue = String(object.valueForKeyPath(keyPath)!)
+            if NSThread.currentThread().isMainThread {
+                keyPathValue = String(object.valueForKeyPath(keyPath)!)
+            }
+            else {
+                dispatch_sync(dispatch_get_main_queue()) {
+                    keyPathValue = String(object.valueForKeyPath(keyPath)!)
+                }
+            }
         }
         return sectionForKeyPath(keyPathValue)
     }

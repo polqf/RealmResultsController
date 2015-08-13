@@ -30,7 +30,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         }
         populateDB()
         let request = RealmRequest<TaskModel>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [SortDescriptor(property: "projectID")  , SortDescriptor(property: "name")])
-        rrc = RealmResultsController<TaskModel, Task>(request: request, sectionKeyPath: "projectID", mapper: Task.map)
+        rrc = RealmResultsController<TaskModel, Task>(request: request, sectionKeyPath: "user.id", mapper: Task.map)
         rrc!.delegate = self
         rrc!.performFetch()
         setupSubviews()
@@ -43,6 +43,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                 task.id = i
                 task.name = "Task-\(i)"
                 task.projectID = Int(arc4random_uniform(2))
+                task.user.id = i
+                task.user.name = String(Int(arc4random_uniform(1000)))
                 self.realm.add(task)
             }
         }
@@ -68,6 +70,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             task.id = Int(arc4random_uniform(1000))
             task.projectID = Int(arc4random_uniform(3))
             task.name = "Task-\(task.id)"
+            task.user.name = String(Int(arc4random_uniform(1000)))
+            task.user.id = Int(arc4random_uniform(1000))
             self.realm.addNotified(task, update: true)
         }
     }
@@ -89,7 +93,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             cell = UITableViewCell(style: .Default, reuseIdentifier: "celltask")
         }
         let task = rrc!.objectAt(indexPath)
-        cell?.textLabel?.text = task.name + " :: " + String(task.projectID)
+        cell?.textLabel?.text = task.name + " :: " + String(task.projectID) + "::" + task.user.name
         return cell!
     }
     

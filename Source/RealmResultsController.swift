@@ -43,7 +43,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     var temporaryUpdated: [T] = []
     var temporaryDeleted: [RealmChange] = []
 
-    public init(request: RealmRequest<T>, sectionKeyPath: String? ,mapper: (T)->(U)) {
+    public init(request: RealmRequest<T>, sectionKeyPath: String? , mapper: (T)->(U)) {
         self.request = request
         self.mapper = mapper
         self.sectionKeyPath = sectionKeyPath
