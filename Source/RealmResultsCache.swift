@@ -22,6 +22,12 @@ protocol RealmResultsCacheDelegate: class {
     func didDelete<T: Object>(object: T, indexPath: NSIndexPath)
 }
 
+struct RealmCacheChange<T: Object> {
+    var object: T
+    var oldIndexPath: NSIndexPath
+    var key: AnyObject
+}
+
 class RealmResultsCache<T: Object> {
     var request: RealmRequest<T>
     var sectionKeyPath: String? = ""
@@ -29,6 +35,8 @@ class RealmResultsCache<T: Object> {
     var temporarySections: [Section<T>] = []
     let defaultKeyPathValue = "default"
     weak var delegate: RealmResultsCacheDelegate?
+    
+    var temporalDeletions: [RealmCacheChange<T>] = []
     
     init(request: RealmRequest<T>, sectionKeyPath: String?) {
         self.request = request
@@ -125,8 +133,32 @@ class RealmResultsCache<T: Object> {
             let rowIndex = section.insertSorted(object)
             let sectionIndex = indexForSection(section)!
             let indexPath = NSIndexPath(forRow: rowIndex, inSection: sectionIndex)
-            delegate?.didInsert(object, indexPath: indexPath)
+           
+            
+            // Find if the object was already deleted, then is a MOVE, and the insert/delted
+            // should be wrapped in only one operation to the delegate
+            let index = temporalDeletions.indexOf({ (item) -> Bool in
+                return item.key.isEqual(object.valueForKeyPath(T.primaryKey()!)!)
+            })
+            
+            // If we can't find the object in the deleted ones, then is only an insert
+            if index != nil {
+                let deletedObject = temporalDeletions[index!]
+                delegate?.didUpdate(object, oldIndexPath: deletedObject.oldIndexPath, newIndexPath: indexPath, changeType: RealmResultsChangeType.Move)
+                if index != nil {
+                    temporalDeletions.removeAtIndex(index!)
+                }
+            }
+            else {
+                delegate?.didInsert(object, indexPath: indexPath)
+            }
         }
+        
+        // The remaining objects, not MOVED or INSERTED, must be deleted at the end
+        for temp in temporalDeletions {
+            delegate?.didDelete(temp.object, indexPath: temp.oldIndexPath)
+        }
+        temporalDeletions.removeAll()
     }
     
     func sortedMirrors(mirrors: [T]) -> [T] {
@@ -151,7 +183,10 @@ class RealmResultsCache<T: Object> {
             guard let section = sectionForOutdateObject(object) else { return }
             let index = section.deleteOutdatedObject(object)
             let indexPath = NSIndexPath(forRow: index, inSection: indexForSection(section)!)
-            delegate?.didDelete(object, indexPath: indexPath)
+            let value = object.valueForKeyPath(T.primaryKey()!)
+            temporalDeletions.append(RealmCacheChange(object: object, oldIndexPath: indexPath, key: value!))
+        
+//            delegate?.didDelete(object, indexPath: indexPath)
             if section.objects.count == 0 {
                 sections.removeAtIndex(indexPath.section)
                 delegate?.didDeleteSection(section, index: indexPath.section)
