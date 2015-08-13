@@ -122,8 +122,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         tableView.beginUpdates()
     }
     
-    func didChangeObject<U>(object: U, controller: AnyObject, atIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
-        print("🎁 didChangeObject oldIndex:\(atIndexPath) toIndex:\(newIndexPath) changeType:\(changeType)")
+    func didChangeObject<U>(object: U, controller: AnyObject, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
+        print("🎁 didChangeObject oldIndex:\(oldIndexPath) toIndex:\(newIndexPath) changeType:\(changeType)")
         switch changeType {
         case .Delete:
             tableView.deleteRowsAtIndexPaths([newIndexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
@@ -132,7 +132,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             tableView.insertRowsAtIndexPaths([newIndexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
             break
         case .Move:
-            tableView.deleteRowsAtIndexPaths([atIndexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
+            tableView.deleteRowsAtIndexPaths([oldIndexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
             tableView.insertRowsAtIndexPaths([newIndexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
             break
         case .Update:

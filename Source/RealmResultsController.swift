@@ -18,7 +18,7 @@ enum RealmResultsChangeType: String {
 
 protocol RealmResultsControllerDelegate: class {
     func willChangeResults(controller: AnyObject)
-    func didChangeObject<U>(object: U, controller: AnyObject, atIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType)
+    func didChangeObject<U>(object: U, controller: AnyObject, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType)
     func didChangeSection<U>(section: RealmSection<U>, controller: AnyObject, index: Int, changeType: RealmResultsChangeType)
     func didChangeResults(controller: AnyObject)
 }
@@ -154,7 +154,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     func didInsert<T: Object>(object: T, indexPath: NSIndexPath) {
         executeOnMainThread {
-            self.delegate?.didChangeObject(object, controller: self, atIndexPath: indexPath, newIndexPath: indexPath, changeType: .Insert)
+            self.delegate?.didChangeObject(object, controller: self, oldIndexPath: indexPath, newIndexPath: indexPath, changeType: .Insert)
         }
 
     }
@@ -165,14 +165,14 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
             if oldIndexPath != newIndexPath {
                 changeType = .Move
             }
-            self.delegate?.didChangeObject(object, controller: self, atIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: changeType)
+            self.delegate?.didChangeObject(object, controller: self, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: changeType)
         }
     }
     
     func didDelete(indexPath: NSIndexPath) {
         executeOnMainThread {
             let object = U.self
-            self.delegate?.didChangeObject(object, controller: self, atIndexPath: indexPath, newIndexPath: indexPath, changeType: .Delete)
+            self.delegate?.didChangeObject(object, controller: self, oldIndexPath: indexPath, newIndexPath: indexPath, changeType: .Delete)
         }
     }
     

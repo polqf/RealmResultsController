@@ -24,9 +24,9 @@ class RealmResultsDelegate: RealmResultsControllerDelegate {
     
     func willChangeResults(controller: AnyObject) {}
     
-    func didChangeObject<U>(object: U, controller: AnyObject, atIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
+    func didChangeObject<U>(object: U, controller: AnyObject, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
         self.object = object as? Task
-        self.oldIndexPath = atIndexPath
+        self.oldIndexPath = oldIndexPath
         self.newIndexPath = newIndexPath
         self.changeType = changeType
     }
