@@ -18,11 +18,16 @@ public struct RealmSection<U> {
 class Section<T: Object> : NSObject {
     var objects: NSMutableArray = []
     var keyPath: String = ""
+    var sortDescriptors: [NSSortDescriptor] = []
     var allObjects: [T] {
         return objects.map {$0 as! T}
     }
     
-    var sortDescriptors: [NSSortDescriptor] = []
+    static func sectionFrom<T: Object>(section: Section<T>) -> Section<T> {
+        let newSection = Section<T>(keyPath: section.keyPath, sortDescriptors: section.sortDescriptors)
+        newSection.objects = section.objects.mutableCopy() as! NSMutableArray
+        return newSection
+    }
     
     required init(keyPath: String, sortDescriptors: [NSSortDescriptor]) {
         self.keyPath = keyPath
@@ -66,6 +71,16 @@ class Section<T: Object> : NSObject {
         let objectToDelete: T? = objectForPrimaryKey(primaryKeyValue)
         if let object = objectToDelete {
             return delete(object)
+        }
+        return -1
+    }
+    
+    func indexForOutdatedObject(object: T) -> Int {
+        let primaryKey = T.primaryKey()!
+        let primaryKeyValue = (object as Object).valueForKey(primaryKey)!
+        let objectToDelete: T? = objectForPrimaryKey(primaryKeyValue)
+        if let object = objectToDelete {
+            return objects.indexOfObject(object)
         }
         return -1
     }

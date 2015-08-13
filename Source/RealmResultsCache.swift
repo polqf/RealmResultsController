@@ -14,7 +14,7 @@ protocol RealmResultsCacheDelegate: class {
     func didInsertSection<T: Object>(section: Section<T>, index: Int)
     func didDeleteSection<T: Object>(section: Section<T>, index: Int)
     func didInsert<T: Object>(object: T, indexPath: NSIndexPath)
-    func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath)
+    func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType)
     func didDelete(indexPath: NSIndexPath)
 }
 
@@ -22,6 +22,7 @@ class RealmResultsCache<T: Object> {
     var request: RealmRequest<T>
     var sectionKeyPath: String? = ""
     var sections: [Section<T>] = []
+    var temporarySections: [Section<T>] = []
     let defaultKeyPathValue = "default"
     weak var delegate: RealmResultsCacheDelegate?
     
@@ -32,7 +33,7 @@ class RealmResultsCache<T: Object> {
     
     func populateSections(objects: [T]) {
         for object in objects {
-            let section = sectionForObject(object)
+            let section = getOrCreateSection(object)
             section.insertSorted(object)
         }
     }
@@ -42,16 +43,33 @@ class RealmResultsCache<T: Object> {
         populateSections(objects)
     }
     
+    private func getOrCreateSection(object: T) -> Section<T> {
+        let key = keyPathForObject(object)
+        var section = sectionForKeyPath(key)
+        if section == nil {
+            section = createNewSection(key)
+        }
+        return section!
+    }
+    
+    
+    private func indexForSectionKeyPath(keypath: String) -> Int {
+        let section = createNewSection(keypath)
+        let index = indexForSection(section)!
+        sections.removeAtIndex(index)
+        return index
+    }
+    
     private func indexForSection(section: Section<T>) -> Int? {
         return sections.indexOf(section)
     }
     
-    private func sectionForKeyPath(keyPath: String) -> Section<T> {
+    private func sectionForKeyPath(keyPath: String, create: Bool = true) -> Section<T>? {
         let section = sections.filter{$0.keyPath == keyPath}
         if let s = section.first {
             return s
         }
-        return createNewSection(keyPath)
+        return nil
     }
     
     private func sortSections() {
@@ -62,19 +80,21 @@ class RealmResultsCache<T: Object> {
         return NSSortDescriptor(key: sort.property, ascending: sort.ascending)
     }
     
-    private func createNewSection(keyPath: String) -> Section<T> {
+    private func createNewSection(keyPath: String, notifyDelegate: Bool = true) -> Section<T> {
         let newSection = Section<T>(keyPath: keyPath, sortDescriptors: request.sortDescriptors.map(toNSSortDescriptor))
         sections.append(newSection)
         sortSections()
         let index = indexForSection(newSection)!
-        delegate?.didInsertSection(newSection, index: index)
+        if notifyDelegate {
+            delegate?.didInsertSection(newSection, index: index)
+        }
         return newSection
     }
     
-    private func sectionForObject(object: T) -> Section<T> {
+    private func keyPathForObject(object: T) -> String {
         var keyPathValue = defaultKeyPathValue
         if let keyPath = sectionKeyPath {
-//TODO:            if keyPath.isEmpty { return }
+            //TODO: if keyPath.isEmpty { return }
             if NSThread.currentThread().isMainThread {
                 keyPathValue = String(object.valueForKeyPath(keyPath)!)
             }
@@ -84,7 +104,7 @@ class RealmResultsCache<T: Object> {
                 }
             }
         }
-        return sectionForKeyPath(keyPathValue)
+        return keyPathValue
     }
     
     private func sectionForRealmChange(object: RealmChange) -> Section<T>? {
@@ -96,7 +116,7 @@ class RealmResultsCache<T: Object> {
         return nil
     }
     
-    private func sectionForOutdateObject(object: T) -> Section<T> {
+    private func sectionForOutdateObject(object: T) -> Section<T>? {
         let primaryKey = T.primaryKey()!
         let primaryKeyValue = (object as Object).valueForKey(primaryKey)!
         for section in sections {
@@ -107,22 +127,43 @@ class RealmResultsCache<T: Object> {
                 }
             }
         }
-        return sectionForObject(object)
+        let key = keyPathForObject(object)
+        return sectionForKeyPath(key)
+    }
+    
+    func willChange() {
+        temporarySections = sections.map(Section.sectionFrom)
+    }
+    
+    func didChange() {
+
     }
     
     func insert(objects: [T]) {
-        for object in objects {
-            let section = sectionForObject(object)
-            let index = section.insertSorted(object)
-            let indexPath = NSIndexPath(forRow: index, inSection: indexForSection(section)!)
+        let mirrorsArray = sortedMirrors(objects)
+        for object in mirrorsArray {
+            let section = getOrCreateSection(object) //Calls the delegate when there is an insertion
+            let rowIndex = section.insertSorted(object)
+            let sectionIndex = indexForSection(section)!
+            let indexPath = NSIndexPath(forRow: rowIndex, inSection: sectionIndex)
             delegate?.didInsert(object, indexPath: indexPath)
         }
     }
     
+    func sortedMirrors(mirrors: [T]) -> [T] {
+        let mutArray = NSMutableArray(array: mirrors)
+        mutArray.sortUsingDescriptors(request.sortDescriptors.map(toNSSortDescriptor))
+        let mirrorsArray = (mutArray as AnyObject as! [T])
+        return mirrorsArray
+    }
+    
     func delete(objects: [RealmChange]) {
-        for object in objects {
-            guard let section = sectionForRealmChange(object) else { return }
-            let index = section.delete(object)
+        let mirrors = objects.map { $0.mirror! as! T }
+        let mirrorsArray = sortedMirrors(mirrors).reverse()
+        
+        for object in mirrorsArray {
+            guard let section = sectionForOutdateObject(object) else { return }
+            let index = section.deleteOutdatedObject(object)
             let indexPath = NSIndexPath(forRow: index, inSection: indexForSection(section)!)
             delegate?.didDelete(indexPath)
             if section.objects.count == 0 {
@@ -132,30 +173,157 @@ class RealmResultsCache<T: Object> {
         }
     }
     
+    func updateType(object: T) -> RealmCacheUpdateType {
+        let oldSection = sectionForOutdateObject(object)!
+        let oldIndexRow = oldSection.indexForOutdatedObject(object)
+
+        let newKeyPathValue = keyPathForObject(object)
+        let newSection = sectionForKeyPath(newKeyPathValue)
+        
+        
+        let indexOutdated = oldSection.indexForOutdatedObject(object)
+        let outdatedCopy = oldSection.objects.objectAtIndex(indexOutdated) as! T
+        
+        oldSection.deleteOutdatedObject(object)
+        
+        let newIndexRow = newSection?.insertSorted(object)
+        newSection?.delete(object)
+        oldSection.insertSorted(outdatedCopy)
+        
+        if newSection == nil { // move to new section
+            if oldSection.objects.count == 1 {
+                return RealmCacheUpdateType.LastObjectToNewSection
+            } else {
+                return RealmCacheUpdateType.ObjectToNewSection
+            }
+        }
+        else {
+            if oldSection == newSection {
+                if oldIndexRow == newIndexRow {
+                    return RealmCacheUpdateType.ObjectToSamePosition
+                } else {
+                    return RealmCacheUpdateType.ObjectToSameSection
+                }
+            }
+            else {
+                if oldSection.objects.count == 1 {
+                    return RealmCacheUpdateType.LastObjectToSection
+                } else {
+                    return RealmCacheUpdateType.ObjectToSection
+                }
+            }
+        }
+    }
+    
     func update(objects: [T]) {
         for object in objects {
-            let oldSection = sectionForOutdateObject(object)
-            let oldIndexRow = oldSection.deleteOutdatedObject(object)
+            let oldSectionOptional = sectionForOutdateObject(object)
             
-            if oldIndexRow == -1 {
+            guard let oldSection = oldSectionOptional else {
                 insert([object])
                 return
             }
             
-            let newSection = sectionForObject(object)
-            let newIndexRow = newSection.insertSorted(object)
+            let type = updateType(object)
+            let keyPathValue = keyPathForObject(object)
+            var oldSectionIndex = indexForSection(oldSection)!
+            let oldIndexRow = oldSection.indexForOutdatedObject(object)
+            let oldIndexPath = NSIndexPath(forRow: oldIndexRow, inSection: oldSectionIndex)
+
             
-            var newIndexPath = NSIndexPath(forRow: newIndexRow, inSection: indexForSection(newSection)!)
-            let oldIndexPath = NSIndexPath(forRow: oldIndexRow, inSection: indexForSection(oldSection)!)
-            
-            if oldSection.objects.count == 0 {
-                if newIndexPath.section > oldIndexPath.section {
-                    newIndexPath = NSIndexPath(forRow: newIndexRow, inSection: newIndexPath.section - 1)
+            switch type {
+            case .LastObjectToNewSection:
+                let newSection = createNewSection(keyPathValue, notifyDelegate: false)
+                var newSectionIndex = indexForSection(newSection)!
+                
+                if newSectionIndex > oldSectionIndex {
+                    newSectionIndex--
                 }
-                sections.removeAtIndex(oldIndexPath.section)
-                delegate?.didDeleteSection(oldSection, index: oldIndexPath.section)
+                
+                let newOldSectionIndex = sections.indexOf(oldSection)
+                sections.removeAtIndex(newOldSectionIndex!)
+                let newIndexRow = newSection.insertSorted(object)
+                let newIndexPath = NSIndexPath(forRow: newIndexRow, inSection: newSectionIndex)
+
+                delegate?.didInsertSection(newSection, index: newSectionIndex)
+                delegate?.didDeleteSection(oldSection, index: oldSectionIndex)
+                delegate?.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: .Move)
+                break
+                
+            case .LastObjectToSection:
+                let newSection = sectionForKeyPath(keyPathValue)!
+                var newSectionIndex = indexForSection(newSection)!
+                
+                if newSectionIndex > oldSectionIndex {
+                    newSectionIndex--
+                }
+                sections.removeAtIndex(oldSectionIndex)
+                let newIndexRow = newSection.insertSorted(object)
+                let newIndexPath = NSIndexPath(forRow: newIndexRow, inSection: newSectionIndex)
+                
+                delegate?.didDeleteSection(oldSection, index: oldSectionIndex)
+                delegate?.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: .Move)
+                break
+                
+            case .ObjectToNewSection:
+                let newSection = createNewSection(keyPathValue, notifyDelegate: false)
+                let newSectionIndex = indexForSection(newSection)!
+                let newIndexRow = newSection.insertSorted(object)
+                oldSection.deleteOutdatedObject(object)
+                let newIndexPath = NSIndexPath(forRow: newIndexRow, inSection: newSectionIndex)
+                
+                delegate?.didInsertSection(newSection, index: newSectionIndex)
+                delegate?.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: .Move)
+                break
+                
+            case .ObjectToSamePosition:
+                oldSection.deleteOutdatedObject(object)
+                let newIndexRow = oldSection.insertSorted(object)
+                let newIndexPath = NSIndexPath(forRow: newIndexRow, inSection: oldSectionIndex)
+                delegate?.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: .Update)
+                break
+                
+            case .ObjectToSameSection:
+                oldSection.deleteOutdatedObject(object)
+                let newIndexRow = oldSection.insertSorted(object)
+                let newIndexPath = NSIndexPath(forRow: newIndexRow, inSection: oldSectionIndex)
+                delegate?.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: .Move)
+
+                break
+            case .ObjectToSection:
+                break
             }
-            delegate?.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath)
+            
+//            
+//            let oldIndexPath = NSIndexPath(forRow: oldIndexRow, inSection: indexForSection(oldSection)!)
+//            
+//            let newSection = sectionForObject(object)
+//            let newIndexRow = newSection.insertSorted(object)
+//            
+//            let moveSection = oldIndexPath.section != indexForSection(oldSection)
+//            
+//            var newIndexPath = NSIndexPath(forRow: newIndexRow, inSection: indexForSection(newSection)!)
+//            
+//            if oldSection.objects.count == 0 {
+//                if newIndexPath.section > oldIndexPath.section {
+//                    newIndexPath = NSIndexPath(forRow: newIndexRow, inSection: newIndexPath.section - 1)
+//                }
+//                sections.removeAtIndex(oldIndexPath.section)
+//                delegate?.didDeleteSection(oldSection, index: oldIndexPath.section)
+//            }
+//            
+//            let changeType: RealmResultsChangeType = moveSection ? .Move : .Update
+//            
+//            delegate?.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: changeType)
         }
     }
+}
+
+enum RealmCacheUpdateType: String {
+    case LastObjectToNewSection
+    case LastObjectToSection
+    case ObjectToNewSection
+    case ObjectToSection
+    case ObjectToSameSection //move
+    case ObjectToSamePosition // Update
 }

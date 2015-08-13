@@ -179,12 +179,8 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
 
     }
     
-    func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath) {
+    func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
         executeOnMainThread {
-            var changeType: RealmResultsChangeType = .Update
-            if oldIndexPath != newIndexPath {
-                changeType = .Move
-            }
             self.delegate?.didChangeObject(object, controller: self, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: changeType)
         }
     }
@@ -255,8 +251,8 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         executeOnMainThread {
             self.delegate?.willChangeResults(self)
         }
-        cache.insert(temporaryAdded)
         cache.delete(temporaryDeleted)
+        cache.insert(temporaryAdded)
         cache.update(temporaryUpdated)
         temporaryAdded.removeAll()
         temporaryDeleted.removeAll()
