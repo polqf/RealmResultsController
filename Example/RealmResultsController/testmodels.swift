@@ -15,7 +15,7 @@ class Task: Object {
     dynamic var name = ""
     dynamic var resolved = false
     dynamic var projectID = 0
-    dynamic var user: User = User()
+    dynamic var user: User?
     
     override static func primaryKey() -> String? {
         return "id"
@@ -27,7 +27,15 @@ class Task: Object {
         task.name = model.name
         task.resolved = model.resolved
         task.projectID = model.projectID
-        task.user = model.user
+        return task
+    }
+    
+    static func mapTask(taskModel: Task) -> TaskModel {
+        let task = TaskModel()
+        task.id = taskModel.id
+        task.name = taskModel.name
+        task.resolved = taskModel.resolved
+        task.projectID = taskModel.projectID
         return task
     }
 }
@@ -37,7 +45,7 @@ class TaskModel: Object {
     dynamic var name = ""
     dynamic var resolved = false
     dynamic var projectID = 0
-    dynamic var user: User = User()
+    dynamic var user: User?
     
     override static func primaryKey() -> String? {
         return "id"

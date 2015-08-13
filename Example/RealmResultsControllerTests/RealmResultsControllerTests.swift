@@ -54,7 +54,7 @@ class RealmResultsControllerSpec: QuickSpec {
             realm = try! Realm()
             let predicate = NSPredicate(value: true)
             request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: [])
-            RRC = RealmResultsController<Task, Task>(forTESTRequest: request, sectionKeyPath: nil) { $0 }
+            RRC = try! RealmResultsController<Task, Task>(forTESTRequest: request, sectionKeyPath: nil) { $0 }
             RRC.delegate = RRCDelegate
         }
 
@@ -67,7 +67,7 @@ class RealmResultsControllerSpec: QuickSpec {
             var createdRRC: RealmResultsController<Task, Task>!
             
             beforeEach {
-                createdRRC = RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil) { $0 }
+                createdRRC = try! RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil) { $0 }
             }
             it("Should have initialized a RRC") {
                 expect(createdRRC).toNot(beNil())
@@ -85,14 +85,14 @@ class RealmResultsControllerSpec: QuickSpec {
             }
             
             context("using valid mapper") {
-                var createdRRC: RealmResultsController<TaskModel, Task>!
+                var createdRRC: RealmResultsController<Task, TaskModel>!
                 var sameType: Bool = false
                 beforeEach {
-                    let request = RealmRequest<TaskModel>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [])
-                    createdRRC = RealmResultsController<TaskModel, Task>(request: request, sectionKeyPath: nil, mapper: Task.map)
+                    let request = RealmRequest<Task>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [])
+                    createdRRC = try! RealmResultsController<Task, TaskModel>(request: request, sectionKeyPath: nil, mapper: Task.mapTask)
                     createdRRC.performFetch()
                     let object = createdRRC.objectAt(NSIndexPath(forRow: 0, inSection: 0))
-                    sameType = object.isKindOfClass(Task)
+                    sameType = object.isKindOfClass(TaskModel)
                 }
                 it("returns mapped object") {
                     expect(sameType).to(beTruthy())
@@ -208,7 +208,7 @@ class RealmResultsControllerSpec: QuickSpec {
             var temporaryDeleted: [RealmChange] = []
             var temporaryUpdated: [Task] = []
             beforeEach {
-                RRC = RealmResultsController<Task, Task>(forTESTRequest: request, sectionKeyPath: nil) { $0 }
+                RRC = try! RealmResultsController<Task, Task>(forTESTRequest: request, sectionKeyPath: nil) { $0 }
                 RRC.delegate = RRCDelegate
             }
             

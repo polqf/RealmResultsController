@@ -30,7 +30,11 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         }
         populateDB()
         let request = RealmRequest<TaskModel>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [SortDescriptor(property: "projectID")  , SortDescriptor(property: "name")])
-        rrc = RealmResultsController<TaskModel, Task>(request: request, sectionKeyPath: "user.id", mapper: Task.map)
+        do {
+            rrc = try RealmResultsController<TaskModel, Task>(request: request, sectionKeyPath: "projectID", mapper: Task.map)
+        } catch {
+            print(error)
+        }
         rrc!.delegate = self
         rrc!.performFetch()
         setupSubviews()
@@ -47,8 +51,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                 task.id = i
                 task.name = "Task-\(i)"
                 task.projectID = Int(arc4random_uniform(2))
-                task.user.id = i
-                task.user.name = String(Int(arc4random_uniform(1000)))
+                let user = User()
+                user.id = i
+                user.name = String(Int(arc4random_uniform(1000)))
+                task.user = user
                 self.realm.add(task)
             }
         }
@@ -71,11 +77,13 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     func addNewObject() {
         realm.write {
             let task = TaskModel()
-            task.id = Int(arc4random_uniform(1000))
+            task.id = Int(arc4random_uniform(10))
             task.projectID = Int(arc4random_uniform(3))
             task.name = "Task-\(task.id)"
-            task.user.name = String(Int(arc4random_uniform(1000)))
-            task.user.id = Int(arc4random_uniform(1000))
+            let user = User()
+            user.name = String(Int(arc4random_uniform(1000)))
+            user.id = Int(arc4random_uniform(1000))
+            task.user = user
             self.realm.addNotified(task, update: true)
         }
     }
@@ -97,7 +105,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             cell = UITableViewCell(style: .Default, reuseIdentifier: "celltask")
         }
         let task = rrc!.objectAt(indexPath)
-        cell?.textLabel?.text = task.name + " :: " + String(task.projectID) + "::" + task.user.name
+        
+        let userName = task.user == nil ? "user" : task.user!.name
+        cell?.textLabel?.text = task.name + " :: " + String(task.projectID) + "::" + userName
         return cell!
     }
     

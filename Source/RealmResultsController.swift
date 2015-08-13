@@ -9,6 +9,10 @@
 import Foundation
 import RealmSwift
 
+enum RRCError: ErrorType {
+    case InvalidKeyPath
+}
+
 enum RealmResultsChangeType: String {
     case Insert
     case Delete
@@ -51,17 +55,25 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     If you want the RRC to return Realm objects that are thread safe, you should use the init
     that doesn't require a mapper.
     
+    NOTE: If sectionKeyPath is used, it must be equal to the property used in the first SortDescriptor
+    of the RealmRequest. If not, RRC will throw an error.
+    NOTE2: Realm does not support sorting by KeyPaths, so you must only use properties of the model
+    you want to fetch and not KeyPath to any relationship
+    
     :param: request        Request to fetch objects
     :param: sectionKeyPath KeyPath to group the results by sections
     :param: mapper         Mapper to map the results.
     
     :returns: Self
     */
-    public init(request: RealmRequest<T>, sectionKeyPath: String? ,mapper: (T)->(U)) {
+    public init(request: RealmRequest<T>, sectionKeyPath: String? ,mapper: (T)->(U)) throws {
         self.request = request
         self.mapper = mapper
         self.sectionKeyPath = sectionKeyPath
         self.cache = RealmResultsCache<T>(request: request, sectionKeyPath: sectionKeyPath)
+        if !keyPathIsValid(sectionKeyPath, sorts: request.sortDescriptors) {
+            throw RRCError.InvalidKeyPath
+        }
         self.cache?.delegate = self
         self.addNotificationObservers()
     }
@@ -74,24 +86,33 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     All objects sent to the delegate of the RRC will be of the model type but
     they will be "mirrors", i.e. they don't belong to any Realm DB.
     
+    NOTE: If sectionKeyPath is used, it must be equal to the property used in the first SortDescriptor
+    of the RealmRequest. If not, RRC will throw an error
+    
     :param: request        Request to fetch objects
     :param: sectionKeyPath keyPath to group the results of the request
     
     :returns: self
     */
-    public convenience init(request: RealmRequest<T>, sectionKeyPath: String?) {
-        self.init(request: request, sectionKeyPath: sectionKeyPath) { (object: T) -> (U) in
+    public convenience init(request: RealmRequest<T>, sectionKeyPath: String?) throws {
+        try self.init(request: request, sectionKeyPath: sectionKeyPath) { (object: T) -> (U) in
             return object as! U
         }
     }
     
-    convenience init(forTESTRequest request: RealmRequest<T>, sectionKeyPath: String?, mapper: (T)->(U)) {
-        self.init(request: request, sectionKeyPath: sectionKeyPath, mapper: mapper)
+    convenience init(forTESTRequest request: RealmRequest<T>, sectionKeyPath: String?, mapper: (T)->(U)) throws {
+        try self.init(request: request, sectionKeyPath: sectionKeyPath, mapper: mapper)
         self._test = true
     }
     
     deinit {
         NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
+    public func keyPathIsValid(keyPath: String?, sorts: [SortDescriptor]) -> Bool {
+        if keyPath == nil { return true }
+        guard let firstSort = sorts.first else { return false }
+        return keyPath == firstSort.property
     }
     
     public func numberOfObjectsAt(sectionIndex: Int) -> Int {
@@ -107,7 +128,6 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     public func performFetch() -> [RealmSection<U>] {
         populating = true
-        request.execute().toArray(T.self)
         let objects = self.request.execute().toArray(T.self).map(getMirror)
         self.cache.reset(objects)
         populating = false

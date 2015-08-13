@@ -208,15 +208,15 @@ class RealmExtensionSpec: QuickSpec {
             beforeEach {
                 realm.write {
                     let task = Task()
-                    task.id = 1600
+                    task.id = 161123123
                     realm.addNotified([task])
                 }
-                let predicate = NSPredicate(format: "id == %d", 1600)
+                let predicate = NSPredicate(format: "id == %d", 161123123)
                 request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: [])
                 result = realm.execute(request).toArray(Task.self).first!
             }
             it("returns the correct element") {
-                expect(result.id) == 1600
+                expect(result.id) == 161123123
             }
             afterEach {
                 realm.write {
