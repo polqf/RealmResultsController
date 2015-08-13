@@ -76,6 +76,28 @@ class RealmResultsControllerSpec: QuickSpec {
                 expect(createdRRC.cache.delegate).toNot(beNil())
                 expect(createdRRC.cache.defaultKeyPathValue).to(equal("default"))
             }
+            
+            it("try to execute a block in main thread from a background queue") {
+                let queue = dispatch_queue_create("lock", DISPATCH_QUEUE_SERIAL)
+                dispatch_async(queue) {
+                    RRC.executeOnMainThread { }
+                }
+            }
+            
+            context("using valid mapper") {
+                var createdRRC: RealmResultsController<TaskModel, Task>!
+                var sameType: Bool = false
+                beforeEach {
+                    let request = RealmRequest<TaskModel>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [])
+                    createdRRC = RealmResultsController<TaskModel, Task>(request: request, sectionKeyPath: nil, mapper: Task.map)
+                    createdRRC.performFetch()
+                    let object = createdRRC.objectAt(NSIndexPath(forRow: 0, inSection: 0))
+                    sameType = object.isKindOfClass(Task)
+                }
+                it("returns mapped object") {
+                    expect(sameType).to(beTruthy())
+                }
+            }
         }
         
         describe("numberOfSections") {
@@ -182,19 +204,38 @@ class RealmResultsControllerSpec: QuickSpec {
         }
         
         describe("didReceiveRealmChanges(notification:)") {
+            var temporaryAdded: [Task] = []
+            var temporaryDeleted: [RealmChange] = []
+            var temporaryUpdated: [Task] = []
             beforeEach {
                 RRC = RealmResultsController<Task, Task>(forTESTRequest: request, sectionKeyPath: nil) { $0 }
                 RRC.delegate = RRCDelegate
             }
+            
+            context("it receives an object of another model") {
+                beforeEach {
+                    temporaryAdded = RRC.temporaryAdded
+                    temporaryUpdated = RRC.temporaryUpdated
+                    temporaryDeleted = RRC.temporaryDeleted
+                    let createChange = RealmChange(type: User.self, primaryKey: -111, action: .Create, mirror: User())
+                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: [createChange]))
+                }
+                it("ignores the object") {
+                    expect(temporaryAdded) == RRC.temporaryAdded
+                    expect(temporaryUpdated) == RRC.temporaryUpdated
+                    expect(temporaryDeleted.count) == RRC.temporaryDeleted.count
+                }
+            }
+            
             context("If the notification has the wrong format") {
                 var temporaryAdded: [Task] = []
                 var temporaryDeleted: [RealmChange] = []
                 var temporaryUpdated: [Task] = []
                 beforeEach {
-                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: nil))
                     temporaryAdded = RRC.temporaryAdded
                     temporaryUpdated = RRC.temporaryUpdated
                     temporaryDeleted = RRC.temporaryDeleted
+                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: nil))
                 }
                 it("Should have the same temporary arrays as previously") {
                     expect(temporaryAdded).to(equal(RRC.temporaryAdded))

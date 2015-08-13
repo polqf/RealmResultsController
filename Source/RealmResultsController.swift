@@ -92,14 +92,16 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     If you want to map inside that method, you are going to have a bad time.
     This method is a wrapper of the map function to work with all the generic mess.
     
+    NOTE: not used for the moment, leave it here in case we need it.
+    
     :param: items Array of items to map, they should be of type T (defined by the class)
     if the items are not T, this will crash.
     
     :returns: Array of mapped items (they should be U, defined by the class)
     */
-    private func mapItems<S: Object>(items: [S]) -> [U] {
-        return items.map { mapper($0 as! T) }
-    }
+//    private func mapItems<S: Object>(items: [S]) -> [U] {
+//        return items.map { mapper($0 as! T) }
+//    }
     
     
     func executeOnCorrectThread(block: ()->()) {
@@ -149,7 +151,6 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     }
     
     func didDeleteSection<T : Object>(section: Section<T>, index: Int) {
-        if populating { return }
         executeOnMainThread {
             self.delegate?.didChangeSection(realmSectionMapper(section), controller: self, index: index, changeType: .Delete)
         }
