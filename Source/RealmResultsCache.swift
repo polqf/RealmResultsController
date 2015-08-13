@@ -145,9 +145,16 @@ class RealmResultsCache<T: Object> {
             let newSection = sectionForObject(object)
             let newIndexRow = newSection.insertSorted(object)
             
-            let newIndexPath = NSIndexPath(forRow: newIndexRow, inSection: indexForSection(newSection)!)
+            var newIndexPath = NSIndexPath(forRow: newIndexRow, inSection: indexForSection(newSection)!)
             let oldIndexPath = NSIndexPath(forRow: oldIndexRow, inSection: indexForSection(oldSection)!)
             
+            if oldSection.objects.count == 0 {
+                if newIndexPath.section > oldIndexPath.section {
+                    newIndexPath = NSIndexPath(forRow: newIndexRow, inSection: newIndexPath.section - 1)
+                }
+                sections.removeAtIndex(oldIndexPath.section)
+                delegate?.didDeleteSection(oldSection, index: oldIndexPath.section)
+            }
             delegate?.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath)
         }
     }

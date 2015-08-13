@@ -46,7 +46,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     func populateDB() {
         realm.write {
-            for i in 0...9 {
+            for i in 0...4 {
                 let task = TaskModel()
                 task.id = i
                 task.name = "Task-\(i)"
@@ -77,7 +77,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     func addNewObject() {
         realm.write {
             let task = TaskModel()
-            task.id = Int(arc4random_uniform(10))
+            task.id = Int(arc4random_uniform(5))
             task.projectID = Int(arc4random_uniform(3))
             task.name = "Task-\(task.id)"
             let user = User()
