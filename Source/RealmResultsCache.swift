@@ -122,6 +122,13 @@ class RealmResultsCache<T: Object> {
         return sectionForKeyPath(key)
     }
     
+    private func sortedMirrors(mirrors: [T]) -> [T] {
+        let mutArray = NSMutableArray(array: mirrors)
+        let sorts = request.sortDescriptors.map(toNSSortDescriptor)
+        mutArray.sortUsingDescriptors(sorts)
+        return mutArray as AnyObject as! [T]
+    }
+    
     func insert(objects: [T]) {
         let mirrorsArray = sortedMirrors(objects)
         for object in mirrorsArray {
@@ -158,13 +165,6 @@ class RealmResultsCache<T: Object> {
         temporalDeletionsIndexPath.removeAll()
     }
     
-    func sortedMirrors(mirrors: [T]) -> [T] {
-        let mutArray = NSMutableArray(array: mirrors)
-        let sorts = request.sortDescriptors.map(toNSSortDescriptor)
-        mutArray.sortUsingDescriptors(sorts)
-        return mutArray as AnyObject as! [T]
-    }
-    
     func delete(objects: [T]) {
         
         var outdated: [T] = []
@@ -191,27 +191,6 @@ class RealmResultsCache<T: Object> {
         }
     }
     
-    func updateType(object: T) -> RealmCacheUpdateType {
-        let oldSection = sectionForOutdateObject(object)!
-        let oldIndexRow = oldSection.indexForOutdatedObject(object)
-
-        let newKeyPathValue = keyPathForObject(object)
-        let newSection = sectionForKeyPath(newKeyPathValue)
-        
-        
-        let indexOutdated = oldSection.indexForOutdatedObject(object)
-        let outdatedCopy = oldSection.objects.objectAtIndex(indexOutdated) as! T
-        
-        oldSection.deleteOutdatedObject(object)
-        let newIndexRow = newSection?.insertSorted(object)
-        newSection?.delete(object)
-        oldSection.insertSorted(outdatedCopy)
-        
-        if oldSection == newSection && oldIndexRow == newIndexRow  {
-            return .Update
-        }
-        return .Move
-    }
     
     func update(objects: [T]) {
         for object in objects {
@@ -231,5 +210,27 @@ class RealmResultsCache<T: Object> {
             let newIndexPath = NSIndexPath(forRow: newIndexRow, inSection: oldSectionIndex)
             delegate?.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: .Update)
         }
+    }
+    
+    func updateType(object: T) -> RealmCacheUpdateType {
+        let oldSection = sectionForOutdateObject(object)!
+        let oldIndexRow = oldSection.indexForOutdatedObject(object)
+        
+        let newKeyPathValue = keyPathForObject(object)
+        let newSection = sectionForKeyPath(newKeyPathValue)
+        
+        
+        let indexOutdated = oldSection.indexForOutdatedObject(object)
+        let outdatedCopy = oldSection.objects.objectAtIndex(indexOutdated) as! T
+        
+        oldSection.deleteOutdatedObject(object)
+        let newIndexRow = newSection?.insertSorted(object)
+        newSection?.delete(object)
+        oldSection.insertSorted(outdatedCopy)
+        
+        if oldSection == newSection && oldIndexRow == newIndexRow  {
+            return .Update
+        }
+        return .Move
     }
 }
