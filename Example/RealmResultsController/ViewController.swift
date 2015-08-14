@@ -30,11 +30,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         }
         populateDB()
         let request = RealmRequest<TaskModel>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [SortDescriptor(property: "projectID")  , SortDescriptor(property: "name")])
-        do {
-            rrc = try RealmResultsController<TaskModel, Task>(request: request, sectionKeyPath: "projectID", mapper: Task.map)
-        } catch {
-            print(error)
-        }
+        rrc = try! RealmResultsController<TaskModel, Task>(request: request, sectionKeyPath: "projectID", mapper: Task.map)
         rrc!.delegate = self
         rrc!.performFetch()
         setupSubviews()
@@ -131,9 +127,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let task = rrc!.objectAt(indexPath)
         realm.write {
-            let model = self.realm.objectForPrimaryKey(TaskModel.self, key: task.id)
-            guard let m = model else { return }
-            self.realm.deleteNotified(m)
+            let model = self.realm.objectForPrimaryKey(TaskModel.self, key: task.id)!
+            self.realm.deleteNotified(model)
         }
     }
     
