@@ -42,7 +42,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
     func populateDB() {
         realm.write {
-            for i in 0...3 {
+            for i in 1...3 {
                 let task = TaskModel()
                 task.id = i
                 task.name = "Task-\(i)"

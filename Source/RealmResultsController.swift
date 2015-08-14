@@ -259,12 +259,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         var objectsToMove: [T] = []
         var objectsToUpdate: [T] = []
         for object in temporaryUpdated {
-            let type = cache.updateType(object)
-            if type == RealmCacheUpdateType.Move {
-                objectsToMove.append(object)
-                continue
-            }
-            objectsToUpdate.append(object)
+            cache.updateType(object) == .Move ? objectsToMove.append(object) : objectsToUpdate.append(object)
         }
         
         temporaryDeleted.extend(objectsToMove)
