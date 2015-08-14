@@ -161,7 +161,7 @@ let objects = realm.objects(TaskModel.self).toArray()
 Copy the files inside the `/Source` folder to your project
 
 #####Install Realm for Swift 2.0 
-__More info [here](https://realm.io/docs/swift/latest/#installation-swift-20)__
+More info [here](https://realm.io/docs/swift/latest/#installation-swift-20)
 
 ### Technical details:
 - Swift 2.0 b4
