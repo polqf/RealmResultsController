@@ -169,10 +169,11 @@ class RealmResultsControllerSpec: QuickSpec {
         }
         
         describe("performFetch()") {
-            var requestResult: [RealmSection<Task>]!
+            var requestResult: [Section<Task>]!
             
             beforeEach {
-                requestResult = RRC.performFetch()
+                RRC.performFetch()
+                requestResult = RRC.cache.sections
             }
             it("shoudl return one section") {
                 expect(requestResult.count) == 1
