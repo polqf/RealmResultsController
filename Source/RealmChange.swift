@@ -3,7 +3,7 @@
 //  RealmResultsController
 //
 //  Created by Pol Quintana on 11/8/15.
-//  Copyright © 2015 Redbooth. All rights reserved.
+//  Copyright © 2015 Redbooth.
 //
 
 import Foundation

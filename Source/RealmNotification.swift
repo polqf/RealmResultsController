@@ -3,7 +3,7 @@
 //  redbooth-ios-sdk
 //
 //  Created by Pol Quintana on 4/8/15.
-//  Copyright © 2015 Redbooth Inc. All rights reserved.
+//  Copyright © 2015 Redbooth Inc.
 //
 
 import Foundation
