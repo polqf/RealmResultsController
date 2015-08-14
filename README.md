@@ -1,5 +1,6 @@
 <img src="Images/RRCHigh.png" height="300px"/>
-#### NSFetchedResultsController replacement for Realm
+
+A NSFetchedResultsController implementation for Realm written in Swift
 
 ###Changelog:
 
