@@ -118,14 +118,15 @@ class RealmResultsCache<T: Object> {
     
     func update(objects: [T]) {
         for object in objects {
-            let oldSectionOptional = sectionForOutdateObject(object)
-            guard let oldSection = oldSectionOptional else {
+            let oldSection = sectionForOutdateObject(object)!
+            let oldSectionIndex = indexForSection(oldSection)!
+            let oldIndexRow = oldSection.indexForOutdatedObject(object)
+            
+            if oldIndexRow == -1 {
                 insert([object])
                 return
             }
             
-            let oldSectionIndex = indexForSection(oldSection)!
-            let oldIndexRow = oldSection.indexForOutdatedObject(object)
             let oldIndexPath = NSIndexPath(forRow: oldIndexRow, inSection: oldSectionIndex)
             
             oldSection.deleteOutdatedObject(object)
@@ -205,7 +206,7 @@ class RealmResultsCache<T: Object> {
         return .Move
     }
     
-    private func keyPathForObject(object: T) -> String {
+    func keyPathForObject(object: T) -> String {
         var keyPathValue = defaultKeyPathValue
         if let keyPath = sectionKeyPath {
             if keyPath.isEmpty { return  defaultKeyPathValue }
