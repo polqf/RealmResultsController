@@ -67,7 +67,23 @@ func didChangeSection<U>(section: RealmSection<U>, controller: AnyObject, index:
 func didChangeResults(controller: AnyObject)
 ```
 
-#####RealmResultsChangeType
+#####RealmResultsChangeType:
+It an `enum` with four different types:
+
+- Insert
+- Delete
+- Update
+- Move
+
+``` swift
+enum RealmResultsChangeType: String {
+    case Insert
+    case Delete
+    case Update
+    case Move
+}
+```
+
 
 #### Initial Fetch
 
