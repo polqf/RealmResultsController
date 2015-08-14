@@ -9,7 +9,11 @@
 import Foundation
 import RealmSwift
 
-
+/**
+ Internal RealmResultsController class
+ In charge of listen to Realm notifications and notify the RRCs when finished
+ A logger is associated with one and only one Realm.
+*/
 class RealmLogger {
     var realm: Realm
     var temporary: [RealmChange] = []
@@ -24,6 +28,10 @@ class RealmLogger {
         }
     }
     
+    /**
+    When a Realm finish a write transaction, notify any active RRC via NSNotificaion
+    Then clean the current state.
+    */
     func finishRealmTransaction() {
         let name = realm.path.hasSuffix("testingRealm") ? "realmChangesTest" : "realmChanges"
         NSNotificationCenter.defaultCenter().postNotificationName(name, object: temporary)
@@ -42,10 +50,16 @@ class RealmLogger {
         addObject(object, action: .Delete)
     }
     
+    /**
+    When there is an operation in a Realm, instead of keeping a reference to the original object
+    we create a mirror that is thread safe and can be passed to RRC to operate with it safely.
+    :warning: the relationships of the Mirror are not thread safe.
+    
+    - parameter object Object that is involed in the transaction
+    - parameter action Action that was performed on that object
+    */
     func addObject<T: Object>(object: T, action: RealmAction) {
-        let primaryKey = object.dynamicType.primaryKey()!
-        let primaryKeyValue = (object as Object).valueForKey(primaryKey)
-        let realmChange = RealmChange(type: object.dynamicType, primaryKey: primaryKeyValue!, action: action, mirror: getMirror(object))
+        let realmChange = RealmChange(type: object.dynamicType, action: action, mirror: getMirror(object))
         temporary.append(realmChange)
     }
     

@@ -71,7 +71,7 @@ class CacheSpec: QuickSpec {
             predicate = NSPredicate(format: "id < %d", 50)
             sortDescriptors = [SortDescriptor(property: "name", ascending: true)]
             request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
-            initialObjects = request.execute().toArray(Task.self).sort { $0.name < $1.name }
+            initialObjects = request.execute().toArray().sort { $0.name < $1.name }
             resolvedTasks = initialObjects.filter { $0.resolved }
             notResolvedTasks = initialObjects.filter { !$0.resolved }
             cache = RealmResultsCache<Task>(request: request, sectionKeyPath: "resolved")
@@ -83,10 +83,10 @@ class CacheSpec: QuickSpec {
             predicate = NSPredicate(format: "id < %d", 50)
             sortDescriptors = [SortDescriptor(property: "name", ascending: true)]
             request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
-            initialObjects = request.execute().toArray(Task.self)
+            initialObjects = request.execute().toArray()
             resolvedTasks = initialObjects.filter { $0.resolved }
             notResolvedTasks = initialObjects.filter { !$0.resolved }
-            cache = RealmResultsCache<Task>(request: request, sectionKeyPath: nil)
+            cache = RealmResultsCache<Task>(request: request, sectionKeyPath: "")
             cache.populateSections(initialObjects)
             cache.delegate = CacheDelegateMock.sharedInstance
         }
@@ -96,7 +96,7 @@ class CacheSpec: QuickSpec {
             predicate = NSPredicate(format: "id < %d", 1)
             sortDescriptors = [SortDescriptor(property: "name", ascending: true)]
             request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
-            initialObjects = request.execute().toArray(Task.self).sort { $0.name < $1.name }
+            initialObjects = request.execute().toArray().sort { $0.name < $1.name }
             resolvedTasks = initialObjects.filter { $0.resolved }
             notResolvedTasks = initialObjects.filter { !$0.resolved }
             cache = RealmResultsCache<Task>(request: request, sectionKeyPath: "resolved")
@@ -438,8 +438,81 @@ class CacheSpec: QuickSpec {
                     let section = cache.sections[indexPath!.section]
                     expect(section.keyPath) == "1" //like this because its an optional boolean transformed to string
                 }
-                it("oldIndexPath is not nil") {
-                    expect(oldIndexPath).toNot(beNil())
+                it("oldIndexPath is nil") {
+                    expect(oldIndexPath).to(beNil())
+                }
+            }
+        }
+        describe("updateType:(object:T)") {
+            var type: RealmCacheUpdateType!
+            context("the object is not in the cache") {
+                beforeEach {
+                    initWithKeypath()
+                    let task = Task()
+                    task.id = -12314
+                    type = cache.updateType(task)
+                }
+                it("returns type .Insert") {
+                    expect(type) == RealmCacheUpdateType.Insert
+                }
+            }
+            
+            context("the object is in the cache and won't change sections") {
+                beforeEach {
+                    initWithKeypath()
+                    let task = resolvedTasks[0]
+                    type = cache.updateType(task)
+                }
+                it("returns type .Insert") {
+                    expect(type) == RealmCacheUpdateType.Update
+                }
+            }
+            
+            context("the object is in the cache and will change sections") {
+                beforeEach {
+                    initWithKeypath()
+                    let task = Task()
+                    task.id = resolvedTasks[0].id
+                    task.resolved = false
+                    type = cache.updateType(task)
+                }
+                it("returns type .Insert") {
+                    expect(type) == RealmCacheUpdateType.Move
+                }
+            }
+           
+        }
+        describe("keyPathForObject") {
+            context("in background") {
+                var keyPath: String?
+                beforeEach {
+                    initWithKeypath()
+                    waitUntil(timeout: 2) { done in
+                        let queue = dispatch_queue_create("lock", DISPATCH_QUEUE_SERIAL)
+                        dispatch_async(queue) {
+                            let task = Task()
+                            task.id = 1
+                            keyPath = cache.keyPathForObject(task)
+                        }
+                        while keyPath != nil {}
+                        done()
+                    }
+                }
+                it("executes in main thread at the end and works") {
+                    expect(keyPath).toNot(beNil())
+                }
+            }
+            
+            context("without keypath") {
+                var keyPath: String?
+                beforeEach {
+                    initWithoutKeypath()
+                    let task = Task()
+                    task.id = 1
+                    keyPath = cache.keyPathForObject(task)
+                }
+                it("returns the default keypath") {
+                    expect(keyPath) == "default"
                 }
             }
         }

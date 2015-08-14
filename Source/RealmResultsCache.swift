@@ -23,7 +23,22 @@ protocol RealmResultsCacheDelegate: class {
     func didDelete<T: Object>(object: T, indexPath: NSIndexPath)
 }
 
+/**
+The Cache is responsible to store a copy of the current objects used by the RRC obtained by the original request.
+It has an Array of sections where the objects are stored, always filtered and sorted by the request.
 
+The array of sections is constructed depending on the SectionKeyPath given in the RRC creation.
+
+When interacting with the cache is important to do it always in this order:
+Taking into account that a MOVE is not an update but a pair of delete/insert operations.
+
+- Deletions
+- Insertions
+- Updates (Only for objects that won't change position)
+
+:important: always call the three methods, the operations are commited at the end
+so calling only `delete` will change the cache but not call the delegate.
+*/
 class RealmResultsCache<T: Object> {
     var request: RealmRequest<T>
     var sectionKeyPath: String? = ""
@@ -118,14 +133,15 @@ class RealmResultsCache<T: Object> {
     
     func update(objects: [T]) {
         for object in objects {
-            let oldSectionOptional = sectionForOutdateObject(object)
-            guard let oldSection = oldSectionOptional else {
+            let oldSection = sectionForOutdateObject(object)!
+            let oldSectionIndex = indexForSection(oldSection)!
+            let oldIndexRow = oldSection.indexForOutdatedObject(object)
+            
+            if oldIndexRow == -1 {
                 insert([object])
                 return
             }
             
-            let oldSectionIndex = indexForSection(oldSection)!
-            let oldIndexRow = oldSection.indexForOutdatedObject(object)
             let oldIndexPath = NSIndexPath(forRow: oldIndexRow, inSection: oldSectionIndex)
             
             oldSection.deleteOutdatedObject(object)
@@ -182,6 +198,14 @@ class RealmResultsCache<T: Object> {
     
     //MARK: Helpers
     
+    /**
+    Given an object this method returns the type of update that this object will 
+    perform in the cache: .Move, .Update or .Insert
+    
+    :param: object Object to update
+    
+    :returns: Type of the update needed for the given object
+    */
     func updateType(object: T) -> RealmCacheUpdateType {
         let oldSectionOptional = sectionForOutdateObject(object)
         guard let oldSection = oldSectionOptional else { return .Insert }
@@ -205,7 +229,7 @@ class RealmResultsCache<T: Object> {
         return .Move
     }
     
-    private func keyPathForObject(object: T) -> String {
+    func keyPathForObject(object: T) -> String {
         var keyPathValue = defaultKeyPathValue
         if let keyPath = sectionKeyPath {
             if keyPath.isEmpty { return  defaultKeyPathValue }
@@ -221,6 +245,14 @@ class RealmResultsCache<T: Object> {
         return keyPathValue
     }
     
+    /**
+    Sort an array of objects (mirrors of the original realm objects)
+    Using the SortDescriptors of the RealmRequest of the RRC.
+    
+    :param: mirrors Objects to sort
+    
+    :returns: sorted Array<T>
+    */
     private func sortedMirrors(mirrors: [T]) -> [T] {
         let mutArray = NSMutableArray(array: mirrors)
         let sorts = request.sortDescriptors.map(toNSSortDescriptor)
@@ -228,10 +260,20 @@ class RealmResultsCache<T: Object> {
         return mutArray as AnyObject as! [T]
     }
 
+    /**
+    Sort the sections using the Given KeyPath
+    */
     private func sortSections() {
         sections.sortInPlace { $0.keyPath.localizedCaseInsensitiveCompare($1.keyPath) == NSComparisonResult.OrderedAscending }
     }
     
+    /**
+    Transforms a SortDescriptor into a NSSortDescriptor that can be applied to NSMutableArray
+    
+    :param: sort SortDescriptor object
+    
+    :returns: NSSortDescriptor
+    */
     private func toNSSortDescriptor(sort: SortDescriptor) -> NSSortDescriptor {
         return NSSortDescriptor(key: sort.property, ascending: sort.ascending)
     }

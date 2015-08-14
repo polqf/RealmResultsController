@@ -63,7 +63,7 @@ class RealmResultsControllerSpec: QuickSpec {
             RRC = nil
         }
         
-        describe("init(request:mapper:)") {
+        describe("init(request:sectionKeyPath:mapper:)") {
             var createdRRC: RealmResultsController<Task, Task>!
             
             beforeEach {
@@ -114,10 +114,25 @@ class RealmResultsControllerSpec: QuickSpec {
                     expect(exceptionDetected).to(beTruthy())
                 }
             }
+            
+            context("If the request sorts are empty") {
+                var exceptionDetected: Bool = false
+                beforeEach {
+                    do  {
+                        let request = RealmRequest<Task>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [])
+                        let _ = try RealmResultsController<Task, TaskModel>(request: request, sectionKeyPath: "something", mapper: Task.mapTask)
+                    } catch {
+                        exceptionDetected = true
+                    }
+                }
+                it("it launches an exception") {
+                    expect(exceptionDetected).to(beTruthy())
+                }
+            }
         }
         
         //Without Mapper
-        describe("init(request:)") {
+        describe("init(request:sectionKeyPath)") {
             var createdRRC: RealmResultsController<Task, Task>!
             
             beforeEach {
@@ -153,6 +168,20 @@ class RealmResultsControllerSpec: QuickSpec {
             }
         }
         
+        describe("performFetch()") {
+            var requestResult: [RealmSection<Task>]!
+            
+            beforeEach {
+                requestResult = RRC.performFetch()
+            }
+            it("shoudl return one section") {
+                expect(requestResult.count) == 1
+            }
+            it("Should have a fetched 1001 Task objects") {
+                expect(RRC.cache.sections.first!.objects.count) == 1001
+            }
+        }
+        
         describe("numberOfObjectsAt:") {
             var total: Int = 0
             beforeEach {
@@ -169,28 +198,14 @@ class RealmResultsControllerSpec: QuickSpec {
             var fetchedObject: Task?
             beforeEach {
                 RRC.performFetch()
-                fetchedObject = RRC.cache.sections[0].objects[5] as! Task
+                fetchedObject = RRC.cache.sections[0].objects[5] as? Task
                 object = RRC.objectAt(NSIndexPath(forRow: 5, inSection: 0))
             }
             it("returns the correct object") {
                 expect(object) == fetchedObject
             }
         }
-        
-        describe("performFetch()") {
-            var requestResult: [RealmSection<Task>]!
-            
-            beforeEach {
-                requestResult = RRC.performFetch()
-            }
-            it("shoudl return one section") {
-                expect(requestResult.count) == 1
-            }
-            it("Should have a fetched 1001 Task objects") {
-                expect(RRC.cache.sections.first!.objects.count) == 1001
-            }
-        }
-        describe("didInsert<T: Object>(object:indexPath:)") {
+                describe("didInsert<T: Object>(object:indexPath:)") {
             let object = Task()
             let indexPath = NSIndexPath(forRow: 1, inSection: 2)
             beforeEach {
@@ -201,6 +216,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 expect(RRCDelegate.newIndexPath) === indexPath
             }
         }
+        
         describe("didUpdate<T: Object>(object:oldIndexPath:newIndexPath:)") {
             let object = Task()
             let oldIndexPath = NSIndexPath(forRow: 4, inSection: 2)
@@ -262,7 +278,7 @@ class RealmResultsControllerSpec: QuickSpec {
                     temporaryAdded = RRC.temporaryAdded
                     temporaryUpdated = RRC.temporaryUpdated
                     temporaryDeleted = RRC.temporaryDeleted
-                    let createChange = RealmChange(type: User.self, primaryKey: -111, action: .Create, mirror: User())
+                    let createChange = RealmChange(type: User.self, action: .Create, mirror: User())
                     RRC.didReceiveRealmChanges(NSNotification(name: "", object: [createChange]))
                 }
                 it("ignores the object") {
@@ -316,9 +332,9 @@ class RealmResultsControllerSpec: QuickSpec {
                         RRC.request.realm.add(task2)
                         RRC.request.realm.add(task3)
                     }
-                    createChange = RealmChange(type: Task.self, primaryKey: -111, action: .Create, mirror: getMirror(task1))
-                    updateChange = RealmChange(type: Task.self, primaryKey: -222, action: .Update, mirror: getMirror(task2))
-                    deleteChange = RealmChange(type: Task.self, primaryKey: -333, action: .Delete, mirror: getMirror(task3))
+                    createChange = RealmChange(type: Task.self, action: .Create, mirror: getMirror(task1))
+                    updateChange = RealmChange(type: Task.self, action: .Update, mirror: getMirror(task2))
+                    deleteChange = RealmChange(type: Task.self, action: .Delete, mirror: getMirror(task3))
                     notifObject = [createChange, updateChange, deleteChange]
                     RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
                 }
@@ -337,8 +353,8 @@ class RealmResultsControllerSpec: QuickSpec {
             context("If there are no pending changes") {
                 beforeEach {
                     RRC.temporaryAdded.removeAll()
-                    RRC.temporaryAdded.removeAll()
-                    RRC.temporaryAdded.removeAll()
+                    RRC.temporaryUpdated.removeAll()
+                    RRC.temporaryDeleted.removeAll()
                 }
                 it("Should return false") {
                     expect(RRC.pendingChanges()).to(beFalsy())
@@ -347,8 +363,8 @@ class RealmResultsControllerSpec: QuickSpec {
             context("If there are pending changes") {
                 beforeEach {
                     RRC.temporaryAdded.append(Task())
-                    RRC.temporaryAdded.append(Task())
-                    RRC.temporaryAdded.append(Task())
+                    RRC.temporaryDeleted.append(Task())
+                    RRC.temporaryUpdated.append(Task())
                 }
                 it("Should return true") {
                     expect(RRC.pendingChanges()).to(beTruthy())
@@ -361,13 +377,36 @@ class RealmResultsControllerSpec: QuickSpec {
             context("If there are no pending changes") {
                 beforeEach {
                     RRC.temporaryAdded.removeAll()
-                    RRC.temporaryAdded.removeAll()
-                    RRC.temporaryAdded.removeAll()
+                    RRC.temporaryUpdated.removeAll()
+                    RRC.temporaryDeleted.removeAll()
                     cacheSections = (RRC.cache?.sections)!
                 }
                 it("Should return false") {
                     expect(RRC.pendingChanges()).to(beFalsy())
                     expect(RRC.cache?.sections).to(equal(cacheSections))
+                }
+            }
+            context("If the temporaryUpdated contains a MOVE") {
+                beforeEach {
+                    let sorts = [SortDescriptor(property: "name", ascending: true)]
+                    let request = RealmRequest<Task>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: sorts)
+                    RRC = try! RealmResultsController<Task, Task>(forTESTRequest: request, sectionKeyPath: nil) { $0 }
+                    RRC.delegate = RRCDelegate
+                    let task = Task()
+                    task.id = 12
+                    task.name = "bbb"
+                    let task2 = Task()
+                    task2.id = 13
+                    task2.name = "ccc"
+                    
+                    RRC.cache.reset([task, task2])
+                    task2.name = "aaa"
+                    RRC.temporaryUpdated.append(task2)
+                    let notif = NSNotification(name: "", object: [RealmChange]())
+                    RRC.didReceiveRealmChanges(notif)
+                }
+                it("Should return false") {
+                    expect(RRC.pendingChanges()).to(beFalsy())
                 }
             }
         }
