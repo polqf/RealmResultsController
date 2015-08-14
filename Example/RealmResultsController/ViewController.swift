@@ -42,7 +42,18 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
     func populateDB() {
         realm.write {
-            for i in 1...3 {
+            for i in 1...2 {
+                let task = TaskModel()
+                task.id = i
+                task.name = "Task-\(i)"
+                task.projectID = 0
+                let user = User()
+                user.id = i
+                user.name = String(Int(arc4random_uniform(1000)))
+                task.user = user
+                self.realm.add(task)
+            }
+            for i in 3...4 {
                 let task = TaskModel()
                 task.id = i
                 task.name = "Task-\(i)"
@@ -53,11 +64,11 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                 task.user = user
                 self.realm.add(task)
             }
-            for i in 10...12 {
+            for i in 5...6 {
                 let task = TaskModel()
                 task.id = i
                 task.name = "Task-\(i)"
-                task.projectID = 3
+                task.projectID = 2
                 let user = User()
                 user.id = i
                 user.name = String(Int(arc4random_uniform(1000)))
@@ -82,36 +93,17 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
 
     func addNewObject() {
+        let projectID = Int(arc4random_uniform(3))
         realm.write {
-            
-            let task4 = self.realm.objectForPrimaryKey(TaskModel.self, key: 10)
-            let task5 = self.realm.objectForPrimaryKey(TaskModel.self, key: 3)
-            let task6 = self.realm.objectForPrimaryKey(TaskModel.self, key: 11)
-            self.realm.deleteNotified(task4!)
-            self.realm.deleteNotified(task5!)
-            self.realm.deleteNotified(task6!)
-            
-            
             let task = TaskModel()
-            task.id = 2
-            task.projectID = 0
-//            task.name = String(Int(arc4random_uniform(1000))) + "Task-\(task.id)"
+            task.id = Int(arc4random_uniform(9999))
             task.name = "Task-\(task.id)"
+            task.projectID = projectID
+            let user = User()
+            user.id = task.id
+            user.name = String(Int(arc4random_uniform(1000)))
+            task.user = user
             self.realm.addNotified(task, update: true)
-//            
-            let task2 = TaskModel()
-            task2.id = 1
-            task2.projectID = 2
-//            task2.name = String(Int(arc4random_uniform(1000))) + "Task-\(task2.id)"
-            task2.name = "Task-\(task2.id)"
-            self.realm.addNotified(task2, update: true)
-            
-            let task3 = TaskModel()
-            task3.id = 10
-            task3.projectID = 6
-//            task3.name = String(Int(arc4random_uniform(1000))) + "Task-\(task3.id)"
-            task3.name = "Task-\(task3.id)"
-            self.realm.addNotified(task3, update: true)  
         }
     }
     
@@ -123,7 +115,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print("🎀 Section: \(section): \(rrc!.numberOfObjectsAt(section))")
         return rrc!.numberOfObjectsAt(section)
     }
     
@@ -133,9 +124,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             cell = UITableViewCell(style: .Default, reuseIdentifier: "celltask")
         }
         let task = rrc!.objectAt(indexPath)
-        
-        let userName = task.user == nil ? "user" : task.user!.name
-        cell?.textLabel?.text = task.name + " :: " + String(task.projectID) + "::" + userName
+        cell?.textLabel?.text = task.name + " :: " + String(task.projectID)
         return cell!
     }
     
@@ -153,15 +142,19 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         return "ProjectID \(keyPath)"
     }
     
+    func tableView(tableView: UITableView, titleForFooterInSection section: Int) -> String? {
+        return section == 2 ? "Tap on a row to delete it" : nil
+    }
+    
     // MARK: RealmResult
     
     func willChangeResults(controller: AnyObject) {
-        print("🎁 WILL")
+        print("🎁 WILLChangeResults")
         tableView.beginUpdates()
     }
     
     func didChangeObject<U>(object: U, controller: AnyObject, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
-        print("🎁 didChangeObject \((object as! TaskModel).name) from: [\(oldIndexPath.section):\(oldIndexPath.row)] to: [\(newIndexPath.section):\(newIndexPath.row)] --> \(changeType)")
+        print("🎁 didChangeObject '\((object as! TaskModel).name)' from: [\(oldIndexPath.section):\(oldIndexPath.row)] to: [\(newIndexPath.section):\(newIndexPath.row)] --> \(changeType)")
         switch changeType {
         case .Delete:
             tableView.deleteRowsAtIndexPaths([newIndexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
@@ -194,7 +187,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func didChangeResults(controller: AnyObject) {
-        print("🎁 DID")
+        print("🎁 DIDChangeResults")
         tableView.endUpdates()
     }
     
