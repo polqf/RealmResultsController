@@ -59,9 +59,7 @@ class RealmLogger {
     - parameter action Action that was performed on that object
     */
     func addObject<T: Object>(object: T, action: RealmAction) {
-        let primaryKey = object.dynamicType.primaryKey()!
-        let primaryKeyValue = (object as Object).valueForKey(primaryKey)
-        let realmChange = RealmChange(type: object.dynamicType, primaryKey: primaryKeyValue!, action: action, mirror: getMirror(object))
+        let realmChange = RealmChange(type: object.dynamicType, action: action, mirror: getMirror(object))
         temporary.append(realmChange)
     }
     

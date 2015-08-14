@@ -212,7 +212,7 @@ class RealmExtensionSpec: QuickSpec {
                 }
                 let predicate = NSPredicate(format: "id == %d", 161123123)
                 request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: [])
-                result = realm.execute(request).toArray(Task.self).first!
+                result = realm.execute(request).toArray().first!
             }
             it("returns the correct element") {
                 expect(result.id) == 161123123

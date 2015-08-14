@@ -278,7 +278,7 @@ class RealmResultsControllerSpec: QuickSpec {
                     temporaryAdded = RRC.temporaryAdded
                     temporaryUpdated = RRC.temporaryUpdated
                     temporaryDeleted = RRC.temporaryDeleted
-                    let createChange = RealmChange(type: User.self, primaryKey: -111, action: .Create, mirror: User())
+                    let createChange = RealmChange(type: User.self, action: .Create, mirror: User())
                     RRC.didReceiveRealmChanges(NSNotification(name: "", object: [createChange]))
                 }
                 it("ignores the object") {
@@ -332,9 +332,9 @@ class RealmResultsControllerSpec: QuickSpec {
                         RRC.request.realm.add(task2)
                         RRC.request.realm.add(task3)
                     }
-                    createChange = RealmChange(type: Task.self, primaryKey: -111, action: .Create, mirror: getMirror(task1))
-                    updateChange = RealmChange(type: Task.self, primaryKey: -222, action: .Update, mirror: getMirror(task2))
-                    deleteChange = RealmChange(type: Task.self, primaryKey: -333, action: .Delete, mirror: getMirror(task3))
+                    createChange = RealmChange(type: Task.self, action: .Create, mirror: getMirror(task1))
+                    updateChange = RealmChange(type: Task.self, action: .Update, mirror: getMirror(task2))
+                    deleteChange = RealmChange(type: Task.self, action: .Delete, mirror: getMirror(task3))
                     notifObject = [createChange, updateChange, deleteChange]
                     RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
                 }

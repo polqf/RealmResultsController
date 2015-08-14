@@ -15,15 +15,14 @@ enum RealmAction {
     case Delete
 }
 
+
 class RealmChange {
     var type: Object.Type
-    var primaryKey: AnyObject
     var action: RealmAction
     var mirror: Object?
     
-    init<T:Object>(type: T.Type, primaryKey: AnyObject, action: RealmAction, mirror: Object?) {
+    init<T:Object>(type: T.Type, action: RealmAction, mirror: Object?) {
         self.type = type
-        self.primaryKey = primaryKey
         self.action = action
         self.mirror = mirror
     }
