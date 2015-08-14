@@ -153,12 +153,13 @@ let objects = realm.objects(TaskModel.self).toArray()
 </p>
 
 ###Installation:
-####• CocoaPods
 
-```
-use_frameworks!
-pod 'RealmResultsController', '~>0.0.1'
-```
+#####Copy the RealmResultsController source files
+
+Copy the files inside the `/Source` folder to your project
+
+#####Install Realm for Swift 2.0 
+__More info [here](https://realm.io/docs/swift/latest/#installation-swift-20)__
 
 ### Technical details:
 - Swift 2.0 b4

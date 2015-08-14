@@ -11,6 +11,6 @@ Pod::Spec.new do |s|
   s.frameworks   = 'UIKit'
   s.requires_arc = true
   s.social_media_url = 'https://twitter.com/redboothhq'
-  s.dependency = 'Realm', :git => 'https://github.com/realm/realm-cocoa.git', :branch => 'swift-2.0'
-  s.dependency = 'RealmSwift', :git => 'https://github.com/realm/realm-cocoa.git', :branch => 'swift-2.0'
+  s.dependency = 'Realm', :podspec => 'https://github.com/realm/realm-cocoa/Realm.podspec'
+  s.dependency = 'RealmSwift', :git => 'https://github.com/realm/RealmSwift.podspec'
 end
