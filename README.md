@@ -10,10 +10,6 @@ A NSFetchedResultsController implementation for Realm written in Swift
 
 - __0.0.1 Initial Release__ (14 Aug 2015)
 
-###RoadMap:
-
-- Open notifications for all realm changes
-
 ###Quick Start:
 
 #### Create a RealmRequest:
