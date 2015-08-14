@@ -154,6 +154,8 @@ let objects = realm.objects(TaskModel.self).toArray()
 
 ###Installation:
 
+:loudspeaker: We are going to integrate with CocoaPods and Carthage when Swift 2.0 is officialy lauched 
+
 #####Copy the RealmResultsController source files
 
 Copy the files inside the `/Source` folder to your project
