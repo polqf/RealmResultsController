@@ -104,18 +104,6 @@ class SectionSpec: QuickSpec {
             }
         }
         
-        describe("delete(change:)") {
-            context("If the section does not have object for the RealmChange primaryKey") {
-                var index: Int!
-                beforeEach {
-                    index = section.delete(RealmChange(type: Task.self, primaryKey: "", action: .Create, mirror: nil))
-                }
-                it("returns index -1") {
-                    expect(index).to(equal(-1))
-                }
-            }
-        }
-        
         describe("deleteOutdatedObject(object:)") {
             var originalIndex: Int!
             var index: Int!

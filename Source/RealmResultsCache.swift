@@ -12,6 +12,7 @@ import RealmSwift
 enum RealmCacheUpdateType: String {
     case Move
     case Update
+    case Insert
 }
 
 protocol RealmResultsCacheDelegate: class {
@@ -93,6 +94,7 @@ class RealmResultsCache<T: Object> {
         for object in objects {
             guard let section = sectionForOutdateObject(object) else { continue }
             let index = section.indexForOutdatedObject(object)
+            if index == -1 { continue }
             outdated.append(section.objects.objectAtIndex(index) as! T)
         }
         
@@ -181,8 +183,10 @@ class RealmResultsCache<T: Object> {
     //MARK: Helpers
     
     func updateType(object: T) -> RealmCacheUpdateType {
-        let oldSection = sectionForOutdateObject(object)!
+        let oldSectionOptional = sectionForOutdateObject(object)
+        guard let oldSection = oldSectionOptional else { return .Insert }
         let oldIndexRow = oldSection.indexForOutdatedObject(object)
+        if oldIndexRow == -1 { return .Insert }
         
         let newKeyPathValue = keyPathForObject(object)
         let newSection = sectionForKeyPath(newKeyPathValue)
