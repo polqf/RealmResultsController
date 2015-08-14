@@ -133,7 +133,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     */
     public func performFetch() -> [RealmSection<U>] {
         populating = true
-        let objects = self.request.execute().toArray(T.self).map(getMirror)
+        let objects = self.request.execute().toArray().map(getMirror)
         self.cache.reset(objects)
         populating = false
         return sections
