@@ -41,10 +41,11 @@ class CacheDelegateMock: RealmResultsCacheDelegate {
         self.object = object as Object
         self.indexPath = indexPath
     }
-    func didDelete(indexPath: NSIndexPath) {
+    func didDelete<T: Object>(object: T, indexPath: NSIndexPath) {
         self.indexPath = indexPath
+        self.object = object
     }
-    func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath) {
+    func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
         self.object = object as Object
         self.oldIndexPath = oldIndexPath
         self.indexPath = newIndexPath
@@ -214,8 +215,7 @@ class CacheSpec: QuickSpec {
                     expect(section.keyPath) == "1" //like this because its an optional boolean transformed to string
                 }
                 it("remove from cache") {
-                    let change = RealmChange(type: Task.self, primaryKey: -1, action: .Delete, mirror: newTask)
-                    cache.delete([change])
+                    cache.delete([newTask])
                 }
             }
             
@@ -259,8 +259,7 @@ class CacheSpec: QuickSpec {
                     expect(section.keyPath) == cache.defaultKeyPathValue
                 }
                 it("remove from cache") {
-                    let change = RealmChange(type: Task.self, primaryKey: -1, action: .Delete, mirror: newTask)
-                    cache.delete([change])
+                    cache.delete([newTask])
                 }
                 
             }
@@ -273,15 +272,14 @@ class CacheSpec: QuickSpec {
                 var indexPath: NSIndexPath!
                 it("beforeAll") {
                     initWithoutKeypath()
-                    let primaryKey = Task.primaryKey()
-                    let primaryKeyValue = (initialObjects[10] as Object).valueForKey(primaryKey!)
-                    let change = RealmChange(type: Task.self, primaryKey: primaryKeyValue!, action: .Delete, mirror: getMirror(initialObjects[10]))
-                    cache.delete([change])
+
+                    cache.delete([getMirror(initialObjects[10])])
+                    cache.insert([]) //call insert to commit the changes!
                     object = CacheDelegateMock.sharedInstance.object
                     indexPath = CacheDelegateMock.sharedInstance.indexPath
                 }
-                it("returns nil") {
-                    expect(object).to(beNil())
+                it("returns not nil") {
+                    expect(object).toNot(beNil())
                 }
                 it("returns the index of the deleted object") {
                     expect(indexPath.row) == 10
@@ -303,11 +301,7 @@ class CacheSpec: QuickSpec {
                     newTask = Task()
                     newTask.id = 1500
                     
-                    let primaryKey = Task.primaryKey()
-                    let primaryKeyValue = (newTask as Object).valueForKey(primaryKey!)
-                    let change = RealmChange(type: Task.self, primaryKey: primaryKeyValue!, action: .Delete, mirror: newTask)
-                    
-                    cache.delete([change])
+                    cache.delete([newTask])
                     object = CacheDelegateMock.sharedInstance.object
                     indexPath = CacheDelegateMock.sharedInstance.indexPath
                 }
@@ -332,18 +326,14 @@ class CacheSpec: QuickSpec {
                     newTask = Task()
                     newTask.id = 0
                     
-                    let primaryKey = Task.primaryKey()
-                    let primaryKeyValue = (newTask as Object).valueForKey(primaryKey!)
-                    let change = RealmChange(type: Task.self, primaryKey: primaryKeyValue!, action: .Delete, mirror: newTask)
-                    
-                    
-                    cache.delete([change])
+                    cache.delete([newTask])
+                    cache.insert([]) // call insert to commit the changes!
                     object = CacheDelegateMock.sharedInstance.object
                     indexPath = CacheDelegateMock.sharedInstance.indexPath
                     deletedSection = CacheDelegateMock.sharedInstance.index
                 }
-                it("returns nil") {
-                    expect(object).to(beNil())
+                it("returns object") {
+                    expect(object) == object
                 }
                 it("deleted section at corret index") {
                     expect(deletedSection) == 0
@@ -398,7 +388,8 @@ class CacheSpec: QuickSpec {
                     notResolvedTasksCopy.append(myTask)
                     notResolvedTasksCopy.sortInPlace {$0.name < $1.name}
                     memoryIndex = notResolvedTasksCopy.indexOf(myTask)
-                    cache.update([myTask])
+                    cache.delete([myTask]) // an update changing sections is actually a delete and insert
+                    cache.insert([myTask])
                     object = CacheDelegateMock.sharedInstance.object
                     indexPath = CacheDelegateMock.sharedInstance.indexPath
                     oldIndexPath = CacheDelegateMock.sharedInstance.oldIndexPath
@@ -447,8 +438,8 @@ class CacheSpec: QuickSpec {
                     let section = cache.sections[indexPath!.section]
                     expect(section.keyPath) == "1" //like this because its an optional boolean transformed to string
                 }
-                it("oldIndexPath is nil") {
-                    expect(oldIndexPath).to(beNil())
+                it("oldIndexPath is not nil") {
+                    expect(oldIndexPath).toNot(beNil())
                 }
             }
         }

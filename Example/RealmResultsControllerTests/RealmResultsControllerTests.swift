@@ -206,7 +206,7 @@ class RealmResultsControllerSpec: QuickSpec {
             let oldIndexPath = NSIndexPath(forRow: 4, inSection: 2)
             let newIndexPath = NSIndexPath(forRow: 1, inSection: 2)
             beforeEach {
-                RRC.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath)
+                RRC.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: .Move)
             }
             it("Should have stored the object in the RealmResultsDelegate instance") {
                 expect(RRCDelegate.object) === object
@@ -216,11 +216,12 @@ class RealmResultsControllerSpec: QuickSpec {
         }
         describe("didDelete<T: Object>(object:indexPath:)") {
             let indexPath = NSIndexPath(forRow: 1, inSection: 2)
+            let task = Task()
             beforeEach {
-                RRC.didDelete(indexPath)
+                RRC.didDelete(task, indexPath: indexPath)
             }
             it("Should have stored the object in the RealmResultsDelegate instance") {
-                expect(RRCDelegate.object).to(beNil())
+                expect(RRCDelegate.object) == task
                 expect(RRCDelegate.newIndexPath) === indexPath
             }
         }
@@ -249,7 +250,7 @@ class RealmResultsControllerSpec: QuickSpec {
         
         describe("didReceiveRealmChanges(notification:)") {
             var temporaryAdded: [Task] = []
-            var temporaryDeleted: [RealmChange] = []
+            var temporaryDeleted: [Task] = []
             var temporaryUpdated: [Task] = []
             beforeEach {
                 RRC = try! RealmResultsController<Task, Task>(forTESTRequest: request, sectionKeyPath: nil) { $0 }
@@ -273,7 +274,7 @@ class RealmResultsControllerSpec: QuickSpec {
             
             context("If the notification has the wrong format") {
                 var temporaryAdded: [Task] = []
-                var temporaryDeleted: [RealmChange] = []
+                var temporaryDeleted: [Task] = []
                 var temporaryUpdated: [Task] = []
                 beforeEach {
                     temporaryAdded = RRC.temporaryAdded
