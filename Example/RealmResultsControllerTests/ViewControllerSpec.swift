@@ -36,11 +36,12 @@ class ViewControllerSpec: QuickSpec {
                     realm.deleteAll()
                 }
                 vc.addNewObject()
-                objects = realm.objects(TaskModel.self).toArray(TaskModel.self)
+                objects = realm.objects(TaskModel.self).toArray()
             }
             it("it is not nil") {
                 expect(objects.count).to(equal(1))
             }
+            
             
         }
         describe("addNewObject()") {
@@ -51,9 +52,9 @@ class ViewControllerSpec: QuickSpec {
                     realm.deleteAll()
                 }
                 vc.populateDB()
-                oldObjects = realm.objects(TaskModel.self).toArray(TaskModel.self)
+                oldObjects = realm.objects(TaskModel.self).toArray()
                 vc.tableView(vc.tableView, didSelectRowAtIndexPath: NSIndexPath(forRow: 0, inSection: 0))
-                objects = realm.objects(TaskModel.self).toArray(TaskModel.self)
+                objects = realm.objects(TaskModel.self).toArray()
             }
             it("Should have 1 new object") {
                 expect(objects.count).to(equal(oldObjects.count - 1))
