@@ -43,8 +43,9 @@ Where `T` is a `Realm` model and `U` is the type of the object you want to recei
 
 __Note:__ `T` and `U` can be of the same type
 
-#####:warning: : If the sectionKeyPath is not nil, it MUST match the first `SortDescriptor` of the `RealmRequest`. Otherwise it will raise an Exception.
-#####:warning: 2: Realm does not accept a `SortDescriptor`s that access a property of a relatonship. That limits the sectionKeyPath to be only a property of the current object
+:warning: - If the sectionKeyPath is not nil, it MUST match the first `SortDescriptor` of the `RealmRequest`. Otherwise it will raise an Exception.
+
+:warning: 2 - Realm does not accept a `SortDescriptor`s that access a property of a relatonship. That limits the sectionKeyPath to be only a property of the current object
 
 
 ``` swift
