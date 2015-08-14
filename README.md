@@ -1,10 +1,5 @@
-# RealmResultsController
-
-### NSFetchedResultsController replacement for Realm
-
-<p align="center">
-<img src="Images/RRCDemo.gif" height="300px"/>
-</p>
+<img src="Images/RRCHigh.png" height="300px"/>
+#### NSFetchedResultsController replacement for Realm
 
 ###Changelog:
 
@@ -12,19 +7,25 @@
 
 ###RoadMap:
 
-- Fine grained notifications for all changes in Realm
+- Open notifications for all realm changes
 
 ###Quick Start:
 
 ### Customization:
 
+### Demo:
+<p align="center">
+<img src="Images/RRCDemo.gif" height="300px"/>
+</p>
 
 ###Installation:
 ####• CocoaPods
 
 ```
+# You need to add both “Realm” & “RealmSwift”
 use_frameworks!
-
+pod 'Realm', :git => 'https://github.com/realm/realm-cocoa.git', :branch => 'swift-2.0'
+pod 'RealmSwift', :git => 'https://github.com/realm/realm-cocoa.git', :branch => 'swift-2.0'
 pod 'RealmResultsController', '~>0.0.1'
 ```
 
