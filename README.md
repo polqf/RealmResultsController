@@ -21,12 +21,11 @@ The `RealmRequest` needs 3 parameters:
 - Sort Descriptors
 
 
-```
-        let predicate = NSPredicate(format: "id != 0")
-        let sortDescriptors = [SortDescriptor(property: "projectID")  , SortDescriptor(property: "name")]
-        let sectionKeypath = "projectID"
-        let request = RealmRequest<TaskModel>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
-
+``` swift
+let predicate = NSPredicate(format: "id != 0")
+let sortDescriptors = [SortDescriptor(property: "projectID")  , SortDescriptor(property: "name")]
+let sectionKeypath = "projectID"
+let request = RealmRequest<TaskModel>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
 ```
 
 #### Create the RealmResultsController
@@ -40,31 +39,28 @@ The `RealmResultsController` needs 3 parameters:
 #####:warning: 2: Realm does not accept a `SortDescriptor`s that access a property of a relatonship. That limits the sectionKeyPath to be only a property of the current object
 
 
-```
-	let rrc = RealmResultsController<TaskModel, Task>(request: request, sectionKeyPath: 	sectionKeypath, mapper: Task.map)
-	rrc.delegate = self
-
+``` swift
+let rrc = RealmResultsController<TaskModel, Task>(request: request, sectionKeyPath: 	sectionKeypath, mapper: Task.map)
+rrc.delegate = self
 ```
 
 #### Implement the RealmResultsControllerDelegate methods
 
 `RealmResultsControllerDelegate` has 4 methods that are required:
 
-```
-    func willChangeResults(controller: AnyObject)
-    func didChangeObject<U>(object: U, controller: AnyObject, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType)
-    func didChangeSection<U>(section: RealmSection<U>, controller: AnyObject, index: Int, changeType: RealmResultsChangeType)
-    func didChangeResults(controller: AnyObject)
-
+``` swift
+func willChangeResults(controller: AnyObject)
+func didChangeObject<U>(object: U, controller: AnyObject, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType)
+func didChangeSection<U>(section: RealmSection<U>, controller: AnyObject, index: Int, changeType: RealmResultsChangeType)
+func didChangeResults(controller: AnyObject)
 ```
 
 #### Initial Fetch
 
 In order to start receiving the `RealmResultsController` events, you need to do an initial fetch. It will return you an array or `RealmSection<U>` objects
 
-```
-	let initialObjects = rrc.performFetch()
-
+``` swift
+let initialObjects = rrc.performFetch()
 ```
 
 
@@ -75,31 +71,30 @@ In order to start receiving the `RealmResultsController` events, you need to do 
 In order for the RealmResultsController to receive the change events in a Realm, you must use a custom methods. Those are declared in a Realm Extension.
 
 #####Add:
-```
-    public func addNotified<N: Object>(object: N, update: Bool = false)
-    public func addNotified<S: SequenceType where S.Generator.Element: Object>(objects: S, update: Bool = false)
-    public func createNotified<T: Object>(type: T.Type, value: AnyObject = [:], var update: Bool = false) -> T? {
+``` swift
+public func addNotified<N: Object>(object: N, update: Bool = false)
+public func addNotified<S: SequenceType where S.Generator.Element: Object>(objects: S, update: Bool = false)
+public func createNotified<T: Object>(type: T.Type, value: AnyObject = [:], var update: Bool = false) -> T? {
 ```
 #####Delete:
 
-```
-    public func deleteNotified(object: Object)
-    public func deleteNotified<S: SequenceType where S.Generator.Element: Object>(objects: S)
-
+``` swift
+public func deleteNotified(object: Object)
+public func deleteNotified<S: SequenceType where S.Generator.Element: Object>(objects: S)
 ```
 
 ####RealmRequest:
 
 You can use a RealmRequest to retrieve the objects it is asking for without linking it to a RealmResultsController. It is going to return `Results<T>`
 
-```
-    let predicate = NSPredicate(format: "id != 0")
-    let sortDescriptors = [SortDescriptor(property: "projectID")  , SortDescriptor(property: "name")]
-    let sectionKeypath = "projectID"
-    let request = RealmRequest<TaskModel>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
+``` swift
+let predicate = NSPredicate(format: "id != 0")
+let sortDescriptors = [SortDescriptor(property: "projectID")  , SortDescriptor(property: "name")]
+let sectionKeypath = "projectID"
+let request = RealmRequest<TaskModel>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
 
-	//Execute the request
-	let objects = request.execute()
+//Execute the request
+let objects = request.execute()
 ```
 
 ####Other methods added on the Realm Extension
@@ -108,17 +103,16 @@ You can use a RealmRequest to retrieve the objects it is asking for without link
 
 In realm, when you ask for objects in the DB, you receive `Results<T>`, and if you want to convert it to a common array, you have to do this:
 
-```
-	let objects = realm.objects(TaskModel.self).toArray(TaskModel.self)
-
+``` swift
+let objects = realm.objects(TaskModel.self).toArray(TaskModel.self)
 ```
 
 I see a pattern here :trollface:
 
 So, we added a the `toArray()` method to do it like so:
 
-```
-	let objects = realm.objects(TaskModel.self).toArray()
+``` swift
+let objects = realm.objects(TaskModel.self).toArray()
 ```
 
 
