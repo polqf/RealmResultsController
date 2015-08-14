@@ -10,8 +10,10 @@ import Foundation
 import RealmSwift
 
 extension Realm {
-        
-    func addNotified<N: Object>(object: N, var update: Bool = false) {
+    
+    //MARK: Add
+    
+    public func addNotified<N: Object>(object: N, update: Bool = false) {
         defer { add(object, update: update) }
         
         guard let primaryKey = object.dynamicType.primaryKey() else { return }
@@ -21,7 +23,6 @@ extension Realm {
             RealmNotification.loggerForRealm(self).didUpdate(object)
             return
         }
-        update = false
         RealmNotification.loggerForRealm(self).didAdd(object)
     }
     
@@ -55,6 +56,9 @@ extension Realm {
         return createdObject
     }
     
+    
+    //MARK: Delete
+    
     public func deleteNotified(object: Object) {
         RealmNotification.loggerForRealm(self).didDelete(object)
         delete(object)
@@ -66,6 +70,9 @@ extension Realm {
         }
     }
  
+    
+    //MARK: Execute
+    
     public func execute<T: Object>(request: RealmRequest<T>) -> Results<T> {
         return objects(request.entityType).filter(request.predicate).sorted(request.sortDescriptors)
     }

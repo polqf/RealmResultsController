@@ -23,26 +23,19 @@ class Section<T: Object> : NSObject {
         return objects.map {$0 as! T}
     }
     
-    static func sectionFrom<T: Object>(section: Section<T>) -> Section<T> {
-        let newSection = Section<T>(keyPath: section.keyPath, sortDescriptors: section.sortDescriptors)
-        newSection.objects = section.objects.mutableCopy() as! NSMutableArray
-        return newSection
-    }
+    //MARK: Initializer
     
     required init(keyPath: String, sortDescriptors: [NSSortDescriptor]) {
         self.keyPath = keyPath
         self.sortDescriptors = sortDescriptors
     }
     
+    //MARK: Actions
+    
     func insertSorted(object: T) -> Int {
         objects.addObject(object)
         objects.sortUsingDescriptors(sortDescriptors)
         return objects.indexOfObject(object)
-    }
-    
-    func delete(change: RealmChange) -> Int {
-        guard let object = objectForPrimaryKey(change.primaryKey) else { return -1 }
-        return delete(object)
     }
     
     func delete(object: T) -> Int {
@@ -54,16 +47,7 @@ class Section<T: Object> : NSObject {
         return -1
     }
     
-    func objectForPrimaryKey(value: AnyObject) -> T? {
-        for object in objects {
-            let primaryKey = T.primaryKey()!
-            let primaryKeyValue = object.valueForKey(primaryKey)!
-            if primaryKeyValue.isEqual(value){
-                return (object as? T)
-            }
-        }
-        return nil
-    }
+    //MARK: Outdated objects
     
     func deleteOutdatedObject(object: T) -> Int {
         let primaryKey = T.primaryKey()!
@@ -84,4 +68,18 @@ class Section<T: Object> : NSObject {
         }
         return -1
     }
+    
+    //MARK: Helpers
+    
+    func objectForPrimaryKey(value: AnyObject) -> T? {
+        for object in objects {
+            let primaryKey = T.primaryKey()!
+            let primaryKeyValue = object.valueForKey(primaryKey)!
+            if primaryKeyValue.isEqual(value){
+                return (object as? T)
+            }
+        }
+        return nil
+    }
+
 }

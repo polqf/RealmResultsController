@@ -126,7 +126,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     /**
     Fetches the initial data for the RealmResultsController
     
-    Atention: Must be called after creating
+    Atention: Must be called after the initialization
     
     - returns: [RealmSection<U>]
     */
@@ -238,7 +238,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
             if object.action == RealmAction.Create && passesPredicate {
                 temporaryAdded.append(object.mirror as! T)
             }
-            if object.action == RealmAction.Update {
+            else if object.action == RealmAction.Update {
                 passesPredicate ? temporaryUpdated.append(object.mirror as! T) : temporaryDeleted.append(object.mirror as! T)
             }
         }
@@ -255,7 +255,6 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         executeOnMainThread {
             self.delegate?.willChangeResults(self)
         }
-        
         var objectsToMove: [T] = []
         var objectsToUpdate: [T] = []
         for object in temporaryUpdated {
@@ -276,7 +275,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     }
     
     
-    //MARK: Threads management
+    //MARK: Thread management
     
     /**
     Hackish!

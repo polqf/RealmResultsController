@@ -20,6 +20,3 @@ public struct RealmRequest<T: Object> {
         return  realm.objects(entityType).filter(predicate).sorted(sortDescriptors)
     }
 }
-
-
-
