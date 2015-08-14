@@ -23,10 +23,7 @@ A NSFetchedResultsController implementation for Realm written in Swift
 ####• CocoaPods
 
 ```
-# You need to add both “Realm” & “RealmSwift”
 use_frameworks!
-pod 'Realm', :git => 'https://github.com/realm/realm-cocoa.git', :branch => 'swift-2.0'
-pod 'RealmSwift', :git => 'https://github.com/realm/realm-cocoa.git', :branch => 'swift-2.0'
 pod 'RealmResultsController', '~>0.0.1'
 ```
 
