@@ -41,7 +41,6 @@ extension Realm {
     */
     public func addNotified<N: Object>(object: N, update: Bool = false) {
         defer { add(object, update: update) }
-        
         guard let primaryKey = object.dynamicType.primaryKey() else { return }
         let primaryKeyValue = (object as Object).valueForKey(primaryKey)!
         

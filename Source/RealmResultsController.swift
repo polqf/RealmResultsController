@@ -11,6 +11,7 @@ import RealmSwift
 
 enum RRCError: ErrorType {
     case InvalidKeyPath
+    case EmptySortDescriptors
 }
 
 enum RealmResultsChangeType: String {
@@ -31,6 +32,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     weak var delegate: RealmResultsControllerDelegate?
     var _test: Bool = false
     var populating: Bool = false
+    var observerAdded: Bool = false
     var cache: RealmResultsCache<T>!
     var request: RealmRequest<T>
     var mapper: (T) -> U
@@ -57,6 +59,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     deinit {
         NSNotificationCenter.defaultCenter().removeObserver(self)
+        observerAdded = false
     }
     
     
@@ -74,6 +77,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     of the RealmRequest. If not, RRC will throw an error.
     NOTE2: Realm does not support sorting by KeyPaths, so you must only use properties of the model
     you want to fetch and not KeyPath to any relationship
+    NOTE3: The RealmRequest needs at least one SortDescriptor
     
     - param: request        Request to fetch objects
     - param: sectionKeyPath KeyPath to group the results by sections
@@ -86,6 +90,9 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         self.mapper = mapper
         self.sectionKeyPath = sectionKeyPath
         self.cache = RealmResultsCache<T>(request: request, sectionKeyPath: sectionKeyPath)
+        if sortDescriptorsAreEmpty(request.sortDescriptors) {
+            throw RRCError.EmptySortDescriptors
+        }
         if !keyPathIsValid(sectionKeyPath, sorts: request.sortDescriptors) {
             throw RRCError.InvalidKeyPath
         }
@@ -102,6 +109,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     NOTE: If sectionKeyPath is used, it must be equal to the property used in the first SortDescriptor
     of the RealmRequest. If not, RRC will throw an error
+    NOTE2: The RealmRequest needs at least one SortDescriptor
     
     - param: request        Request to fetch objects
     - param: sectionKeyPath keyPath to group the results of the request
@@ -126,14 +134,14 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     /**
     Fetches the initial data for the RealmResultsController
     
-    Atention: Must be called after the initialization
+    Atention: Must be called after the initialization and should be called only once
     */
     public func performFetch() {
         populating = true
         let objects = self.request.execute().toArray().map(getMirror)
         self.cache.reset(objects)
         populating = false
-        self.addNotificationObservers()
+        if !observerAdded { self.addNotificationObservers() }
     }
 
     
@@ -158,7 +166,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     - returns: the object as U (mapped)
     */
     public func objectAt(indexPath: NSIndexPath) -> U {
-        let object = cache.sections[indexPath.section].allObjects[indexPath.row]
+        let object = cache.sections[indexPath.section].objects[indexPath.row] as! T
         return self.mapper(object)
     }
 
@@ -166,6 +174,10 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         if keyPath == nil { return true }
         guard let firstSort = sorts.first else { return false }
         return keyPath == firstSort.property
+    }
+    
+    private func sortDescriptorsAreEmpty(sorts: [SortDescriptor]) -> Bool {
+        return sorts.first == nil
     }
     
     private func realmSectionMapper<S>(section: Section<S>) -> RealmSection<U> {
@@ -212,15 +224,15 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     private func addNotificationObservers() {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: "didReceiveRealmChanges:", name: "realmChanges", object: nil)
+        observerAdded = true
     }
     
     @objc func didReceiveRealmChanges(notification: NSNotification) {
-        let block: () -> () = {
-                guard case let objects as [RealmChange] = notification.object else { return }
-                self.refetchObjects(objects)
-                self.finishWriteTransaction()
+        executeOnCorrectThread {
+            guard case let objects as [RealmChange] = notification.object else { return }
+            self.refetchObjects(objects)
+            self.finishWriteTransaction()
         }
-        executeOnCorrectThread(block)
     }
     
     private func refetchObjects(objects: [RealmChange]) {
@@ -261,9 +273,9 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         
         temporaryDeleted.extend(objectsToMove)
         temporaryAdded.extend(objectsToMove)
+        cache.update(objectsToUpdate)
         cache.delete(temporaryDeleted)
         cache.insert(temporaryAdded)
-        cache.update(objectsToUpdate)
         temporaryAdded.removeAll()
         temporaryDeleted.removeAll()
         temporaryUpdated.removeAll()

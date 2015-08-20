@@ -116,7 +116,7 @@ class RealmResultsCache<T: Object> {
         let mirrorsArray = sortedMirrors(outdated).reverse() as [T]
         
         for object in mirrorsArray {
-            let section = sectionForOutdateObject(object)!
+            guard let section = sectionForOutdateObject(object) else { continue }
             let index = section.deleteOutdatedObject(object)
             let indexPath = NSIndexPath(forRow: index, inSection: indexForSection(section)!)
             
@@ -207,23 +207,23 @@ class RealmResultsCache<T: Object> {
     :returns: Type of the update needed for the given object
     */
     func updateType(object: T) -> RealmCacheUpdateType {
-        let oldSectionOptional = sectionForOutdateObject(object)
-        guard let oldSection = oldSectionOptional else { return .Insert }
-        let oldIndexRow = oldSection.indexForOutdatedObject(object)
+        //Sections
+        guard let oldSection = sectionForOutdateObject(object) else { return .Insert }
+        guard let newSection = sectionForKeyPath(keyPathForObject(object)) else { return .Insert }
+        
+        //OutdatedCopy
+        guard let outdatedCopy = oldSection.outdatedObject(object) else { return .Insert }
+        
+        //Indexes
+        let oldIndexRow = oldSection.delete(outdatedCopy)
         if oldIndexRow == -1 { return .Insert }
-        
-        let newKeyPathValue = keyPathForObject(object)
-        let newSection = sectionForKeyPath(newKeyPathValue)
-        let newIndexRow = newSection?.insertSorted(object)
-        
-        let indexOutdated = oldSection.indexForOutdatedObject(object)
-        let outdatedCopy = oldSection.objects.objectAtIndex(indexOutdated) as! T
-        
-        oldSection.deleteOutdatedObject(object)
-        newSection?.delete(object)
+        let newIndexRow = newSection.insertSorted(object)
+
+        //Restore
+        newSection.delete(object)
         oldSection.insertSorted(outdatedCopy)
         
-        if oldSection == newSection && oldIndexRow == newIndexRow  {
+        if oldSection == newSection && oldIndexRow == newIndexRow {
             return .Update
         }
         return .Move

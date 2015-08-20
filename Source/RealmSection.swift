@@ -50,21 +50,22 @@ class Section<T: Object> : NSObject {
     //MARK: Outdated objects
     
     func deleteOutdatedObject(object: T) -> Int {
-        let primaryKey = T.primaryKey()!
-        let primaryKeyValue = (object as Object).valueForKey(primaryKey)!
-        let objectToDelete: T? = objectForPrimaryKey(primaryKeyValue)
-        if let object = objectToDelete {
+        if let object = outdatedObject(object) {
             return delete(object)
         }
         return -1
     }
     
-    func indexForOutdatedObject(object: T) -> Int {
+    func outdatedObject(object: T) -> T? {
         let primaryKey = T.primaryKey()!
         let primaryKeyValue = (object as Object).valueForKey(primaryKey)!
-        let objectToDelete: T? = objectForPrimaryKey(primaryKeyValue)
-        if let object = objectToDelete {
-            return objects.indexOfObject(object)
+        return objectForPrimaryKey(primaryKeyValue)
+    }
+    
+    func indexForOutdatedObject(object: T) -> Int {
+        let objectToDelete: T? = outdatedObject(object)
+        if let obj = objectToDelete {
+            return objects.indexOfObject(obj)
         }
         return -1
     }
