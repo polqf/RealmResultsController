@@ -116,7 +116,7 @@ class RealmResultsCache<T: Object> {
         let mirrorsArray = sortedMirrors(outdated).reverse() as [T]
         
         for object in mirrorsArray {
-            let section = sectionForOutdateObject(object)!
+            guard let section = sectionForOutdateObject(object) else { continue }
             let index = section.deleteOutdatedObject(object)
             let indexPath = NSIndexPath(forRow: index, inSection: indexForSection(section)!)
             
@@ -214,6 +214,9 @@ class RealmResultsCache<T: Object> {
         
         let newKeyPathValue = keyPathForObject(object)
         let newSection = sectionForKeyPath(newKeyPathValue)
+        if oldSection == newSection {
+            newSection?.deleteOutdatedObject(object)
+        }
         let newIndexRow = newSection?.insertSorted(object)
         
         let indexOutdated = oldSection.indexForOutdatedObject(object)
@@ -223,7 +226,7 @@ class RealmResultsCache<T: Object> {
         newSection?.delete(object)
         oldSection.insertSorted(outdatedCopy)
         
-        if oldSection == newSection && oldIndexRow == newIndexRow  {
+        if oldSection == newSection && oldIndexRow == newIndexRow {
             return .Update
         }
         return .Move

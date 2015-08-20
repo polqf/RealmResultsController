@@ -63,8 +63,8 @@ class Section<T: Object> : NSObject {
         let primaryKey = T.primaryKey()!
         let primaryKeyValue = (object as Object).valueForKey(primaryKey)!
         let objectToDelete: T? = objectForPrimaryKey(primaryKeyValue)
-        if let object = objectToDelete {
-            return objects.indexOfObject(object)
+        if let obj = objectToDelete {
+            return objects.indexOfObject(obj)
         }
         return -1
     }
