@@ -11,6 +11,7 @@ import RealmSwift
 
 enum RRCError: ErrorType {
     case InvalidKeyPath
+    case EmptySortDescriptors
 }
 
 enum RealmResultsChangeType: String {
@@ -88,6 +89,9 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         self.mapper = mapper
         self.sectionKeyPath = sectionKeyPath
         self.cache = RealmResultsCache<T>(request: request, sectionKeyPath: sectionKeyPath)
+        if sortDescriptorsAreEmpty(request.sortDescriptors) {
+            throw RRCError.EmptySortDescriptors
+        }
         if !keyPathIsValid(sectionKeyPath, sorts: request.sortDescriptors) {
             throw RRCError.InvalidKeyPath
         }
@@ -168,6 +172,10 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         if keyPath == nil { return true }
         guard let firstSort = sorts.first else { return false }
         return keyPath == firstSort.property
+    }
+    
+    private func sortDescriptorsAreEmpty(sorts: [SortDescriptor]) -> Bool {
+        return sorts.first == nil
     }
     
     private func realmSectionMapper<S>(section: Section<S>) -> RealmSection<U> {

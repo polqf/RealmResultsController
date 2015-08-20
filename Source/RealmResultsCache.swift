@@ -207,23 +207,17 @@ class RealmResultsCache<T: Object> {
     :returns: Type of the update needed for the given object
     */
     func updateType(object: T) -> RealmCacheUpdateType {
-        let oldSectionOptional = sectionForOutdateObject(object)
-        guard let oldSection = oldSectionOptional else { return .Insert }
-        let oldIndexRow = oldSection.indexForOutdatedObject(object)
+        guard let oldSection = sectionForOutdateObject(object) else { return .Insert }
+        guard let newSection = sectionForKeyPath(keyPathForObject(object)) else { return .Insert }
+        
+        guard let outdatedCopy = oldSection.outdatedObject(object) else { return .Insert }
+        let oldIndexRow = oldSection.delete(outdatedCopy)
         if oldIndexRow == -1 { return .Insert }
         
-        let newKeyPathValue = keyPathForObject(object)
-        let newSection = sectionForKeyPath(newKeyPathValue)
-        if oldSection == newSection {
-            newSection?.deleteOutdatedObject(object)
-        }
-        let newIndexRow = newSection?.insertSorted(object)
-        
-        let indexOutdated = oldSection.indexForOutdatedObject(object)
-        let outdatedCopy = oldSection.objects.objectAtIndex(indexOutdated) as! T
+        let newIndexRow = newSection.insertSorted(object)
         
         oldSection.deleteOutdatedObject(object)
-        newSection?.delete(object)
+        newSection.delete(object)
         oldSection.insertSorted(outdatedCopy)
         
         if oldSection == newSection && oldIndexRow == newIndexRow {
