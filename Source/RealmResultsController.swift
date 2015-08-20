@@ -3,7 +3,7 @@
 //  redbooth-ios-sdk
 //
 //  Created by Isaac Roldan on 4/8/15.
-//  Copyright © 2015 Redbooth Inc. All rights reserved.
+//  Copyright © 2015 Redbooth Inc.
 //
 
 import Foundation
@@ -90,7 +90,6 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
             throw RRCError.InvalidKeyPath
         }
         self.cache?.delegate = self
-        self.addNotificationObservers()
     }
     
     /**
@@ -128,15 +127,13 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     Fetches the initial data for the RealmResultsController
     
     Atention: Must be called after the initialization
-    
-    - returns: [RealmSection<U>]
     */
-    public func performFetch() -> [RealmSection<U>] {
+    public func performFetch() {
         populating = true
         let objects = self.request.execute().toArray().map(getMirror)
         self.cache.reset(objects)
         populating = false
-        return sections
+        self.addNotificationObservers()
     }
 
     
