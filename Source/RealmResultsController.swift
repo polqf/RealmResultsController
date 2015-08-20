@@ -77,6 +77,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     of the RealmRequest. If not, RRC will throw an error.
     NOTE2: Realm does not support sorting by KeyPaths, so you must only use properties of the model
     you want to fetch and not KeyPath to any relationship
+    NOTE3: The RealmRequest needs at least one SortDescriptor
     
     - param: request        Request to fetch objects
     - param: sectionKeyPath KeyPath to group the results by sections
@@ -108,6 +109,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     NOTE: If sectionKeyPath is used, it must be equal to the property used in the first SortDescriptor
     of the RealmRequest. If not, RRC will throw an error
+    NOTE2: The RealmRequest needs at least one SortDescriptor
     
     - param: request        Request to fetch objects
     - param: sectionKeyPath keyPath to group the results of the request
