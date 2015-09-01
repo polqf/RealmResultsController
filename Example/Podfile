@@ -3,13 +3,12 @@
 
 use_frameworks!
 
-
-target 'RealmResultsController' do
+target 'RealmResultsController-iOS' do
   pod 'Realm', :git => 'https://github.com/realm/realm-cocoa.git', :branch => 'swift-2.0'
   pod 'RealmSwift', :git => 'https://github.com/realm/realm-cocoa.git', :branch => 'swift-2.0'
 end
 
-target 'RealmResultsControllerTests' do
+target 'RealmResultsController-iOSTests' do
   pod 'Quick', '~> 0.5.0'
   pod 'Nimble', '2.0.0-rc.2'
 end
