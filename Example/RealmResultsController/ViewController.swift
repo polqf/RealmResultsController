@@ -25,7 +25,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     override func viewDidLoad() {
         super.viewDidLoad()
         realm = try! Realm(path: NSBundle.mainBundle().resourcePath! + "/example.realm")
-        realm.write {
+        try! realm.write {
             self.realm.deleteAll()
         }
         populateDB()
@@ -37,7 +37,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
 
     func populateDB() {
-        realm.write {
+        try! realm.write {
             for i in 1...2 {
                 let task = TaskModel()
                 task.id = i
@@ -90,7 +90,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
     func addNewObject() {
         let projectID = Int(arc4random_uniform(3))
-        realm.write {
+        try! realm.write {
             let task = TaskModel()
             task.id = Int(arc4random_uniform(9999))
             task.name = "Task-\(task.id)"
@@ -126,7 +126,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let task = rrc!.objectAt(indexPath)
-        realm.write {
+        try! realm.write {
             let model = self.realm.objectForPrimaryKey(TaskModel.self, key: task.id)!
             self.realm.deleteNotified(model)
         }

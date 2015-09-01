@@ -271,8 +271,8 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
             cache.updateType(object) == .Move ? objectsToMove.append(object) : objectsToUpdate.append(object)
         }
         
-        temporaryDeleted.extend(objectsToMove)
-        temporaryAdded.extend(objectsToMove)
+        temporaryDeleted.appendContentsOf(objectsToMove)
+        temporaryAdded.appendContentsOf(objectsToMove)
         cache.update(objectsToUpdate)
         cache.delete(temporaryDeleted)
         cache.insert(temporaryAdded)
