@@ -36,7 +36,8 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     var observerAdded: Bool = false
     var cache: RealmResultsCache<T>!
     var request: RealmRequest<T>
-    var mapper: (T) -> U
+    var mapper: T -> U
+    var filter: (T -> Bool)?
     var sectionKeyPath: String? = ""
     var backgroundQueue = dispatch_queue_create("com.RRC.\(arc4random_uniform(1000))", DISPATCH_QUEUE_SERIAL)
     
@@ -86,11 +87,12 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     - returns: Self
     */
-    public init(request: RealmRequest<T>, sectionKeyPath: String? ,mapper: (T)->(U)) throws {
+    public init(request: RealmRequest<T>, sectionKeyPath: String? ,mapper: T -> U, filter: (T -> Bool)? = nil) throws {
         self.request = request
         self.mapper = mapper
         self.sectionKeyPath = sectionKeyPath
         self.cache = RealmResultsCache<T>(request: request, sectionKeyPath: sectionKeyPath)
+        self.filter = filter
         if sortDescriptorsAreEmpty(request.sortDescriptors) {
             throw RRCError.EmptySortDescriptors
         }
@@ -118,10 +120,9 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     - returns: self
     */
     public convenience init(request: RealmRequest<T>, sectionKeyPath: String?) throws {
-        try self.init(request: request, sectionKeyPath: sectionKeyPath) { (object: T) -> (U) in
-            return object as! U
-        }
+        try self.init(request: request, sectionKeyPath: sectionKeyPath, mapper: {$0 as! U})
     }
+    
     
     //TODO: Shouldn't be public, find a way to enter test mode without this method
     public convenience init(forTESTRequest request: RealmRequest<T>, sectionKeyPath: String?, mapper: (T)->(U)) throws {
@@ -139,7 +140,10 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     */
     public func performFetch() {
         populating = true
-        let objects = self.request.execute().toArray().map(getMirror)
+        var objects = self.request.execute().toArray().map(getMirror)
+        if let filter = filter {
+            objects = objects.filter(filter)
+        }
         self.cache.reset(objects)
         populating = false
         if !observerAdded { self.addNotificationObservers() }
@@ -244,9 +248,16 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
                 continue
             }
             
+            var passesFilter = true
             let passesPredicate = self.request.predicate.evaluateWithObject(object.mirror as! T)
-
-            if object.action == RealmAction.Create && passesPredicate {
+            
+            if let filter = filter {
+                executeOnMainThread(true) {
+                    passesFilter = filter(object.mirror as! T)
+                }
+            }
+    
+            if object.action == RealmAction.Create && passesPredicate && passesFilter {
                 temporaryAdded.append(object.mirror as! T)
             }
             else if object.action == RealmAction.Update {
@@ -306,13 +317,15 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         _test ? dispatch_sync(backgroundQueue, block) : dispatch_async(backgroundQueue, block)
     }
     
-    func executeOnMainThread(block: ()->()) {
+    func executeOnMainThread(sync: Bool = false, block: ()->()) {
         if NSThread.currentThread().isMainThread {
             block()
+        }
+        else if sync {
+            dispatch_sync(dispatch_get_main_queue(), block)
         }
         else {
             dispatch_async(dispatch_get_main_queue(), block)
         }
     }
-    
 }
