@@ -10,6 +10,7 @@ import UIKit
 
 import UIKit
 import RealmSwift
+import RealmResultsController
 
 class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, RealmResultsControllerDelegate {
     

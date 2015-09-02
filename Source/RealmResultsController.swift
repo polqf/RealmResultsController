@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import RealmSwift
 
 enum RRCError: ErrorType {
@@ -14,14 +15,14 @@ enum RRCError: ErrorType {
     case EmptySortDescriptors
 }
 
-enum RealmResultsChangeType: String {
+public enum RealmResultsChangeType: String {
     case Insert
     case Delete
     case Update
     case Move
 }
 
-protocol RealmResultsControllerDelegate: class {
+public protocol RealmResultsControllerDelegate: class {
     func willChangeResults(controller: AnyObject)
     func didChangeObject<U>(object: U, controller: AnyObject, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType)
     func didChangeSection<U>(section: RealmSection<U>, controller: AnyObject, index: Int, changeType: RealmResultsChangeType)
@@ -29,7 +30,7 @@ protocol RealmResultsControllerDelegate: class {
 }
 
 public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
-    weak var delegate: RealmResultsControllerDelegate?
+    public weak var delegate: RealmResultsControllerDelegate?
     var _test: Bool = false
     var populating: Bool = false
     var observerAdded: Bool = false
@@ -48,7 +49,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     Warning: This is computed variable that maps all the avaliable sections using the mapper. Could be an expensive operation
     */
-    var sections: [RealmSection<U>] {
+    public var sections: [RealmSection<U>] {
         return cache.sections.map(realmSectionMapper)
     }
     
