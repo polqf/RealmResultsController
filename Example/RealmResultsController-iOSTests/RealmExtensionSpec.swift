@@ -227,8 +227,9 @@ class RealmExtensionSpec: QuickSpec {
         describe("getMirror()") {
             context("If the object has an optional nil value") {
                 var mirrored: Dummy!
-                let initial: Dummy = Dummy()
+                var initial: Dummy!
                 beforeEach {
+                    initial = Dummy()
                     initial.id = 4
                     mirrored = getMirror(initial)
                 }

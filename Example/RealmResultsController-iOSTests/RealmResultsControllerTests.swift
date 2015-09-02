@@ -206,10 +206,11 @@ class RealmResultsControllerSpec: QuickSpec {
                 expect(object) == fetchedObject
             }
         }
-                describe("didInsert<T: Object>(object:indexPath:)") {
-            let object = Task()
+        describe("didInsert<T: Object>(object:indexPath:)") {
+            var object: Task!
             let indexPath = NSIndexPath(forRow: 1, inSection: 2)
             beforeEach {
+                object = Task()
                 RRC.didInsert(object, indexPath: indexPath)
             }
             it("Should have stored the object in the RealmResultsDelegate instance") {
@@ -219,10 +220,11 @@ class RealmResultsControllerSpec: QuickSpec {
         }
         
         describe("didUpdate<T: Object>(object:oldIndexPath:newIndexPath:)") {
-            let object = Task()
+            var object: Task!
             let oldIndexPath = NSIndexPath(forRow: 4, inSection: 2)
             let newIndexPath = NSIndexPath(forRow: 1, inSection: 2)
             beforeEach {
+                object = Task()
                 RRC.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: .Move)
             }
             it("Should have stored the object in the RealmResultsDelegate instance") {
@@ -233,8 +235,9 @@ class RealmResultsControllerSpec: QuickSpec {
         }
         describe("didDelete<T: Object>(object:indexPath:)") {
             let indexPath = NSIndexPath(forRow: 1, inSection: 2)
-            let task = Task()
+            var task: Task!
             beforeEach {
+                task = Task()
                 RRC.didDelete(task, indexPath: indexPath)
             }
             it("Should have stored the object in the RealmResultsDelegate instance") {
@@ -321,10 +324,13 @@ class RealmResultsControllerSpec: QuickSpec {
                 var updateChange: RealmChange!
                 var deleteChange: RealmChange!
                 var notifObject: [RealmChange] = []
-                let task1 = Task()
-                let task2 = Task()
-                let task3 = Task()
+                var task1: Task!
+                var task2: Task!
+                var task3: Task!
                 beforeEach {
+                    task1 = Task()
+                    task2 = Task()
+                    task3 = Task()
                     try! RRC.request.realm.write {
                         task1.id = -111
                         task2.id = -222

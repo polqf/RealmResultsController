@@ -76,8 +76,9 @@ class RealmLoggerSpec: QuickSpec {
         }
         
         describe("didAdd<T: Object>(object: T)") {
-            let newObject = Task()
+            var newObject: Task!
             beforeEach {
+                newObject = Task()
                 logger.cleanAll()
                 newObject.name = "New Task"
                 logger.didAdd(newObject)
@@ -92,8 +93,9 @@ class RealmLoggerSpec: QuickSpec {
         }
         
         describe("didUpdate<T: Object>(object: T)") {
-            let updatedObject = Task()
+            var updatedObject: Task!
             beforeEach {
+                updatedObject = Task()
                 logger.cleanAll()
                 updatedObject.name = "Updated Task"
                 logger.didUpdate(updatedObject)
@@ -108,8 +110,9 @@ class RealmLoggerSpec: QuickSpec {
         }
         
         describe("didDelete<T: Object>(object: T)") {
-            let deletedObject = Task()
+            var deletedObject: Task!
             beforeEach {
+                deletedObject = Task()
                 logger.cleanAll()
                 deletedObject.name = "Deleted Task"
                 logger.didDelete(deletedObject)

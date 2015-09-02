@@ -6,8 +6,7 @@
 //  Copyright © 2015 Redbooth.
 //
 
-import UIKit
-
+import Foundation
 import UIKit
 import RealmSwift
 import RealmResultsController
@@ -15,7 +14,7 @@ import RealmResultsController
 class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, RealmResultsControllerDelegate {
     
     let tableView: UITableView = UITableView(frame: CGRectZero, style: .Grouped)
-    var rrc: RealmResultsController<TaskModel, Task>?
+    var rrc: RealmResultsController<TaskModelObject, TaskObject>?
     var realm: Realm!
     let button: UIButton = UIButton()
     
@@ -25,13 +24,16 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        if let _ = NSClassFromString("XCTest") {
+            return
+        }
         realm = try! Realm(path: NSBundle.mainBundle().resourcePath! + "/example.realm")
         try! realm.write {
             self.realm.deleteAll()
         }
         populateDB()
-        let request = RealmRequest<TaskModel>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [SortDescriptor(property: "projectID")  , SortDescriptor(property: "name")])
-        rrc = try! RealmResultsController<TaskModel, Task>(request: request, sectionKeyPath: "projectID", mapper: Task.map)
+        let request = RealmRequest<TaskModelObject>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [SortDescriptor(property: "projectID")  , SortDescriptor(property: "name")])
+        rrc = try! RealmResultsController<TaskModelObject, TaskObject>(request: request, sectionKeyPath: "projectID", mapper: TaskObject.map)
         rrc!.delegate = self
         rrc!.performFetch()
         setupSubviews()
@@ -40,33 +42,33 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     func populateDB() {
         try! realm.write {
             for i in 1...2 {
-                let task = TaskModel()
+                let task = TaskModelObject()
                 task.id = i
                 task.name = "Task-\(i)"
                 task.projectID = 0
-                let user = User()
+                let user = UserObject()
                 user.id = i
                 user.name = String(Int(arc4random_uniform(1000)))
                 task.user = user
                 self.realm.add(task)
             }
             for i in 3...4 {
-                let task = TaskModel()
+                let task = TaskModelObject()
                 task.id = i
                 task.name = "Task-\(i)"
                 task.projectID = 1
-                let user = User()
+                let user = UserObject()
                 user.id = i
                 user.name = String(Int(arc4random_uniform(1000)))
                 task.user = user
                 self.realm.add(task)
             }
             for i in 5...6 {
-                let task = TaskModel()
+                let task = TaskModelObject()
                 task.id = i
                 task.name = "Task-\(i)"
                 task.projectID = 2
-                let user = User()
+                let user = UserObject()
                 user.id = i
                 user.name = String(Int(arc4random_uniform(1000)))
                 task.user = user
@@ -92,11 +94,11 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     func addNewObject() {
         let projectID = Int(arc4random_uniform(3))
         try! realm.write {
-            let task = TaskModel()
+            let task = TaskModelObject()
             task.id = Int(arc4random_uniform(9999))
             task.name = "Task-\(task.id)"
             task.projectID = projectID
-            let user = User()
+            let user = UserObject()
             user.id = task.id
             user.name = String(Int(arc4random_uniform(1000)))
             task.user = user
@@ -128,7 +130,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let task = rrc!.objectAt(indexPath)
         try! realm.write {
-            let model = self.realm.objectForPrimaryKey(TaskModel.self, key: task.id)!
+            let model = self.realm.objectForPrimaryKey(TaskModelObject.self, key: task.id)!
             self.realm.deleteNotified(model)
         }
     }
@@ -150,7 +152,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func didChangeObject<U>(object: U, controller: AnyObject, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
-        print("🎁 didChangeObject '\((object as! TaskModel).name)' from: [\(oldIndexPath.section):\(oldIndexPath.row)] to: [\(newIndexPath.section):\(newIndexPath.row)] --> \(changeType)")
+        print("🎁 didChangeObject '\((object as! TaskModelObject).name)' from: [\(oldIndexPath.section):\(oldIndexPath.row)] to: [\(newIndexPath.section):\(newIndexPath.row)] --> \(changeType)")
         switch changeType {
         case .Delete:
             tableView.deleteRowsAtIndexPaths([newIndexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
