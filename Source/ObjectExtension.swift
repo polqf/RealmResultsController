@@ -14,7 +14,7 @@ extension Object {
     Gives the object string identifier.
     Commonly used when posting individual notifications
     
-    Structure: ObjectType-PrimaryKey
+    Structure: ObjectType-PrimaryKeyValue
     
     - returns: The identifier as String
     */
