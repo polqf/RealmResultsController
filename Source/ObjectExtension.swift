@@ -16,7 +16,7 @@ extension Object {
     
     Structure: ObjectType-PrimaryKey
     
-    :returns: The identifier as String
+    - returns: The identifier as String
     */
     func objectIdentifier() -> String? {
         guard let primaryKey = self.dynamicType.primaryKey() else { return nil }
