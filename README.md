@@ -1,6 +1,6 @@
 ![](https://img.shields.io/badge/coverage-100%25-green.svg)
 ![](https://img.shields.io/badge/language-swift-blue.svg)
-![](https://img.shields.io/badge/version-0.0.1-red.svg)
+![](https://img.shields.io/badge/version-0.0.4-red.svg)
 
 ![](Images/RRCHigh.png)
 
