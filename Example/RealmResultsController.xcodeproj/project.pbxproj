@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C15410AE1B971FF400CFCFB2 /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A002331B96149A000C0E8C /* Realm.framework */; settings = {ASSET_TAGS = (); }; };
-		C15410AF1B971FF400CFCFB2 /* RealmSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A002341B96149A000C0E8C /* RealmSwift.framework */; settings = {ASSET_TAGS = (); }; };
 		C1565E8F1B970362003B7ABD /* RealmExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D8710A1B72673E00C0ED18 /* RealmExtension.swift */; };
 		C1565E901B970362003B7ABD /* RealmNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D8710B1B72673E00C0ED18 /* RealmNotification.swift */; };
 		C1565E911B970362003B7ABD /* RealmLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14CD7601B739E6300C5BF92 /* RealmLogger.swift */; };
@@ -17,6 +15,8 @@
 		C1565E941B970362003B7ABD /* RealmResultsCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D8710D1B72673E00C0ED18 /* RealmResultsCache.swift */; };
 		C1565E951B970362003B7ABD /* RealmResultsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D8710E1B72673E00C0ED18 /* RealmResultsController.swift */; };
 		C1565E961B970362003B7ABD /* RealmSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A1010FB1B74A83600321CE6 /* RealmSection.swift */; };
+		C1565E971B970381003B7ABD /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A002331B96149A000C0E8C /* Realm.framework */; };
+		C1565E981B970381003B7ABD /* RealmSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A002341B96149A000C0E8C /* RealmSwift.framework */; };
 		C1565EAE1B970654003B7ABD /* RealmResultsControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1E549C91B73BE0A00341B47 /* RealmResultsControllerTests.swift */; };
 		C1565EAF1B970654003B7ABD /* RealmResultsCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A68B20B1B735CFB007645A7 /* RealmResultsCacheTests.swift */; };
 		C1565EB11B970654003B7ABD /* RealmSectionSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A1010FD1B74C5BB00321CE6 /* RealmSectionSpec.swift */; };
@@ -104,8 +104,8 @@
 		C18C376B1B72670F008DE6A6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C18C376E1B72670F008DE6A6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C18C37701B72670F008DE6A6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C1A002331B96149A000C0E8C /* Realm.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Realm.framework; path = Carthage/Build/iOS/Realm.framework; sourceTree = "<group>"; };
-		C1A002341B96149A000C0E8C /* RealmSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RealmSwift.framework; path = Carthage/Build/iOS/RealmSwift.framework; sourceTree = "<group>"; };
+		C1A002331B96149A000C0E8C /* Realm.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Realm.framework; path = RealmResultsController/Frameworks/Realm.framework; sourceTree = "<group>"; };
+		C1A002341B96149A000C0E8C /* RealmSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RealmSwift.framework; path = RealmResultsController/Frameworks/RealmSwift.framework; sourceTree = "<group>"; };
 		C1A002461B96F790000C0E8C /* Quick.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quick.framework; path = Carthage/Build/iOS/Quick.framework; sourceTree = "<group>"; };
 		C1A002471B96F790000C0E8C /* Nimble.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Nimble.framework; path = Carthage/Build/iOS/Nimble.framework; sourceTree = "<group>"; };
 		C1A0028B1B9702C1000C0E8C /* RealmResultsController.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RealmResultsController.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -136,8 +136,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C15410AF1B971FF400CFCFB2 /* RealmSwift.framework in Frameworks */,
-				C15410AE1B971FF400CFCFB2 /* Realm.framework in Frameworks */,
+				C1565E981B970381003B7ABD /* RealmSwift.framework in Frameworks */,
+				C1565E971B970381003B7ABD /* Realm.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -275,7 +275,6 @@
 				C1A002871B9702C1000C0E8C /* Frameworks */,
 				C1A002881B9702C1000C0E8C /* Headers */,
 				C1A002891B9702C1000C0E8C /* Resources */,
-				C15410AB1B971EFD00CFCFB2 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -376,21 +375,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		C15410AB1B971EFD00CFCFB2 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/Carthage/Build/iOS/Realm.framework",
-				"$(SRCROOT)/Carthage/Build/iOS/RealmSwift.framework",
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "/usr/local/bin/carthage copy-frameworks";
-		};
 		C1676C0B1B971C1900BC0FC0 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -617,7 +601,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/RealmResultsController/Frameworks",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = "RealmResultsController-iOS/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -642,7 +625,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/RealmResultsController/Frameworks",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = "RealmResultsController-iOS/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
