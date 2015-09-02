@@ -32,7 +32,7 @@ class ViewControllerSpec: QuickSpec {
         describe("addNewObject()") {
             var objects: [TaskModel]!
             beforeEach {
-                realm.write {
+                try! realm.write {
                     realm.deleteAll()
                 }
                 vc.addNewObject()
@@ -48,7 +48,7 @@ class ViewControllerSpec: QuickSpec {
             var oldObjects: [TaskModel]!
             var objects: [TaskModel]!
             beforeEach {
-                realm.write {
+                try! realm.write {
                     realm.deleteAll()
                 }
                 vc.populateDB()
