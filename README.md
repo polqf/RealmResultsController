@@ -154,7 +154,17 @@ let objects = realm.objects(TaskModel.self).toArray()
 
 ###Installation:
 
-:loudspeaker: We are going to integrate with CocoaPods and Carthage when Swift 2.0 is officialy lauched 
+:loudspeaker: We are going to integrate with CocoaPods when Swift 2.0 is officialy lauched 
+
+#### [Carthage](https://github.com/Carthage/Carthage):
+```swift
+github "teambox/RealmResultsController"
+```
+
+> Note: You still have to install `Realm` and `RealmSwift` manually:
+> More info [here](https://realm.io/docs/swift/latest/#installation-swift-20)
+
+#### Manual:
 
 #####Copy the RealmResultsController source files
 
@@ -164,7 +174,7 @@ Copy the files inside the `/Source` folder to your project
 More info [here](https://realm.io/docs/swift/latest/#installation-swift-20)
 
 ### Technical details:
-- Swift 2.0 b4
+- Swift 2.0 beta 6
 
 ###Licenses
 All source code is licensed under the MIT License.
