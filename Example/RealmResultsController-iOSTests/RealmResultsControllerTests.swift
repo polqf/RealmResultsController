@@ -67,7 +67,7 @@ class RealmResultsControllerSpec: QuickSpec {
             var createdRRC: RealmResultsController<Task, Task>!
             
             beforeEach {
-                createdRRC = try! RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil) { $0 }
+                createdRRC = try! RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil, mapper: { $0 })
             }
             it("Should have initialized a RRC") {
                 expect(createdRRC).toNot(beNil())
