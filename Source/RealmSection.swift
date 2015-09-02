@@ -11,8 +11,8 @@ import RealmSwift
 
 
 public struct RealmSection<U> {
-    var objects: [U]?
-    var keyPath: String
+    public var objects: [U]?
+    public var keyPath: String
 }
 
 class Section<T: Object> : NSObject {

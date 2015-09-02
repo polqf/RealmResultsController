@@ -53,7 +53,7 @@ class RealmResultsControllerSpec: QuickSpec {
             RealmTestHelper.loadRealm()
             realm = try! Realm()
             let predicate = NSPredicate(value: true)
-            request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: [])
+            request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: [SortDescriptor(property: "id")])
             RRC = try! RealmResultsController<Task, Task>(forTESTRequest: request, sectionKeyPath: nil) { $0 }
             RRC.delegate = RRCDelegate
         }
@@ -88,7 +88,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 var createdRRC: RealmResultsController<Task, TaskModel>!
                 var sameType: Bool = false
                 beforeEach {
-                    let request = RealmRequest<Task>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [])
+                    let request = RealmRequest<Task>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [SortDescriptor(property: "id")])
                     createdRRC = try! RealmResultsController<Task, TaskModel>(request: request, sectionKeyPath: nil, mapper: Task.mapTask)
                     createdRRC.performFetch()
                     let object = createdRRC.objectAt(NSIndexPath(forRow: 0, inSection: 0))
@@ -206,10 +206,11 @@ class RealmResultsControllerSpec: QuickSpec {
                 expect(object) == fetchedObject
             }
         }
-                describe("didInsert<T: Object>(object:indexPath:)") {
-            let object = Task()
+        describe("didInsert<T: Object>(object:indexPath:)") {
+            var object: Task!
             let indexPath = NSIndexPath(forRow: 1, inSection: 2)
             beforeEach {
+                object = Task()
                 RRC.didInsert(object, indexPath: indexPath)
             }
             it("Should have stored the object in the RealmResultsDelegate instance") {
@@ -219,10 +220,11 @@ class RealmResultsControllerSpec: QuickSpec {
         }
         
         describe("didUpdate<T: Object>(object:oldIndexPath:newIndexPath:)") {
-            let object = Task()
+            var object: Task!
             let oldIndexPath = NSIndexPath(forRow: 4, inSection: 2)
             let newIndexPath = NSIndexPath(forRow: 1, inSection: 2)
             beforeEach {
+                object = Task()
                 RRC.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: .Move)
             }
             it("Should have stored the object in the RealmResultsDelegate instance") {
@@ -233,8 +235,9 @@ class RealmResultsControllerSpec: QuickSpec {
         }
         describe("didDelete<T: Object>(object:indexPath:)") {
             let indexPath = NSIndexPath(forRow: 1, inSection: 2)
-            let task = Task()
+            var task: Task!
             beforeEach {
+                task = Task()
                 RRC.didDelete(task, indexPath: indexPath)
             }
             it("Should have stored the object in the RealmResultsDelegate instance") {
@@ -321,11 +324,14 @@ class RealmResultsControllerSpec: QuickSpec {
                 var updateChange: RealmChange!
                 var deleteChange: RealmChange!
                 var notifObject: [RealmChange] = []
-                let task1 = Task()
-                let task2 = Task()
-                let task3 = Task()
+                var task1: Task!
+                var task2: Task!
+                var task3: Task!
                 beforeEach {
-                    RRC.request.realm.write {
+                    task1 = Task()
+                    task2 = Task()
+                    task3 = Task()
+                    try! RRC.request.realm.write {
                         task1.id = -111
                         task2.id = -222
                         task3.id = -333
@@ -333,6 +339,10 @@ class RealmResultsControllerSpec: QuickSpec {
                         RRC.request.realm.add(task2)
                         RRC.request.realm.add(task3)
                     }
+                    RRC.performFetch()
+                    RRC.cache.sections.first?.objects.removeAllObjects()
+                    RRC.cache.sections.first?.objects.addObject(task2)
+                    RRC.cache.sections.first?.objects.addObject(task3)
                     createChange = RealmChange(type: Task.self, action: .Create, mirror: getMirror(task1))
                     updateChange = RealmChange(type: Task.self, action: .Update, mirror: getMirror(task2))
                     deleteChange = RealmChange(type: Task.self, action: .Delete, mirror: getMirror(task3))
@@ -340,7 +350,7 @@ class RealmResultsControllerSpec: QuickSpec {
                     RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
                 }
                 afterEach {
-                    RRC.request.realm.write {
+                    try! RRC.request.realm.write {
                         RRC.request.realm.delete([task1, task2, task3])
                     }
                 }
@@ -350,6 +360,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 }
             }
         }
+        
         describe("pendingChanges()") {
             context("If there are no pending changes") {
                 beforeEach {

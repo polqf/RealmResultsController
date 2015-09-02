@@ -24,6 +24,12 @@ public struct RealmRequest<T: Object> {
     var realm: Realm
     var sortDescriptors: [SortDescriptor] = []
     
+    public init(predicate: NSPredicate, realm: Realm, sortDescriptors: [SortDescriptor]) {
+        self.predicate = predicate
+        self.realm = realm
+        self.sortDescriptors = sortDescriptors
+    }
+    
     func execute() -> Results<T> {
         return  realm.objects(entityType).filter(predicate).sorted(sortDescriptors)
     }

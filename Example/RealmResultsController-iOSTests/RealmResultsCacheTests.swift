@@ -195,7 +195,7 @@ class CacheSpec: QuickSpec {
                     resolvedTasksCopy = resolvedTasks
                     resolvedTasksCopy.append(newTask)
                     resolvedTasksCopy.sortInPlace {$0.name < $1.name}
-                    memoryIndex = resolvedTasksCopy.indexOf(newTask)!
+                    memoryIndex = resolvedTasksCopy.indexOf { $0 == newTask }
                     
                     //Get the values from the delegate
                     cacheIndexPath = CacheDelegateMock.sharedInstance.indexPath
@@ -239,7 +239,7 @@ class CacheSpec: QuickSpec {
                     tasksCopy = initialObjects
                     tasksCopy.append(newTask)
                     tasksCopy.sortInPlace {$0.name < $1.name}
-                    memoryIndex = tasksCopy.indexOf(newTask)!
+                    memoryIndex = tasksCopy.indexOf { $0 == newTask }
                     
                     //Get the values from the delegate
                     cacheIndexPath = CacheDelegateMock.sharedInstance.indexPath
@@ -381,13 +381,13 @@ class CacheSpec: QuickSpec {
                 it("beforeAll") {
                     initWithKeypath()
                     myTask = resolvedTasks[5]
-                    realm.write {
+                    try! realm.write {
                         myTask.resolved = false
                     }
                     notResolvedTasksCopy = notResolvedTasks
                     notResolvedTasksCopy.append(myTask)
                     notResolvedTasksCopy.sortInPlace {$0.name < $1.name}
-                    memoryIndex = notResolvedTasksCopy.indexOf(myTask)
+                    memoryIndex = notResolvedTasksCopy.indexOf { $0 == myTask }
                     cache.delete([myTask]) // an update changing sections is actually a delete and insert
                     cache.insert([myTask])
                     object = CacheDelegateMock.sharedInstance.object
@@ -410,7 +410,7 @@ class CacheSpec: QuickSpec {
                     expect(cache.sections[indexPath!.section].objects.count) == notResolvedTasks.count + 1
                 }
                 it("restoreIt!") {
-                    realm.write {
+                    try! realm.write {
                         myTask.resolved = true
                     }
                 }

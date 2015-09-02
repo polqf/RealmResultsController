@@ -133,13 +133,13 @@ class RealmResultsCache<T: Object> {
     
     func update(objects: [T]) {
         for object in objects {
-            let oldSection = sectionForOutdateObject(object)!
+            guard let oldSection = sectionForOutdateObject(object) else { continue }
             let oldSectionIndex = indexForSection(oldSection)!
             let oldIndexRow = oldSection.indexForOutdatedObject(object)
             
             if oldIndexRow == -1 {
                 insert([object])
-                return
+                continue
             }
             
             let oldIndexPath = NSIndexPath(forRow: oldIndexRow, inSection: oldSectionIndex)

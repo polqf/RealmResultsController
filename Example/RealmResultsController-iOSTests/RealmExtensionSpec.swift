@@ -31,7 +31,7 @@ class RealmExtensionSpec: QuickSpec {
             taskToTest!.id = 1500
             taskToTest!.name = "testingName1"
             self.cleanLoggers()
-            realm.write {
+            try! realm.write {
                 realm.addNotified([taskToTest!])
             }
         }
@@ -59,7 +59,7 @@ class RealmExtensionSpec: QuickSpec {
                     myTask = Task()
                     myTask!.id = 1
                     myTask!.name = "test"
-                    realm.write {
+                    try! realm.write {
                         realm.addNotified(myTask!, update: true)
                     }
                 }
@@ -80,7 +80,7 @@ class RealmExtensionSpec: QuickSpec {
                     self.cleanLoggers()
                     object = Dummy()
                     object.id = 1
-                    realm.write {
+                    try! realm.write {
                         realm.addNotified(object)
                     }
                 }
@@ -99,7 +99,7 @@ class RealmExtensionSpec: QuickSpec {
         describe("createNotified") {
             var refetchedTask: Task!
             it("beforeAll") {
-                realm.write {
+                try! realm.write {
                     realm.createNotified(Task.self, value: ["id":1501, "name": "testingName2"], update: true)
                 }
                 refetchedTask = realm.objectForPrimaryKey(Task.self, key: 1501)
@@ -120,7 +120,7 @@ class RealmExtensionSpec: QuickSpec {
                 beforeEach {
                     self.cleanLoggers()
                     myTask = ["name": "hola", "id": 1501, "resolved": 1]
-                    realm.write {
+                    try! realm.write {
                         realm.createNotified(Task.self, value: myTask, update: true)
                     }
                     fetchedTask = realm.objectForPrimaryKey(Task.self, key: 1501)
@@ -143,7 +143,7 @@ class RealmExtensionSpec: QuickSpec {
                     self.cleanLoggers()
                     totalObjectsBefore = realm.objects(Task).count
                     object = ["name": "hola"]
-                    realm.write {
+                    try! realm.write {
                         realm.createNotified(Dummy.self, value: object, update: true)
                     }
                     totalObjectsAfter = realm.objects(Task).count
@@ -167,7 +167,7 @@ class RealmExtensionSpec: QuickSpec {
                     self.cleanLoggers()
                     totalObjectsBefore = realm.objects(Task).count
                     object = ["name": "hola"]
-                    realm.write {
+                    try! realm.write {
                         realm.createNotified(Task.self, value: object, update: true)
                     }
                     totalObjectsAfter = realm.objects(Task).count
@@ -189,7 +189,7 @@ class RealmExtensionSpec: QuickSpec {
 
             beforeEach {
                 refetchedTask = realm.objectForPrimaryKey(Task.self, key: 1500)
-                realm.write {
+                try! realm.write {
                     realm.deleteNotified([refetchedTask!])
                 }
             }
@@ -205,7 +205,7 @@ class RealmExtensionSpec: QuickSpec {
             var request: RealmRequest<Task>!
             var result: Task!
             beforeEach {
-                realm.write {
+                try! realm.write {
                     let task = Task()
                     task.id = 161123123
                     realm.addNotified([task])
@@ -218,7 +218,7 @@ class RealmExtensionSpec: QuickSpec {
                 expect(result.id) == 161123123
             }
             afterEach {
-                realm.write {
+                try! realm.write {
                     realm.delete(result)
                 }
                 self.cleanLoggers()
@@ -227,8 +227,9 @@ class RealmExtensionSpec: QuickSpec {
         describe("getMirror()") {
             context("If the object has an optional nil value") {
                 var mirrored: Dummy!
-                let initial: Dummy = Dummy()
+                var initial: Dummy!
                 beforeEach {
+                    initial = Dummy()
                     initial.id = 4
                     mirrored = getMirror(initial)
                 }
