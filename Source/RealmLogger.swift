@@ -35,7 +35,19 @@ class RealmLogger {
     func finishRealmTransaction() {
         let name = realm.path.hasSuffix("testingRealm") ? "realmChangesTest" : "realmChanges"
         NSNotificationCenter.defaultCenter().postNotificationName(name, object: temporary)
+        postIndividualNotifications()
         cleanAll()
+    }
+    
+    /**
+    Posts a notification for every change occurred in Realm
+    */
+    func postIndividualNotifications() {
+        for change: RealmChange in temporary {
+            guard let object = change.mirror else { continue }
+            guard let name = object.objectIdentifier() else { continue }
+            NSNotificationCenter.defaultCenter().postNotificationName(name, object: nil)
+        }
     }
     
     func didAdd<T: Object>(object: T) {

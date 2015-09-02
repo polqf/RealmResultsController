@@ -147,6 +147,20 @@ let objects = realm.objects(TaskModel.self).toArray()
 ```
 
 
+###Listen to Realm changes
+
+If you are using the RRC methods to add/delete objects you are able to listen to all Realm changes.
+
+Just add an observer to an object like this:
+
+```swift
+let object = Object()
+NSNotificationCenter.defaultCenter().addObserver(self, selector: "YOUR_FUNC", name: object.objectIdentifier(), object: nil)
+```
+
+`objectIdentifier()` is a method defined in an `Object` extension that is going to build an identifier for the given object. Its structure is `ObjectType-PrimaryKeyValue`
+
+
 ### Demo:
 <p align="center">
 <img src="Images/RRCDemo.gif" height="300px"/>
