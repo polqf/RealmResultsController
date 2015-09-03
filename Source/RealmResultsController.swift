@@ -123,9 +123,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         try self.init(request: request, sectionKeyPath: sectionKeyPath, mapper: {$0 as! U})
     }
     
-    
-    //TODO: Shouldn't be public, find a way to enter test mode without this method
-    public convenience init(forTESTRequest request: RealmRequest<T>, sectionKeyPath: String?, mapper: (T)->(U)) throws {
+    internal convenience init(forTESTRequest request: RealmRequest<T>, sectionKeyPath: String?, mapper: (T)->(U)) throws {
         try self.init(request: request, sectionKeyPath: sectionKeyPath, mapper: mapper)
         self._test = true
     }
