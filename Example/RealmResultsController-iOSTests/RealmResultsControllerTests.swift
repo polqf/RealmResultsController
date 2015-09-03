@@ -63,11 +63,20 @@ class RealmResultsControllerSpec: QuickSpec {
             RRC = nil
         }
         
+        describe("sections") {
+            beforeEach {
+                RRC.performFetch()
+            }
+            it("has created 1 section") {
+                expect(RRC.sections.count) == 1
+            }
+        }
+        
         describe("init(request:sectionKeyPath:mapper:)") {
             var createdRRC: RealmResultsController<Task, Task>!
             
             beforeEach {
-                createdRRC = try! RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil, mapper: { $0 })
+                createdRRC = try! RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil, mapper: {$0}, filter: nil)
             }
             it("Should have initialized a RRC") {
                 expect(createdRRC).toNot(beNil())
@@ -81,6 +90,13 @@ class RealmResultsControllerSpec: QuickSpec {
                 let queue = dispatch_queue_create("lock", DISPATCH_QUEUE_SERIAL)
                 dispatch_async(queue) {
                     RRC.executeOnMainThread { }
+                }
+            }
+            
+            it("try to execute a block in main thread from a background queue synced") {
+                let queue = dispatch_queue_create("lock", DISPATCH_QUEUE_SERIAL)
+                dispatch_async(queue) {
+                    RRC.executeOnMainThread(true) { }
                 }
             }
             
@@ -105,6 +121,21 @@ class RealmResultsControllerSpec: QuickSpec {
                 beforeEach {
                     do  {
                         let request = RealmRequest<Task>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [SortDescriptor(property: "name")])
+                        let _ = try RealmResultsController<Task, TaskModel>(request: request, sectionKeyPath: "something", mapper: Task.mapTask)
+                    } catch {
+                        exceptionDetected = true
+                    }
+                }
+                it("it launches an exception") {
+                    expect(exceptionDetected).to(beTruthy())
+                }
+            }
+            
+            context("RRC doesn't have any Sorts") {
+                var exceptionDetected: Bool = false
+                beforeEach {
+                    do  {
+                        let request = RealmRequest<Task>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [])
                         let _ = try RealmResultsController<Task, TaskModel>(request: request, sectionKeyPath: "something", mapper: Task.mapTask)
                     } catch {
                         exceptionDetected = true
@@ -155,6 +186,52 @@ class RealmResultsControllerSpec: QuickSpec {
                 }
                 it("returns mapped object") {
                     expect(sameType).to(beTruthy())
+                }
+            }
+        }
+        
+        //With filter
+        describe("init(request:sectionKeyPath:mapper:filter:)") {
+            var createdRRC: RealmResultsController<Task, Task>!
+            
+            beforeEach {
+                createdRRC = try! RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil, mapper: {$0}, filter: { (task: Task) in task.resolved})
+            }
+            it("Should have initialized a RRC") {
+                expect(createdRRC).toNot(beNil())
+                expect(createdRRC.request).toNot(beNil())
+                expect(createdRRC.mapper).toNot(beNil())
+                expect(createdRRC.filter).toNot(beNil())
+                expect(createdRRC.cache.delegate).toNot(beNil())
+                expect(createdRRC.cache.defaultKeyPathValue).to(equal("default"))
+            }
+            
+            context("the mapper returns an object of the same type") {
+                var sameType: Bool = false
+                beforeEach {
+                    createdRRC.performFetch()
+                    let object = createdRRC.objectAt(NSIndexPath(forRow: 0, inSection: 0))
+                    sameType = object.isKindOfClass(Task)
+                }
+                it("returns mapped object") {
+                    expect(sameType).to(beTruthy())
+                }
+                it("all tasks are resolved") {
+                    let allObjects: [Task] = createdRRC.cache.sections[0].allObjects
+                    let resolved = allObjects.filter({$0.resolved})
+                    expect(allObjects.count) == resolved.count
+                }
+                
+                context("new filter") {
+                    beforeEach {
+                        createdRRC.updateFilter({ (task: Task) in !task.resolved})
+                    }
+    
+                    it("all tasks are not resolved") {
+                        let allObjects: [Task] = createdRRC.cache.sections[0].allObjects
+                        let notResolved = allObjects.filter({!$0.resolved})
+                        expect(allObjects.count) == notResolved.count
+                    }
                 }
             }
         }
@@ -339,6 +416,7 @@ class RealmResultsControllerSpec: QuickSpec {
                         RRC.request.realm.add(task2)
                         RRC.request.realm.add(task3)
                     }
+                    RRC.updateFilter({T in true})
                     RRC.performFetch()
                     RRC.cache.sections.first?.objects.removeAllObjects()
                     RRC.cache.sections.first?.objects.addObject(task2)

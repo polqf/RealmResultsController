@@ -22,6 +22,16 @@ class NotificationListener {
     }
 }
 
+class NotificationObserver {
+    
+    var notificationReceived: Bool = false
+    init() {
+        NSNotificationCenter.defaultCenter().addObserverForName("Task-123", object: nil, queue: nil) { (notification) -> Void in
+            self.notificationReceived = true
+        }
+    }
+}
+
 class RealmLoggerSpec: QuickSpec {
     override func spec() {
         var realm: Realm!
@@ -127,16 +137,57 @@ class RealmLoggerSpec: QuickSpec {
         }
         
         describe("finishRealmTransaction()") {
-            let newObject = RealmChange(type: Task.self, action: .Create, mirror: nil)
-            beforeEach {
-                logger.cleanAll()
-                logger.temporary.append(newObject)
-                logger.cleanAll()
+            let observer = NotificationObserver()
+            var newObject: RealmChange!
+            context("object without mirror") {
+                beforeEach {
+                    newObject = RealmChange(type: Task.self, action: .Create, mirror: nil)
+                    logger.cleanAll()
+                    logger.temporary.append(newObject)
+                    logger.finishRealmTransaction()
+                    logger.cleanAll()
+                }
+                it("Should remove all the objects in each temporary array") {
+                    expect(logger.temporary.count).to(equal(0))
+                }
+                it("doesn;t send notification") {
+                    expect(observer.notificationReceived).to(beFalsy())
+                }
             }
-            it("Should remove all the objects in each temporary array") {
-                expect(logger.temporary.count).to(equal(0))
+            
+            context("object with mirror without primaryKey") {
+                beforeEach {
+                    newObject = RealmChange(type: Task.self, action: .Create, mirror: Dummy())
+                    logger.cleanAll()
+                    logger.temporary.append(newObject)
+                    logger.finishRealmTransaction()
+                    logger.cleanAll()
+                }
+                it("Should remove all the objects in each temporary array") {
+                    expect(logger.temporary.count).to(equal(0))
+                }
+                it("doesn;t send notification") {
+                    expect(observer.notificationReceived).to(beFalsy())
+                }
+            }
+            
+            context("object with mirror and primaryKey") {
+                beforeEach {
+                    let task = Task()
+                    task.id = 123
+                    newObject = RealmChange(type: Task.self, action: .Create, mirror: task)
+                    logger.cleanAll()
+                    logger.temporary.append(newObject)
+                    logger.finishRealmTransaction()
+                    logger.cleanAll()
+                }
+                it("Should remove all the objects in each temporary array") {
+                    expect(logger.temporary.count).to(equal(0))
+                }
+                it("doesn;t send notification") {
+                    expect(observer.notificationReceived).to(beTruthy())
+                }
             }
         }
-
     }
 }

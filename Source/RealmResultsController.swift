@@ -35,9 +35,9 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     var populating: Bool = false
     var observerAdded: Bool = false
     var cache: RealmResultsCache<T>!
-    var request: RealmRequest<T>
+    private(set) public var request: RealmRequest<T>
+    private(set) public var filter: (T -> Bool)?
     var mapper: T -> U
-    var filter: (T -> Bool)?
     var sectionKeyPath: String? = ""
     var backgroundQueue = dispatch_queue_create("com.RRC.\(arc4random_uniform(1000))", DISPATCH_QUEUE_SERIAL)
     
@@ -130,6 +130,21 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         self._test = true
     }
     
+    /**
+    Update the filter currently used in the RRC by a new one.
+    
+    This func resets completetly the RRC, so:
+    - It will force the RRC to clean all its cache and refetch all the objects.
+    - You MUST do a reloadData() in your UITableView after calling this method.
+    - Not refreshing the table could cause a crash because the indexes changed.
+    
+    :param: newFilter A Filter closure applied to T: Object
+    */
+    public func updateFilter(newFilter: T -> Bool) {
+        filter = newFilter
+        performFetch()
+    }
+    
     
     //MARK: Fetch
     
@@ -175,14 +190,14 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         return self.mapper(object)
     }
 
-    private func keyPathIsValid(keyPath: String?, sorts: [SortDescriptor]) -> Bool {
-        if keyPath == nil { return true }
-        guard let firstSort = sorts.first else { return false }
-        return keyPath == firstSort.property
-    }
-    
     private func sortDescriptorsAreEmpty(sorts: [SortDescriptor]) -> Bool {
         return sorts.first == nil
+    }
+    
+    // At this point, we are sure sorts.first always has a SortDescriptor
+    private func keyPathIsValid(keyPath: String?, sorts: [SortDescriptor]) -> Bool {
+        if keyPath == nil { return true }
+        return keyPath == sorts.first!.property
     }
     
     private func realmSectionMapper<S>(section: Section<S>) -> RealmSection<U> {
@@ -196,7 +211,6 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         executeOnMainThread {
             self.delegate?.didChangeObject(object, controller: self, oldIndexPath: indexPath, newIndexPath: indexPath, changeType: .Insert)
         }
-
     }
     
     func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {

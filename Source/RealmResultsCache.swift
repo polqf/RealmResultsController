@@ -116,7 +116,7 @@ class RealmResultsCache<T: Object> {
         let mirrorsArray = sortedMirrors(outdated).reverse() as [T]
         
         for object in mirrorsArray {
-            guard let section = sectionForOutdateObject(object) else { continue }
+            let section = sectionForOutdateObject(object)!
             let index = section.deleteOutdatedObject(object)
             let indexPath = NSIndexPath(forRow: index, inSection: indexForSection(section)!)
             
