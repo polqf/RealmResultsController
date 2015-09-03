@@ -19,10 +19,10 @@ Struct that encapsulates a request to a realm including:
 
 */
 public struct RealmRequest<T: Object> {
-    var entityType: T.Type { return T.self }
-    var predicate: NSPredicate = NSPredicate(value: true)
-    var realm: Realm
-    var sortDescriptors: [SortDescriptor] = []
+    public var entityType: T.Type { return T.self }
+    public var predicate: NSPredicate = NSPredicate(value: true)
+    public var realm: Realm
+    public var sortDescriptors: [SortDescriptor] = []
     
     public init(predicate: NSPredicate, realm: Realm, sortDescriptors: [SortDescriptor]) {
         self.predicate = predicate
