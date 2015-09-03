@@ -34,7 +34,7 @@ class RealmLogger {
     */
     func finishRealmTransaction() {
         let name = realm.path.hasSuffix("testingRealm") ? "realmChangesTest" : "realmChanges"
-        NSNotificationCenter.defaultCenter().postNotificationName(name, object: temporary)
+        NSNotificationCenter.defaultCenter().postNotificationName(name, object: [realm.path : temporary])
         postIndividualNotifications()
         cleanAll()
     }

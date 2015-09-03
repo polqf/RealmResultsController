@@ -49,6 +49,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     All results separated by the sectionKeyPath in RealmSection<U>
     
     Warning: This is computed variable that maps all the avaliable sections using the mapper. Could be an expensive operation
+    Warning2: The RealmSections contained in the array do not contain objects, only its keyPath
     */
     public var sections: [RealmSection<U>] {
         return cache.sections.map(realmSectionMapper)
@@ -245,8 +246,10 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     }
     
     @objc func didReceiveRealmChanges(notification: NSNotification) {
+        guard case let notificationObject as [String : [RealmChange]] = notification.object else { return }
+        guard notificationObject.keys.first == request.realm.path else { return }
         executeOnCorrectThread {
-            guard case let objects as [RealmChange] = notification.object else { return }
+            let objects = notificationObject[self.request.realm.path]!
             self.refetchObjects(objects)
             self.finishWriteTransaction()
         }
