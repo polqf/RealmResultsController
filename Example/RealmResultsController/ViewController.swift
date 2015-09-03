@@ -17,7 +17,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     var rrc: RealmResultsController<TaskModelObject, TaskObject>?
     var realm: Realm!
     let button: UIButton = UIButton()
-    
+
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
