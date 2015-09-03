@@ -15,10 +15,10 @@ import RealmSwift
 
 class NotificationListener {
     static let sharedInstance = NotificationListener()
-    var array: [RealmChange] = []
+    var array: [String : [RealmChange]] = [:]
     
     @objc func notificationReceived(notification: NSNotification) {
-        array = notification.object as! [RealmChange]
+        array = notification.object as! [String : [RealmChange]]
     }
 }
 
@@ -73,7 +73,7 @@ class RealmLoggerSpec: QuickSpec {
                 var createdObject: Bool = false
                 var updatedObject: Bool = false
                 var deletedObject: Bool = false
-                for object: RealmChange in notificationArray {
+                for object: RealmChange in notificationArray[realm.path]! {
                     if object.action == RealmAction.Create { createdObject = true}
                     if object.action == RealmAction.Update { updatedObject = true}
                     if object.action == RealmAction.Delete { deletedObject = true}

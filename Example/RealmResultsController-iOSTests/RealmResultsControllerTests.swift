@@ -360,7 +360,7 @@ class RealmResultsControllerSpec: QuickSpec {
                     temporaryUpdated = RRC.temporaryUpdated
                     temporaryDeleted = RRC.temporaryDeleted
                     let createChange = RealmChange(type: User.self, action: .Create, mirror: User())
-                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: [createChange]))
+                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: [realm.path : [createChange]]))
                 }
                 it("ignores the object") {
                     expect(temporaryAdded) == RRC.temporaryAdded
@@ -370,6 +370,23 @@ class RealmResultsControllerSpec: QuickSpec {
             }
             
             context("If the notification has the wrong format") {
+                var temporaryAdded: [Task] = []
+                var temporaryDeleted: [Task] = []
+                var temporaryUpdated: [Task] = []
+                beforeEach {
+                    temporaryAdded = RRC.temporaryAdded
+                    temporaryUpdated = RRC.temporaryUpdated
+                    temporaryDeleted = RRC.temporaryDeleted
+                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: ["wrongRealm" : [RealmChange]()]))
+                }
+                it("Should have the same temporary arrays as previously") {
+                    expect(temporaryAdded).to(equal(RRC.temporaryAdded))
+                    expect(temporaryUpdated).to(equal(RRC.temporaryUpdated))
+                    expect(temporaryDeleted.count).to(equal(RRC.temporaryDeleted.count))
+                    expect(RRC.cache.sections.count).to(equal(0))
+                }
+            }
+            context("If the notification comes from a different Realm") {
                 var temporaryAdded: [Task] = []
                 var temporaryDeleted: [Task] = []
                 var temporaryUpdated: [Task] = []
@@ -387,8 +404,9 @@ class RealmResultsControllerSpec: QuickSpec {
                 }
             }
             context("If the notification is EMPTY") {
-                let notifObject: [RealmChange] = []
+                var notifObject: [String :[RealmChange]] = [:]
                 beforeEach {
+                    notifObject = [realm.path : [RealmChange]()]
                     RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
                 }
                 it("Should not have added anything to the cache") {
@@ -400,7 +418,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 var createChange: RealmChange!
                 var updateChange: RealmChange!
                 var deleteChange: RealmChange!
-                var notifObject: [RealmChange] = []
+                var notifObject: [String : [RealmChange]] = [:]
                 var task1: Task!
                 var task2: Task!
                 var task3: Task!
@@ -424,7 +442,7 @@ class RealmResultsControllerSpec: QuickSpec {
                     createChange = RealmChange(type: Task.self, action: .Create, mirror: getMirror(task1))
                     updateChange = RealmChange(type: Task.self, action: .Update, mirror: getMirror(task2))
                     deleteChange = RealmChange(type: Task.self, action: .Delete, mirror: getMirror(task3))
-                    notifObject = [createChange, updateChange, deleteChange]
+                    notifObject = [realm.path : [createChange, updateChange, deleteChange]]
                     RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
                 }
                 afterEach {
@@ -492,7 +510,7 @@ class RealmResultsControllerSpec: QuickSpec {
                     RRC.cache.reset([task, task2])
                     task2.name = "aaa"
                     RRC.temporaryUpdated.append(task2)
-                    let notif = NSNotification(name: "", object: [RealmChange]())
+                    let notif = NSNotification(name: "", object: [realm.path : [RealmChange]()])
                     RRC.didReceiveRealmChanges(notif)
                 }
                 it("Should return false") {
