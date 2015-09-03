@@ -18,7 +18,7 @@ extension Object {
     
     - returns: The identifier as String
     */
-    func objectIdentifier() -> String? {
+    public func objectIdentifier() -> String? {
         guard let primaryKey = self.dynamicType.primaryKey() else { return nil }
         let primaryKeyValue = String((self as Object).valueForKey(primaryKey)!)
         return String(self.dynamicType) + "-" + primaryKeyValue
