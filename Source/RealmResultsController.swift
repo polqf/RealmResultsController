@@ -289,7 +289,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     private func finishWriteTransaction() {
         if !pendingChanges() { return }
-        executeOnMainThread {
+        executeOnMainThread(true) {
             self.delegate?.willChangeResults(self)
         }
         var objectsToMove: [T] = []
@@ -306,7 +306,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         temporaryAdded.removeAll()
         temporaryDeleted.removeAll()
         temporaryUpdated.removeAll()
-        executeOnMainThread {
+        executeOnMainThread(true) {
             self.delegate?.didChangeResults(self)
         }
     }
