@@ -202,6 +202,27 @@ NSNotificationCenter.defaultCenter().addObserver(self, selector: "YOUR_FUNC", na
 
 `objectIdentifier()` is a method defined in an `Object` extension that is going to build an identifier for the given object. Its structure is `ObjectType-PrimaryKeyValue`
 
+###Disclaimer
+
+For the moment, RRC is not capable of detecting changes introduced in an object saved through a relationship of another object.
+
+Example:
+
+```swift
+let user = User()
+user.id = 123
+user.name = "John"
+realm.addNotified(user)
+
+let task = Task()
+user.name = "Steven" //This change is not going to be notified
+task.assignedUser = user
+realm.addNotified(task)
+
+// There will be only one notification for the Task object
+
+```
+
 
 ### Demo:
 <p align="center">
