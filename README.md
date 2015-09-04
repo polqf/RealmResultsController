@@ -28,7 +28,6 @@ Where `T` is a `Realm` model
 let realm = // Your realm DB
 let predicate = NSPredicate(format: "id != 0")
 let sortDescriptors = [SortDescriptor(property: "projectID"), SortDescriptor(property: "name")]
-let sectionKeypath = "projectID"
 let request = RealmRequest<TaskModel>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
 ```
 
@@ -40,9 +39,9 @@ The `RealmResultsController<T, U>` needs 4 parameters:
 - A mapper like `func mapper(obj: T) -> U` (optional)
 - A filter like `func filter(obj: T) -> Bool` (optional)
 
-Where `T` is a `Realm` model and `U` is the type of the object you want to receive from the RRC. Since the RRC works in background, we can work with normal Realm objects, so we either create mirror copies of the objects not associated to any Realm, or we map the Objects to another kind of "entity" of type `U`
+Where `T` is a `Realm` model and `U` is the type of the object you want to receive from the RRC. Since the RRC works in background, we can't work with normal Realm objects, so we either create mirror copies of the objects not associated to any Realm, or we map the Objects to another kind of "entity" of type `U`
 
-__Note:__ `T` and `U` can be of the same type, then the RRC will return a copy of T objects but not included in any Realm.
+__Note:__ `T` and `U` can be of the same type, then the RRC will return a copy of the `T` objects but not included in any Realm.
 
 __:heavy_exclamation_mark: what is the `filter` for?__
 You may ask, if the `RealmRequest` already has a `NSPredicate` to filter the results, why does the RRC accept a filter func? Well, very simple:
@@ -59,19 +58,22 @@ You may ask, if the `RealmRequest` already has a `NSPredicate` to filter the res
 
 
 ``` swift
-//In this example we ask for TaskModel objects in Realm, and we want it to map the results to a Task entity, this entity defines it's own mapper in `Task.map`
-
+// In this example we ask for TaskModel objects in Realm,
+// and we want it to map the results to a Task entity,
+// this entity defines it's own mapper in `Task.map`
 let rrc = RealmResultsController<TaskModel, Task>(request: request, sectionKeyPath: sectionKeypath, mapper: Task.map, filter: MyFilterFunc)
 rrc.delegate = self
 
-// With NIL filter, same as before, but we can ignore the filter property if we don't want to use it
+// With NIL filter, same as before, but we can ignore the 
+// filter property if we don't want to use it
 let rrc = RealmResultsController<TaskModel, Task>(request: request, sectionKeyPath: sectionKeypath, mapper: Task.map)
 rrc.delegate = self
 
-// OR without mapper nor filter, this is a special init. Since we don't want to change the result type, we say to the RRC that `T` is the same as `U`. The filter will be nil.
+// OR without mapper nor filter, this is a special init. 
+// Since we don't want to change the result type, we say to the RRC that `T` is the same as `U`. 
+// The filter will be nil.
 let rrc = RealmResultsController<TaskModel, TaskModel>(request: request, sectionKeyPath: sectionKeypath)
 rrc.delegate = self
-
 
 ```
 
@@ -89,11 +91,21 @@ func didChangeResults(controller: AnyObject)
 You can access the elements in the RRC using this public methods:
 
 ```swift
-    public var sections: [RealmSection<U>] // Returns all the Sections including its objects
-    public var numberOfSections: Int // count of Sections
-    public func numberOfObjectsAt(sectionIndex: Int) -> Int // Number of Objects in a Section
-    public func objectAt(indexPath: NSIndexPath) -> U //Object at a given indexPath (ideal for cellForRow... in table views )
-    public func updateFilter(newFilter: T -> Bool) // Change the filter currently used. IMPORTANT! after calling this method you should reload your table `tableView.realoadData()`
+// Returns all the Sections including its objects
+public var sections: [RealmSection<U>] 
+
+// count of Sections
+public var numberOfSections: Int 
+
+// Number of Objects in a Section
+public func numberOfObjectsAt(sectionIndex: Int) -> Int 
+
+//Object at a given indexPath (ideal for cellForRow... in table views )
+public func objectAt(indexPath: NSIndexPath) -> U 
+
+// Change the filter currently used. IMPORTANT! after calling 
+// this method you should reload your table `tableView.realoadData()`
+public func updateFilter(newFilter: T -> Bool) 
     
 ```
 
