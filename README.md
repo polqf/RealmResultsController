@@ -1,6 +1,6 @@
 ![](https://img.shields.io/badge/coverage-100%25-green.svg)
 ![](https://img.shields.io/badge/language-swift-blue.svg)
-![](https://img.shields.io/badge/version-0.0.5-red.svg)
+![](https://img.shields.io/badge/version-0.1.0-red.svg)
 
 ![](Images/RRCHigh.png)
 
@@ -8,7 +8,7 @@ A NSFetchedResultsController implementation for Realm written in Swift
 
 ###Changelog:
 
-- __0.0.1 Initial Release__ (14 Aug 2015)
+- __0.1.0 Initial Release__ (4 Sept 2015)
 
 ###Quick Start:
 
@@ -33,28 +33,46 @@ let request = RealmRequest<TaskModel>(predicate: predicate, realm: realm, sortDe
 ```
 
 #### Create the RealmResultsController
-The `RealmResultsController<T, U>` needs 3 parameters:
+The `RealmResultsController<T, U>` needs 4 parameters:
 
 - A `RealmRequest<T>`
 - The section key path (optional)
 - A mapper like `func mapper(obj: T) -> U` (optional)
+- A filter like `func filter(obj: T) -> Bool` (optional)
 
-Where `T` is a `Realm` model and `U` is the type of the object you want to receive from the RRC.
+Where `T` is a `Realm` model and `U` is the type of the object you want to receive from the RRC. Since the RRC works in background, we can work with normal Realm objects, so we either create mirror copies of the objects not associated to any Realm, or we map the Objects to another kind of "entity" of type `U`
 
-__Note:__ `T` and `U` can be of the same type
+__Note:__ `T` and `U` can be of the same type, then the RRC will return a copy of T objects but not included in any Realm.
+
+__:heavy_exclamation_mark: what is the `filter` for?__
+You may ask, if the `RealmRequest` already has a `NSPredicate` to filter the results, why does the RRC accept a filter func? Well, very simple:
+- The NSPredicate only lets you filter by Realm properties, and is very limited.
+- With this extra filter block, you can have more granulated results, filtering using the value of relationships, or filtering depending on the result of an internal method of the Model.
+- It is a workaround to the limited functionality of NSPredicate in Realm :)
+- It is not mandatory, by default the filter closure is nil.
 
 :warning: - If the sectionKeyPath is not nil, it MUST match the first `SortDescriptor` of the `RealmRequest`. Otherwise it will raise an Exception.
 
 :warning: 2 - Realm does not accept a `SortDescriptor`s that access a property of a relatonship. That limits the sectionKeyPath to be only a property of the current object
 
 
+
+
 ``` swift
+//In this example we ask for TaskModel objects in Realm, and we want it to map the results to a Task entity, this entity defines it's own mapper in `Task.map`
+
+let rrc = RealmResultsController<TaskModel, Task>(request: request, sectionKeyPath: sectionKeypath, mapper: Task.map, filter: MyFilterFunc)
+rrc.delegate = self
+
+// With NIL filter, same as before, but we can ignore the filter property if we don't want to use it
 let rrc = RealmResultsController<TaskModel, Task>(request: request, sectionKeyPath: sectionKeypath, mapper: Task.map)
 rrc.delegate = self
 
-// OR without mapper
-let rrc = RealmResultsController<TaskModel, Task>(request: request, sectionKeyPath: sectionKeypath)
+// OR without mapper nor filter, this is a special init. Since we don't want to change the result type, we say to the RRC that `T` is the same as `U`. The filter will be nil.
+let rrc = RealmResultsController<TaskModel, TaskModel>(request: request, sectionKeyPath: sectionKeypath)
 rrc.delegate = self
+
+
 ```
 
 #### Implement the RealmResultsControllerDelegate methods
@@ -67,6 +85,18 @@ func didChangeObject<U>(object: U, controller: AnyObject, oldIndexPath: NSIndexP
 func didChangeSection<U>(section: RealmSection<U>, controller: AnyObject, index: Int, changeType: RealmResultsChangeType)
 func didChangeResults(controller: AnyObject)
 ```
+
+You can access the elements in the RRC using this public methods:
+
+```swift
+    public var sections: [RealmSection<U>] // Returns all the Sections including its objects
+    public var numberOfSections: Int // count of Sections
+    public func numberOfObjectsAt(sectionIndex: Int) -> Int // Number of Objects in a Section
+    public func objectAt(indexPath: NSIndexPath) -> U //Object at a given indexPath (ideal for cellForRow... in table views )
+    public func updateFilter(newFilter: T -> Bool) // Change the filter currently used. IMPORTANT! after calling this method you should reload your table `tableView.realoadData()`
+    
+```
+
 
 #####RealmResultsChangeType:
 It an `enum` with four different types:
@@ -172,7 +202,7 @@ NSNotificationCenter.defaultCenter().addObserver(self, selector: "YOUR_FUNC", na
 
 #### [Carthage](https://github.com/Carthage/Carthage):
 ```swift
-github "teambox/RealmResultsController"
+github "redbooth/RealmResultsController"
 ```
 
 > Note: You still have to install `Realm` and `RealmSwift` manually:
