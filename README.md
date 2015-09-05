@@ -231,15 +231,7 @@ realm.addNotified(task)
 
 ###Installation:
 
-:loudspeaker: We are going to integrate with CocoaPods when Swift 2.0 is officialy lauched 
-
-#### [Carthage](https://github.com/Carthage/Carthage):
-```swift
-github "redbooth/RealmResultsController"
-```
-
-> Note: You still have to install `Realm` and `RealmSwift` manually:
-> More info [here](https://realm.io/docs/swift/latest/#installation-swift-20)
+:loudspeaker: We are going to integrate with __CocoaPods__ and __Carthage__ when Swift 2.0 is officialy launched. Since this library has Realm as a dependency, we can't use Carthage until Realm adds support for it ;) 
 
 #### Manual:
 
