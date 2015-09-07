@@ -25,16 +25,16 @@ public enum RealmResultsChangeType: String {
 public protocol RealmResultsControllerDelegate: class {
     
     /**
-    Notifies the receiver that the fetched results controller is about to start processing of one or more changes due to an add, remove, move, or update.
+    Notifies the receiver that the realm results controller is about to start processing of one or more changes due to an add, remove, move, or update.
     
-    :param: controller The fetched results controller that sent the message.
+    :param: controller The realm results controller that sent the message.
     */
     func willChangeResults(controller: AnyObject)
     
     /**
     Notifies the receiver that a fetched object has been changed due to an add, remove, move, or update.
     
-    :param: controller   The fetched results controller that sent the message.
+    :param: controller   The realm results controller that sent the message.
     :param: object       The object in controller’s fetched results that changed.
     :param: oldIndexPath The index path of the changed object (this value is the same as newIndexPath for insertions).
     :param: newIndexPath The destination path for the object for insertions or moves (this value is the same as oldIndexPath for a deletion).
@@ -45,7 +45,7 @@ public protocol RealmResultsControllerDelegate: class {
     /**
     Notifies the receiver of the addition or removal of a section.
     
-    :param: controller The fetched results controller that sent the message.
+    :param: controller The realm results controller that sent the message.
     :param: section    The section that changed.
     :param: index      The index of the changed section.
     :param: changeType The type of change (insert or delete).
@@ -53,9 +53,9 @@ public protocol RealmResultsControllerDelegate: class {
     func didChangeSection<U>(controller: AnyObject, section: RealmSection<U>, index: Int, changeType: RealmResultsChangeType)
     
     /**
-    Notifies the receiver that the fetched results controller has completed processing of one or more changes due to an add, remove, move, or update.
+    Notifies the receiver that the realm results controller has completed processing of one or more changes due to an add, remove, move, or update.
     
-    :param: controller The fetched results controller that sent the message.
+    :param: controller The realm results controller that sent the message.
     */
     func didChangeResults(controller: AnyObject)
 }
