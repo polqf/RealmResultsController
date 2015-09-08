@@ -24,14 +24,14 @@ class RealmResultsDelegate: RealmResultsControllerDelegate {
     
     func willChangeResults(controller: AnyObject) {}
     
-    func didChangeObject<U>(object: U, controller: AnyObject, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
+    func didChangeObject<U>(controller: AnyObject, object: U, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
         self.object = object as? Task
         self.oldIndexPath = oldIndexPath
         self.newIndexPath = newIndexPath
         self.changeType = changeType
     }
     
-    func didChangeSection<U>(section: RealmSection<U>, controller: AnyObject, index: Int, changeType: RealmResultsChangeType) {
+    func didChangeSection<U>(controller: AnyObject, section: RealmSection<U>, index: Int, changeType: RealmResultsChangeType) {
         self.section = section as? RealmSection<Task>
         self.sectionIndex = index
         self.changeType = changeType

@@ -23,9 +23,40 @@ public enum RealmResultsChangeType: String {
 }
 
 public protocol RealmResultsControllerDelegate: class {
+    
+    /**
+    Notifies the receiver that the realm results controller is about to start processing of one or more changes due to an add, remove, move, or update.
+    
+    :param: controller The realm results controller that sent the message.
+    */
     func willChangeResults(controller: AnyObject)
-    func didChangeObject<U>(object: U, controller: AnyObject, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType)
-    func didChangeSection<U>(section: RealmSection<U>, controller: AnyObject, index: Int, changeType: RealmResultsChangeType)
+    
+    /**
+    Notifies the receiver that a fetched object has been changed due to an add, remove, move, or update.
+    
+    :param: controller   The realm results controller that sent the message.
+    :param: object       The object in controller’s fetched results that changed.
+    :param: oldIndexPath The index path of the changed object (this value is the same as newIndexPath for insertions).
+    :param: newIndexPath The destination path for the object for insertions or moves (this value is the same as oldIndexPath for a deletion).
+    :param: changeType   The type of change. For valid values see RealmResultsChangeType.
+    */
+    func didChangeObject<U>(controller: AnyObject, object: U, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType)
+    
+    /**
+    Notifies the receiver of the addition or removal of a section.
+    
+    :param: controller The realm results controller that sent the message.
+    :param: section    The section that changed.
+    :param: index      The index of the changed section.
+    :param: changeType The type of change (insert or delete).
+    */
+    func didChangeSection<U>(controller: AnyObject, section: RealmSection<U>, index: Int, changeType: RealmResultsChangeType)
+    
+    /**
+    Notifies the receiver that the realm results controller has completed processing of one or more changes due to an add, remove, move, or update.
+    
+    :param: controller The realm results controller that sent the message.
+    */
     func didChangeResults(controller: AnyObject)
 }
 
@@ -208,32 +239,32 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     func didInsert<T: Object>(object: T, indexPath: NSIndexPath) {
         executeOnMainThread {
-            self.delegate?.didChangeObject(object, controller: self, oldIndexPath: indexPath, newIndexPath: indexPath, changeType: .Insert)
+            self.delegate?.didChangeObject(self, object: object, oldIndexPath: indexPath, newIndexPath: indexPath, changeType: .Insert)
         }
     }
     
     func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
         executeOnMainThread {
-            self.delegate?.didChangeObject(object, controller: self, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: changeType)
+            self.delegate?.didChangeObject(self, object: object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: changeType)
         }
     }
     
     func didDelete<T: Object>(object: T, indexPath: NSIndexPath) {
         executeOnMainThread {
-            self.delegate?.didChangeObject(object, controller: self, oldIndexPath: indexPath, newIndexPath: indexPath, changeType: .Delete)
+            self.delegate?.didChangeObject(self, object: object, oldIndexPath: indexPath, newIndexPath: indexPath, changeType: .Delete)
         }
     }
     
     func didInsertSection<T : Object>(section: Section<T>, index: Int) {
         if populating { return }
         executeOnMainThread {
-            self.delegate?.didChangeSection(realmSectionMapper(section), controller: self, index: index, changeType: .Insert)
+            self.delegate?.didChangeSection(self, section: realmSectionMapper(section), index: index, changeType: .Insert)
         }
     }
     
     func didDeleteSection<T : Object>(section: Section<T>, index: Int) {
         executeOnMainThread {
-            self.delegate?.didChangeSection(realmSectionMapper(section), controller: self, index: index, changeType: .Delete)
+            self.delegate?.didChangeSection(self, section: realmSectionMapper(section), index: index, changeType: .Delete)
         }
     }
     
