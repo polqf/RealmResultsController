@@ -225,6 +225,15 @@ realm.addNotified(task)
 
 
 ### Demo:
+
+To use the demo, compile Realm.framework and RealmSwift.framework for Swift 2.0 using this instructions:
+
+1. Clone Realm from their [repository on GitHub](https://github.com/realm/realm-cocoa)
+2. Run REALM_SWIFT_VERSION=2.0 sh build.sh build in the cloned repository.
+3. Drag the versions of RealmSwift.framework and Realm.framework from build/ios/swift-2.0/ directory to the RRC folder Example/Carthage/Build/iOS. 
+
+Source: [Realm Swift 2.0 Installation](https://realm.io/docs/swift/latest/#installation-swift-20)
+
 <p align="center">
 <img src="Images/RRCDemo.gif" height="300px"/>
 </p>
