@@ -232,7 +232,7 @@ To use the demo, compile Realm.framework and RealmSwift.framework for Swift 2.0 
 2. Run `REALM_SWIFT_VERSION=2.0 sh build.sh build` in the cloned repository.
 3. Drag the versions of __RealmSwift.framework__ and __Realm.framework__ from `build/ios/swift-2.0/` directory to the RRC folder `Example/Carthage/Build/iOS.` 
 
-___Source:___ [Realm Swift 2.0 Installation](https://realm.io/docs/swift/latest/#installation-swift-20)
+[Realm Swift 2.0 Installation](https://realm.io/docs/swift/latest/#installation-swift-20)
 
 <p align="center">
 <img src="Images/RRCDemo.gif" height="300px"/>
