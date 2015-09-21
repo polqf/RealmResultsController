@@ -156,6 +156,28 @@ public func deleteNotified(object: Object)
 public func deleteNotified<S: SequenceType where S.Generator.Element: Object>(objects: S)
 ```
 
+####Notify single object updates:
+RRC has no way to detect single objects updates inside a write transaction. The way to notify of a change an object change that is not an addition nor a creation is by calling `notifyChange()`.
+
+`notifyChange()` is a methods inside a RealmObject extension, and here there's an example of use:
+
+```swift
+    let user = User()
+    user.name = "old name"
+    
+    realm.write {
+        realm.addNotified(user)
+    }
+    
+    // STUFF GOING ON...
+    
+    realm.write {
+        user.name = "new name"
+        user.notifyChange() //Notifies that there's a change on the object
+    }
+```
+
+
 ####RealmRequest:
 
 You can use a RealmRequest to retrieve the objects it is asking for without linking it to a RealmResultsController. It is going to return `Results<T>`
