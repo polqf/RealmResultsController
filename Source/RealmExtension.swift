@@ -9,32 +9,6 @@
 import Foundation
 import RealmSwift
 
-extension Object {
-    
-    /**
-    Use this func to notify the RRC of changes done in a specific object.
-    Useful when you modify an object inside a write transaction but without doing an `add` or `create` action like:
-    
-    ```
-    let user = User()
-    user.name = "old name"
-    
-    realm.write {
-        realm.add(user)
-    }
-    
-    realm.write {
-        user.name = "new name"
-        user.notifyChange()
-    }
-    ```
-    */
-    public func notifyChange() {
-        guard let r = self.realm else { return }
-        RealmNotification.loggerForRealm(r).didUpdate(self)
-    }
-}
-
 extension Realm {
     
     //MARK: Add
