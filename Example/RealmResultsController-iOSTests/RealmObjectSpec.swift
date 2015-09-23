@@ -31,6 +31,10 @@ class RealmObjectSpec: QuickSpec {
             realm = try! Realm()
         }
         describe("notifyChange()") {
+            afterEach {
+                NSNotificationCenter.defaultCenter().removeObserver(NotificationListener2.sharedInstance)
+                NotificationListener2.sharedInstance.notificationReceived = false
+            }
             context("With valid realm") {
                 let id = 22222222222222
                 beforeEach {
@@ -53,18 +57,16 @@ class RealmObjectSpec: QuickSpec {
                 }
                 
                 afterEach {
-                    NSNotificationCenter.defaultCenter().removeObserver(NotificationListener2.sharedInstance)
                     try! realm.write {
                         let tasks = realm.objects(Task).toArray().filter { $0.id == id }
                         realm.delete(tasks.first!)
                     }
-                    NotificationListener2.sharedInstance.notificationReceived = false
                 }
                 it("Should have received a notification for the change") {
                     expect(NotificationListener2.sharedInstance.notificationReceived).to(beTruthy())
                 }
             }
-            context("With valid realm") {
+            context("With invalid realm") {
                 beforeEach {
                     let user = Task()
                     NSNotificationCenter.defaultCenter().addObserver(NotificationListener2.sharedInstance,
@@ -73,11 +75,6 @@ class RealmObjectSpec: QuickSpec {
                         object: nil)
                     user.name = "new name"
                     user.notifyChange() //Notifies that there's a change on the object
-                }
-                
-                afterEach {
-                    NSNotificationCenter.defaultCenter().removeObserver(NotificationListener2.sharedInstance)
-                    NotificationListener2.sharedInstance.notificationReceived = false
                 }
                 it("Should NOT have received a notification for the change") {
                     expect(NotificationListener2.sharedInstance.notificationReceived).to(beFalsy())
