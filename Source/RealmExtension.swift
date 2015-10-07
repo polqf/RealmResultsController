@@ -41,10 +41,12 @@ extension Realm {
     */
     public func addNotified<N: Object>(object: N, update: Bool = false) {
         defer { add(object, update: update) }
-        guard let primaryKey = object.dynamicType.primaryKey() else { return }
-        let primaryKeyValue = (object as Object).valueForKey(primaryKey)!
+        var primaryKey: String?
+        primaryKey = (object as Object).dynamicType.primaryKey()
+        guard let pKey = primaryKey else { return }
+        let primaryKeyValue = (object as Object).valueForKey(pKey)!
         
-        if let _ = objectForPrimaryKey(object.dynamicType.self, key: primaryKeyValue) {
+        if let _ = objectForPrimaryKey((object as Object).dynamicType.self, key: primaryKeyValue) {
             RealmNotification.loggerForRealm(self).didUpdate(object)
             return
         }
@@ -193,7 +195,7 @@ any relationship from a background thread
 - returns a copy of the original object (T) but not included in any realm
 */
 func getMirror<T: Object>(object: T) -> T {
-    let newObject = object.dynamicType.init()
+    let newObject = (object as Object).dynamicType.init()
     let mirror = Mirror(reflecting: object)
     for c in mirror.children.enumerate() {
         let key = c.1.0!
@@ -202,6 +204,6 @@ func getMirror<T: Object>(object: T) -> T {
         guard let v = value else { continue }
         (newObject as Object).setValue(v, forKey: key)
     }
-    return newObject
+    return newObject as! T
 }
 

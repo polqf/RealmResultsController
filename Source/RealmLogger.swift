@@ -71,7 +71,7 @@ class RealmLogger {
     - parameter action Action that was performed on that object
     */
     func addObject<T: Object>(object: T, action: RealmAction) {
-        let realmChange = RealmChange(type: object.dynamicType, action: action, mirror: getMirror(object))
+        let realmChange = RealmChange(type: (object as Object).dynamicType, action: action, mirror: getMirror(object))
         temporary.append(realmChange)
     }
     

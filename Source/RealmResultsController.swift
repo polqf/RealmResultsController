@@ -345,33 +345,21 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     //MARK: Thread management
     
-    /**
-    Hackish!
-    if a class has a generic T, and a method has another generic T (or even with another name)
-    and considering that the map function is defined to return a generic T.
-    If you want to map inside that method, you are going to have a bad time.
-    This method is a wrapper of the map function to work with all the generic mess.
-    
-    NOTE: not used for the moment, leave it here in case we need it.
-    
-    :param: items Array of items to map, they should be of type T (defined by the class)
-    if the items are not T, this will crash.
-    
-    :returns: Array of mapped items (they should be U, defined by the class)
-    */
     func executeOnCorrectThread(block: ()->()) {
         _test ? dispatch_sync(backgroundQueue, block) : dispatch_async(backgroundQueue, block)
     }
-    
-    func executeOnMainThread(sync: Bool = false, block: ()->()) {
-        if NSThread.currentThread().isMainThread {
-            block()
-        }
-        else if sync {
-            dispatch_sync(dispatch_get_main_queue(), block)
-        }
-        else {
-            dispatch_async(dispatch_get_main_queue(), block)
-        }
+   
+}
+
+
+func executeOnMainThread(sync: Bool = false, block: ()->()) {
+    if NSThread.currentThread().isMainThread {
+        block()
+    }
+    else if sync {
+        dispatch_sync(dispatch_get_main_queue(), block)
+    }
+    else {
+        dispatch_async(dispatch_get_main_queue(), block)
     }
 }

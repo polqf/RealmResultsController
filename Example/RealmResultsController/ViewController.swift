@@ -17,6 +17,12 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     var rrc: RealmResultsController<TaskModelObject, TaskObject>?
     var realm: Realm!
     let button: UIButton = UIButton()
+    
+    var realmPath: String {
+        guard let doc: String = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true).first else { exit(-1) }
+        let custom = doc.stringByAppendingString("/example.realm")
+        return custom
+    }
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -27,7 +33,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         if let _ = NSClassFromString("XCTest") {
             return
         }
-        realm = try! Realm(path: NSBundle.mainBundle().resourcePath! + "/example.realm")
+    
+        realm = try! Realm(path: realmPath)
+        
         try! realm.write {
             self.realm.deleteAll()
         }
@@ -37,6 +45,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         rrc!.delegate = self
         rrc!.performFetch()
         setupSubviews()
+        addInBackground()
     }
 
     func populateDB() {
@@ -76,7 +85,31 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             }
         }
     }
-
+    
+    func addInBackground() {
+        
+        let queue: dispatch_queue_t = dispatch_queue_create("label", nil)
+        dispatch_async(queue) {
+            autoreleasepool {
+                // Get realm and table instances for this thread
+                let realm = try! Realm(path: self.realmPath)
+                
+                // Break up the writing blocks into smaller portions
+                // by starting a new transaction
+                realm.beginWrite()
+                
+                let task = TaskModelObject()
+                task.id = 12345
+                task.name = "Task-\(12345)"
+                task.projectID = 0
+                realm.addNotified(task, update: true)
+                try! realm.commitWrite()
+            }
+        }
+    }
+    
+    
+    
     func setupSubviews() {
         let height: CGFloat = 50
         button.frame = CGRectMake(0, view.frame.height - height, view.frame.width, height)
@@ -93,16 +126,23 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
     func addNewObject() {
         let projectID = Int(arc4random_uniform(3))
-        try! realm.write {
-            let task = TaskModelObject()
-            task.id = Int(arc4random_uniform(9999))
-            task.name = "Task-\(task.id)"
-            task.projectID = projectID
-            let user = UserObject()
-            user.id = task.id
-            user.name = String(Int(arc4random_uniform(1000)))
-            task.user = user
-            self.realm.addNotified(task, update: true)
+        
+        let queue: dispatch_queue_t = dispatch_queue_create("label", nil)
+        dispatch_async(queue) {
+            autoreleasepool {
+                let realm = try! Realm(path: self.realmPath)
+                try! realm.write {
+                    let task = TaskModelObject()
+                    task.id = Int(arc4random_uniform(9999))
+                    task.name = "Task-\(task.id)"
+                    task.projectID = projectID
+                    let user = UserObject()
+                    user.id = task.id
+                    user.name = String(Int(arc4random_uniform(1000)))
+                    task.user = user
+                    realm.addNotified(task, update: true)
+                }
+            }
         }
     }
     
