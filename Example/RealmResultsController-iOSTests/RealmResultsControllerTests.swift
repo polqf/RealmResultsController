@@ -89,14 +89,14 @@ class RealmResultsControllerSpec: QuickSpec {
             it("try to execute a block in main thread from a background queue") {
                 let queue = dispatch_queue_create("lock", DISPATCH_QUEUE_SERIAL)
                 dispatch_async(queue) {
-                    RRC.executeOnMainThread { }
+                    executeOnMainThread { }
                 }
             }
             
             it("try to execute a block in main thread from a background queue synced") {
                 let queue = dispatch_queue_create("lock", DISPATCH_QUEUE_SERIAL)
                 dispatch_async(queue) {
-                    RRC.executeOnMainThread(true) { }
+                    executeOnMainThread(true) { }
                 }
             }
             
