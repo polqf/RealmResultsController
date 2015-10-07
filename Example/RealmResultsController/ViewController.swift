@@ -18,11 +18,12 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     var realm: Realm!
     let button: UIButton = UIButton()
     
-    var realmPath: String {
-        guard let doc: String = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true).first else { exit(-1) }
+    lazy var realmPath: String = {
+        guard let doc = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory,
+                        NSSearchPathDomainMask.UserDomainMask, true).first else { return "" }
         let custom = doc.stringByAppendingString("/example.realm")
         return custom
-    }
+    }()
 
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -91,24 +92,17 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         let queue: dispatch_queue_t = dispatch_queue_create("label", nil)
         dispatch_async(queue) {
             autoreleasepool {
-                // Get realm and table instances for this thread
                 let realm = try! Realm(path: self.realmPath)
-                
-                // Break up the writing blocks into smaller portions
-                // by starting a new transaction
-                realm.beginWrite()
-                
-                let task = TaskModelObject()
-                task.id = 12345
-                task.name = "Task-\(12345)"
-                task.projectID = 0
-                realm.addNotified(task, update: true)
-                try! realm.commitWrite()
+                try! realm.write {
+                    let task = TaskModelObject()
+                    task.id = 12345
+                    task.name = "Task-\(12345)"
+                    task.projectID = 0
+                    realm.addNotified(task, update: true)
+                }
             }
         }
     }
-    
-    
     
     func setupSubviews() {
         let height: CGFloat = 50

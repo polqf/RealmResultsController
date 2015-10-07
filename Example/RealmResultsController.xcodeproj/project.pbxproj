@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6A29729C1BC55D6C004D9EC9 /* RealmThreadHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A29729B1BC55D6C004D9EC9 /* RealmThreadHelper.swift */; settings = {ASSET_TAGS = (); }; };
 		C133C9C61B97381600E51393 /* ObjectExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C133C9C51B97381600E51393 /* ObjectExtension.swift */; settings = {ASSET_TAGS = (); }; };
 		C149FA0B1BB1B96000392AB7 /* RealmObjectSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = C149FA0A1BB1B96000392AB7 /* RealmObjectSpec.swift */; settings = {ASSET_TAGS = (); }; };
 		C1565E8F1B970362003B7ABD /* RealmExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D8710A1B72673E00C0ED18 /* RealmExtension.swift */; };
@@ -90,6 +91,7 @@
 		6A1010FB1B74A83600321CE6 /* RealmSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RealmSection.swift; path = ../../Source/RealmSection.swift; sourceTree = "<group>"; };
 		6A1010FD1B74C5BB00321CE6 /* RealmSectionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmSectionSpec.swift; sourceTree = "<group>"; };
 		6A1010FF1B74C92200321CE6 /* RealmExtensionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmExtensionSpec.swift; sourceTree = "<group>"; };
+		6A29729B1BC55D6C004D9EC9 /* RealmThreadHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmThreadHelper.swift; sourceTree = "<group>"; };
 		6A5F153D1B736D5300250E29 /* test.realm */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.realm; sourceTree = "<group>"; };
 		6A68B20B1B735CFB007645A7 /* RealmResultsCacheTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmResultsCacheTests.swift; sourceTree = "<group>"; };
 		C11D6BE71B7A0F72000B8398 /* RealmChange.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RealmChange.swift; path = ../../Source/RealmChange.swift; sourceTree = "<group>"; };
@@ -217,6 +219,7 @@
 				C1D8710E1B72673E00C0ED18 /* RealmResultsController.swift */,
 				6A1010FB1B74A83600321CE6 /* RealmSection.swift */,
 				C133C9C51B97381600E51393 /* ObjectExtension.swift */,
+				6A29729B1BC55D6C004D9EC9 /* RealmThreadHelper.swift */,
 				C1A0028F1B9702C1000C0E8C /* Info.plist */,
 			);
 			path = "RealmResultsController-iOS";
@@ -416,6 +419,7 @@
 				C1565E931B970362003B7ABD /* RealmRequest.swift in Sources */,
 				C1565E901B970362003B7ABD /* RealmNotification.swift in Sources */,
 				C133C9C61B97381600E51393 /* ObjectExtension.swift in Sources */,
+				6A29729C1BC55D6C004D9EC9 /* RealmThreadHelper.swift in Sources */,
 				C1565E8F1B970362003B7ABD /* RealmExtension.swift in Sources */,
 				C1565E961B970362003B7ABD /* RealmSection.swift in Sources */,
 				C1565E951B970362003B7ABD /* RealmResultsController.swift in Sources */,

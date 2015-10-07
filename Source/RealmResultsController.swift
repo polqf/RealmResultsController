@@ -348,18 +348,4 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     func executeOnCorrectThread(block: ()->()) {
         _test ? dispatch_sync(backgroundQueue, block) : dispatch_async(backgroundQueue, block)
     }
-   
-}
-
-
-func executeOnMainThread(sync: Bool = false, block: ()->()) {
-    if NSThread.currentThread().isMainThread {
-        block()
-    }
-    else if sync {
-        dispatch_sync(dispatch_get_main_queue(), block)
-    }
-    else {
-        dispatch_async(dispatch_get_main_queue(), block)
-    }
 }
