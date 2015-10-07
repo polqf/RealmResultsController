@@ -197,6 +197,7 @@ func getMirror<T: Object>(object: T) -> T {
     let mirror = Mirror(reflecting: object)
     for c in mirror.children.enumerate() {
         let key = c.1.0!
+        guard !key.hasSuffix(".storage") else { continue }
         let value = (object as Object).valueForKey(key)
         guard let v = value else { continue }
         (newObject as Object).setValue(v, forKey: key)

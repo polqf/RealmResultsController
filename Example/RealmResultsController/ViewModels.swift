@@ -21,6 +21,10 @@ class TaskObject: Object {
         return "id"
     }
     
+    lazy var something: Bool = {
+        true
+    }()
+    
     static func map(model: TaskModelObject) -> TaskObject {
         let task = TaskObject()
         task.id = model.id
@@ -50,6 +54,10 @@ class TaskModelObject: Object {
     override static func primaryKey() -> String? {
         return "id"
     }
+    
+    lazy var something: Bool = {
+        true
+    }()
 }
 
 class UserObject: Object {
