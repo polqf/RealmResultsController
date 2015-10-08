@@ -262,7 +262,13 @@ To use the demo, compile Realm.framework and RealmSwift.framework for Swift 2.0 
 
 ###Installation:
 
-:loudspeaker: We are going to integrate with __CocoaPods__ and __Carthage__ when Swift 2.0 is officialy launched. Since this library has Realm as a dependency, we can't use Carthage until Realm adds support for it ;) 
+:loudspeaker: We are going to integrate with __CocoaPods__ soon
+
+#### Carthage:
+
+```
+github "redbooth/RealmResultsController" "0.2.0"
+```
 
 #### Manual:
 
@@ -274,7 +280,7 @@ Copy the files inside the `/Source` folder to your project
 More info [here](https://realm.io/docs/swift/latest/#installation-swift-20)
 
 ### Technical details:
-- Swift 2.0 beta 6
+- Swift 2.0
 
 ###Licenses
 All source code is licensed under the MIT License.
