@@ -91,7 +91,7 @@
 		6A1010FB1B74A83600321CE6 /* RealmSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RealmSection.swift; path = ../../Source/RealmSection.swift; sourceTree = "<group>"; };
 		6A1010FD1B74C5BB00321CE6 /* RealmSectionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmSectionSpec.swift; sourceTree = "<group>"; };
 		6A1010FF1B74C92200321CE6 /* RealmExtensionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmExtensionSpec.swift; sourceTree = "<group>"; };
-		6A29729B1BC55D6C004D9EC9 /* RealmThreadHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmThreadHelper.swift; sourceTree = "<group>"; };
+		6A29729B1BC55D6C004D9EC9 /* RealmThreadHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RealmThreadHelper.swift; path = ../../Source/RealmThreadHelper.swift; sourceTree = "<group>"; };
 		6A5F153D1B736D5300250E29 /* test.realm */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.realm; sourceTree = "<group>"; };
 		6A68B20B1B735CFB007645A7 /* RealmResultsCacheTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmResultsCacheTests.swift; sourceTree = "<group>"; };
 		C11D6BE71B7A0F72000B8398 /* RealmChange.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RealmChange.swift; path = ../../Source/RealmChange.swift; sourceTree = "<group>"; };
@@ -203,7 +203,8 @@
 				C18C376D1B72670F008DE6A6 /* LaunchScreen.storyboard */,
 				C18C37701B72670F008DE6A6 /* Info.plist */,
 			);
-			path = RealmResultsController;
+			name = RealmResultsController;
+			path = Example/RealmResultsController;
 			sourceTree = "<group>";
 		};
 		C1A0028C1B9702C1000C0E8C /* RealmResultsController-iOS */ = {
@@ -222,7 +223,8 @@
 				6A29729B1BC55D6C004D9EC9 /* RealmThreadHelper.swift */,
 				C1A0028F1B9702C1000C0E8C /* Info.plist */,
 			);
-			path = "RealmResultsController-iOS";
+			name = "RealmResultsController-iOS";
+			path = "Example/RealmResultsController-iOS";
 			sourceTree = "<group>";
 		};
 		C1A0029A1B9702C2000C0E8C /* RealmResultsController-iOSTests */ = {
@@ -240,7 +242,8 @@
 				6A5F153D1B736D5300250E29 /* test.realm */,
 				C1A0029D1B9702C2000C0E8C /* Info.plist */,
 			);
-			path = "RealmResultsController-iOSTests";
+			name = "RealmResultsController-iOSTests";
+			path = "Example/RealmResultsController-iOSTests";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -577,7 +580,7 @@
 					"$(PROJECT_DIR)/RealmResultsController/Frameworks",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
-				INFOPLIST_FILE = RealmResultsController/Info.plist;
+				INFOPLIST_FILE = Example/RealmResultsController/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = redbooth.RealmResultsController;
@@ -594,7 +597,7 @@
 					"$(PROJECT_DIR)/RealmResultsController/Frameworks",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
-				INFOPLIST_FILE = RealmResultsController/Info.plist;
+				INFOPLIST_FILE = Example/RealmResultsController/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = redbooth.RealmResultsController;
@@ -615,7 +618,7 @@
 					"$(PROJECT_DIR)/RealmResultsController/Frameworks",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
-				INFOPLIST_FILE = "RealmResultsController-iOS/Info.plist";
+				INFOPLIST_FILE = "Example/RealmResultsController-iOS/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -640,7 +643,7 @@
 					"$(PROJECT_DIR)/RealmResultsController/Frameworks",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
-				INFOPLIST_FILE = "RealmResultsController-iOS/Info.plist";
+				INFOPLIST_FILE = "Example/RealmResultsController-iOS/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -660,7 +663,7 @@
 					"$(PROJECT_DIR)/RealmResultsController/Frameworks",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
-				INFOPLIST_FILE = "RealmResultsController-iOSTests/Info.plist";
+				INFOPLIST_FILE = "Example/RealmResultsController-iOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "redbooth.RealmResultsController-iOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -676,7 +679,7 @@
 					"$(PROJECT_DIR)/RealmResultsController/Frameworks",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
-				INFOPLIST_FILE = "RealmResultsController-iOSTests/Info.plist";
+				INFOPLIST_FILE = "Example/RealmResultsController-iOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "redbooth.RealmResultsController-iOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";

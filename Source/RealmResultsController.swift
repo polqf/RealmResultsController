@@ -205,6 +205,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     - returns: the objects count at the sectionIndex
     */
     public func numberOfObjectsAt(sectionIndex: Int) -> Int {
+        if cache.sections.count == 0 { return 0 }
         return cache.sections[sectionIndex].objects.count
     }
 
