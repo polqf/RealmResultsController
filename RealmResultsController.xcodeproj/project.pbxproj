@@ -91,7 +91,7 @@
 		6A1010FB1B74A83600321CE6 /* RealmSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RealmSection.swift; path = ../../Source/RealmSection.swift; sourceTree = "<group>"; };
 		6A1010FD1B74C5BB00321CE6 /* RealmSectionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmSectionSpec.swift; sourceTree = "<group>"; };
 		6A1010FF1B74C92200321CE6 /* RealmExtensionSpec.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmExtensionSpec.swift; sourceTree = "<group>"; };
-		6A29729B1BC55D6C004D9EC9 /* RealmThreadHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmThreadHelper.swift; sourceTree = "<group>"; };
+		6A29729B1BC55D6C004D9EC9 /* RealmThreadHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RealmThreadHelper.swift; path = ../../Source/RealmThreadHelper.swift; sourceTree = "<group>"; };
 		6A5F153D1B736D5300250E29 /* test.realm */ = {isa = PBXFileReference; lastKnownFileType = file; path = test.realm; sourceTree = "<group>"; };
 		6A68B20B1B735CFB007645A7 /* RealmResultsCacheTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmResultsCacheTests.swift; sourceTree = "<group>"; };
 		C11D6BE71B7A0F72000B8398 /* RealmChange.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RealmChange.swift; path = ../../Source/RealmChange.swift; sourceTree = "<group>"; };
