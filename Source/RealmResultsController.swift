@@ -259,13 +259,13 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     func didInsertSection<T : Object>(section: Section<T>, index: Int) {
         if populating { return }
         executeOnMainThread {
-            self.delegate?.didChangeSection(self, section: realmSectionMapper(section), index: index, changeType: .Insert)
+            self.delegate?.didChangeSection(self, section: self.realmSectionMapper(section), index: index, changeType: .Insert)
         }
     }
     
     func didDeleteSection<T : Object>(section: Section<T>, index: Int) {
         executeOnMainThread {
-            self.delegate?.didChangeSection(self, section: realmSectionMapper(section), index: index, changeType: .Delete)
+            self.delegate?.didChangeSection(self, section: self.realmSectionMapper(section), index: index, changeType: .Delete)
         }
     }
     
