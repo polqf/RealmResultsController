@@ -258,12 +258,18 @@ To use the demo, compile Realm.framework and RealmSwift.framework for Swift 2.0 
 
 ###Installation:
 
-:loudspeaker: We are going to integrate with __CocoaPods__ soon
-
 #### Carthage:
 
 ```
 github "redbooth/RealmResultsController" "0.2.2"
+```
+
+#### CocoaPods:
+
+```
+use_frameworks!
+
+pod 'RealmResultsController', '~> 0.2.2'
 ```
 
 #### Manual:
