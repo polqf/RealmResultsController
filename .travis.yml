@@ -1,6 +1,10 @@
 language: objective-c
 osx_image: xcode7.1
 
+branches:
+ only:
+ - enableTravis
+
 before_install:
 - brew update
 - brew uninstall xctool --force
