@@ -245,6 +245,7 @@ realm.addNotified(task)
 ### Demo:
 
 To use the demo, just run the following command to install the Realm dependencies using Carthage:
+
 `carthage update --platform iOS`
 
 <p align="center">
