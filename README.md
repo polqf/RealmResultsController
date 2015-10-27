@@ -6,10 +6,6 @@
 
 A NSFetchedResultsController implementation for Realm written in Swift
 
-###Changelog:
-
-- __0.1.0 Initial Release__ (4 Sept 2015)
-
 ###Quick Start:
 
 #### Create a RealmRequest:
@@ -267,7 +263,7 @@ To use the demo, compile Realm.framework and RealmSwift.framework for Swift 2.0 
 #### Carthage:
 
 ```
-github "redbooth/RealmResultsController" "0.2.0"
+github "redbooth/RealmResultsController" "0.2.2"
 ```
 
 #### Manual:
@@ -280,7 +276,7 @@ Copy the files inside the `/Source` folder to your project
 More info [here](https://realm.io/docs/swift/latest/#installation-swift-20)
 
 ### Technical details:
-- Swift 2.0
+- Swift 2.1
 
 ###Licenses
 All source code is licensed under the MIT License.
