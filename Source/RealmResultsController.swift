@@ -308,7 +308,12 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
                 temporaryAdded.append(object.mirror as! T)
             }
             else if object.action == RealmAction.Update {
-                passesPredicate ? temporaryUpdated.append(object.mirror as! T) : temporaryDeleted.append(object.mirror as! T)
+                if passesFilter && passesPredicate {
+                    temporaryUpdated.append(object.mirror as! T)
+                }
+                else {
+                    temporaryDeleted.append(object.mirror as! T)
+                }
             }
         }
     }
