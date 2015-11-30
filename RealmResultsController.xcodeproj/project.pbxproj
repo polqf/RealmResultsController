@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6A29729C1BC55D6C004D9EC9 /* RealmThreadHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A29729B1BC55D6C004D9EC9 /* RealmThreadHelper.swift */; settings = {ASSET_TAGS = (); }; };
-		C133C9C61B97381600E51393 /* ObjectExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C133C9C51B97381600E51393 /* ObjectExtension.swift */; settings = {ASSET_TAGS = (); }; };
-		C149FA0B1BB1B96000392AB7 /* RealmObjectSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = C149FA0A1BB1B96000392AB7 /* RealmObjectSpec.swift */; settings = {ASSET_TAGS = (); }; };
+		6A29729C1BC55D6C004D9EC9 /* RealmThreadHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A29729B1BC55D6C004D9EC9 /* RealmThreadHelper.swift */; };
+		C133C9C61B97381600E51393 /* ObjectExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C133C9C51B97381600E51393 /* ObjectExtension.swift */; };
+		C149FA0B1BB1B96000392AB7 /* RealmObjectSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = C149FA0A1BB1B96000392AB7 /* RealmObjectSpec.swift */; };
 		C1565E8F1B970362003B7ABD /* RealmExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D8710A1B72673E00C0ED18 /* RealmExtension.swift */; };
 		C1565E901B970362003B7ABD /* RealmNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D8710B1B72673E00C0ED18 /* RealmNotification.swift */; };
 		C1565E911B970362003B7ABD /* RealmLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14CD7601B739E6300C5BF92 /* RealmLogger.swift */; };
@@ -31,10 +31,10 @@
 		C1565EC41B9711CF003B7ABD /* TestModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1565EBC1B970A9D003B7ABD /* TestModels.swift */; };
 		C1565EC51B971570003B7ABD /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1565EBE1B970B12003B7ABD /* ViewController.swift */; };
 		C1565EC81B9717C3003B7ABD /* ViewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1565EC01B970B1F003B7ABD /* ViewModels.swift */; };
-		C18B28851B9EEB620082F983 /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C18B28831B9EEB620082F983 /* Realm.framework */; settings = {ASSET_TAGS = (); }; };
-		C18B28861B9EEB620082F983 /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C18B28831B9EEB620082F983 /* Realm.framework */; settings = {ASSET_TAGS = (); }; };
-		C18B28871B9EEB620082F983 /* RealmSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C18B28841B9EEB620082F983 /* RealmSwift.framework */; settings = {ASSET_TAGS = (); }; };
-		C18B28881B9EEB620082F983 /* RealmSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C18B28841B9EEB620082F983 /* RealmSwift.framework */; settings = {ASSET_TAGS = (); }; };
+		C18B28851B9EEB620082F983 /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C18B28831B9EEB620082F983 /* Realm.framework */; };
+		C18B28861B9EEB620082F983 /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C18B28831B9EEB620082F983 /* Realm.framework */; };
+		C18B28871B9EEB620082F983 /* RealmSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C18B28841B9EEB620082F983 /* RealmSwift.framework */; };
+		C18B28881B9EEB620082F983 /* RealmSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C18B28841B9EEB620082F983 /* RealmSwift.framework */; };
 		C18B28891B9EEB6C0082F983 /* Realm.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C18B28831B9EEB620082F983 /* Realm.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C18B288A1B9EEB6C0082F983 /* RealmSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C18B28841B9EEB620082F983 /* RealmSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C18C37651B72670F008DE6A6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C18C37641B72670F008DE6A6 /* AppDelegate.swift */; };
@@ -608,6 +608,7 @@
 		C1A002A21B9702C2000C0E8C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -633,6 +634,7 @@
 		C1A002A31B9702C2000C0E8C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
