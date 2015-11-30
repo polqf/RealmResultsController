@@ -2,10 +2,10 @@ Pod::Spec.new do |s|
   s.name         = "RealmResultsController"
   s.version      = "0.2.4"
   s.summary      = "A NSFetchedResultsController implementation for Realm written in Swift"
-  s.homepage     = "https://github.com/teambox/RealmResultsController"
+  s.homepage     = "https://github.com/redbooth/RealmResultsController"
   s.license      = 'MIT'
   s.author       = "Redbooth"
-  s.source       = { :git => "https://github.com/teambox/RealmResultsController.git", :tag => "0.2.4" }
+  s.source       = { :git => "https://github.com/redbooth/RealmResultsController.git", :tag => "0.2.4" }
   s.platform     = :ios, '8.0'
   s.source_files = 'Source'
   s.frameworks   = 'UIKit'
