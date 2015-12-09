@@ -1,6 +1,6 @@
 ![](https://img.shields.io/badge/coverage-100%25-green.svg)
 ![](https://img.shields.io/badge/language-swift-blue.svg)
-![](https://img.shields.io/badge/version-0.2.4-red.svg)
+![](https://img.shields.io/badge/version-0.2.5-red.svg)
 
 ![](Images/RRCHigh.png)
 
@@ -257,7 +257,7 @@ To use the demo, just run the following command to install the Realm dependencie
 #### Carthage:
 
 ```
-github "redbooth/RealmResultsController" "0.2.4"
+github "redbooth/RealmResultsController" "0.2.5"
 ```
 
 #### CocoaPods:
@@ -265,7 +265,7 @@ github "redbooth/RealmResultsController" "0.2.4"
 ```
 use_frameworks!
 
-pod 'RealmResultsController', '~> 0.2.4'
+pod 'RealmResultsController', '~> 0.2.5'
 ```
 
 #### Manual:
