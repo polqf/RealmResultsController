@@ -31,6 +31,7 @@
 		C1565EC41B9711CF003B7ABD /* TestModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1565EBC1B970A9D003B7ABD /* TestModels.swift */; };
 		C1565EC51B971570003B7ABD /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1565EBE1B970B12003B7ABD /* ViewController.swift */; };
 		C1565EC81B9717C3003B7ABD /* ViewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1565EC01B970B1F003B7ABD /* ViewModels.swift */; };
+		C169FE991C189793001FC9EF /* RealmQueueManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C169FE981C189793001FC9EF /* RealmQueueManager.swift */; };
 		C18B28851B9EEB620082F983 /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C18B28831B9EEB620082F983 /* Realm.framework */; };
 		C18B28861B9EEB620082F983 /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C18B28831B9EEB620082F983 /* Realm.framework */; };
 		C18B28871B9EEB620082F983 /* RealmSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C18B28841B9EEB620082F983 /* RealmSwift.framework */; };
@@ -104,6 +105,7 @@
 		C1565EBC1B970A9D003B7ABD /* TestModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestModels.swift; sourceTree = "<group>"; };
 		C1565EBE1B970B12003B7ABD /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		C1565EC01B970B1F003B7ABD /* ViewModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewModels.swift; sourceTree = "<group>"; };
+		C169FE981C189793001FC9EF /* RealmQueueManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RealmQueueManager.swift; path = Source/RealmQueueManager.swift; sourceTree = SOURCE_ROOT; };
 		C18B28831B9EEB620082F983 /* Realm.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Realm.framework; path = Carthage/Build/iOS/Realm.framework; sourceTree = "<group>"; };
 		C18B28841B9EEB620082F983 /* RealmSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RealmSwift.framework; path = Carthage/Build/iOS/RealmSwift.framework; sourceTree = "<group>"; };
 		C18C37611B72670F008DE6A6 /* RealmResultsController-Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "RealmResultsController-Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -219,6 +221,7 @@
 				C1D8710D1B72673E00C0ED18 /* RealmResultsCache.swift */,
 				C1D8710E1B72673E00C0ED18 /* RealmResultsController.swift */,
 				6A1010FB1B74A83600321CE6 /* RealmSection.swift */,
+				C169FE981C189793001FC9EF /* RealmQueueManager.swift */,
 				C133C9C51B97381600E51393 /* ObjectExtension.swift */,
 				6A29729B1BC55D6C004D9EC9 /* RealmThreadHelper.swift */,
 				C1A0028F1B9702C1000C0E8C /* Info.plist */,
@@ -426,6 +429,7 @@
 				C1565E8F1B970362003B7ABD /* RealmExtension.swift in Sources */,
 				C1565E961B970362003B7ABD /* RealmSection.swift in Sources */,
 				C1565E951B970362003B7ABD /* RealmResultsController.swift in Sources */,
+				C169FE991C189793001FC9EF /* RealmQueueManager.swift in Sources */,
 				C1565E911B970362003B7ABD /* RealmLogger.swift in Sources */,
 				C1565E921B970362003B7ABD /* RealmChange.swift in Sources */,
 				C1565E941B970362003B7ABD /* RealmResultsCache.swift in Sources */,

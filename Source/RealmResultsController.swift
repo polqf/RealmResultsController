@@ -71,7 +71,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     var mapper: T -> U
     var sectionKeyPath: String? = ""
     var backgroundQueue = dispatch_queue_create("com.RRC.\(arc4random_uniform(1000))", DISPATCH_QUEUE_SERIAL)
-    
+    var queueManager: RealmQueueManager = RealmQueueManager()
     var temporaryAdded: [T] = []
     var temporaryUpdated: [T] = []
     var temporaryDeleted: [T] = []
@@ -278,13 +278,16 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     }
     
     @objc func didReceiveRealmChanges(notification: NSNotification) {
-        guard case let notificationObject as [String : [RealmChange]] = notification.object else { return }
-        guard notificationObject.keys.first == request.realm.path else { return }
-        executeOnCorrectThread {
-            let objects = notificationObject[self.request.realm.path]!
-            self.refetchObjects(objects)
-            self.finishWriteTransaction()
+        guard case let notificationObject as [String : [RealmChange]] = notification.object
+            where notificationObject.keys.first == request.realm.path,
+            let objects = notificationObject[self.request.realm.path] else { return }
+        queueManager.addOperation {
+            self.executeOnCorrectThread {
+                self.refetchObjects(objects)
+                self.finishWriteTransaction()
+            }
         }
+        
     }
     
     private func refetchObjects(objects: [RealmChange]) {
