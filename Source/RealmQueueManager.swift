@@ -12,6 +12,7 @@ struct RealmQueueManager {
     let operationQueue: NSOperationQueue = {
         let queue = NSOperationQueue()
         queue.maxConcurrentOperationCount = 1
+        queue.name = "com.RRC.\(arc4random_uniform(1000))"
         return queue
     }()
     
