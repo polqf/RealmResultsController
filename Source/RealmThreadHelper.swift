@@ -41,6 +41,7 @@ struct Threading {
      - parameter block: Block to execute
      */
     static func executeOnQueue(queue: dispatch_queue_t, sync: Bool = false, block: ()->()) {
-        sync && !isTesting ? dispatch_sync(queue, block) : dispatch_async(queue, block)
+        guard !isTesting else { return dispatch_sync(queue, block) }
+        sync ? dispatch_sync(queue, block) : dispatch_async(queue, block)
     }
 }
