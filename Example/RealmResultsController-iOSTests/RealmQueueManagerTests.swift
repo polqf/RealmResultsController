@@ -1,5 +1,5 @@
 //
-//  RealmQueueManager.swift
+//  RealmQueueManagerTests.swift
 //  RealmResultsController
 //
 //  Created by Pol Quintana on 10/12/15.

@@ -352,6 +352,7 @@ class RealmResultsControllerSpec: QuickSpec {
             beforeEach {
                 RRC = try! RealmResultsController<Task, Task>(forTESTRequest: request, sectionKeyPath: nil) { $0 }
                 RRC.delegate = RRCDelegate
+                RRC.queueManager = RealmQueueManager(serial: true)
             }
             
             context("it receives an object of another model") {
@@ -414,45 +415,75 @@ class RealmResultsControllerSpec: QuickSpec {
                 }
             }
             
-            context("If the notification has the CORRECT format") {
-                var createChange: RealmChange!
-                var updateChange: RealmChange!
-                var deleteChange: RealmChange!
-                var notifObject: [String : [RealmChange]] = [:]
-                var task1: Task!
-                var task2: Task!
-                var task3: Task!
-                beforeEach {
-                    task1 = Task()
-                    task2 = Task()
-                    task3 = Task()
-                    try! RRC.request.realm.write {
-                        task1.id = -111
+            context("if the notification has the CORRECT format") {
+                context("we receive an update and a deletion") {
+                    var updateChange: RealmChange!
+                    var deleteChange: RealmChange!
+                    var notifObject: [String : [RealmChange]] = [:]
+                    var task2: Task!
+                    var task3: Task!
+                    beforeEach {
+                        task2 = Task()
                         task2.id = -222
+                        task3 = Task()
                         task3.id = -333
-                        RRC.request.realm.add(task1)
-                        RRC.request.realm.add(task2)
-                        RRC.request.realm.add(task3)
+                        try! RRC.request.realm.write {
+                            RRC.request.realm.add(task2)
+                            RRC.request.realm.add(task3)
+                        }
+                        RRC.updateFilter({T in true})
+                        RRC.performFetch()
+                        RRC.cache.sections.first?.objects.removeAllObjects()
+                        RRC.cache.sections.first?.objects.addObject(task2)
+                        RRC.cache.sections.first?.objects.addObject(task3)
+                        updateChange = RealmChange(type: Task.self, action: .Update, mirror: getMirror(task2))
+                        deleteChange = RealmChange(type: Task.self, action: .Delete, mirror: getMirror(task3))
+                        notifObject = [realm.path : [updateChange, deleteChange]]
+                        RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
                     }
-                    RRC.updateFilter({T in true})
-                    RRC.performFetch()
-                    RRC.cache.sections.first?.objects.removeAllObjects()
-                    RRC.cache.sections.first?.objects.addObject(task2)
-                    RRC.cache.sections.first?.objects.addObject(task3)
-                    createChange = RealmChange(type: Task.self, action: .Create, mirror: getMirror(task1))
-                    updateChange = RealmChange(type: Task.self, action: .Update, mirror: getMirror(task2))
-                    deleteChange = RealmChange(type: Task.self, action: .Delete, mirror: getMirror(task3))
-                    notifObject = [realm.path : [createChange, updateChange, deleteChange]]
-                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
-                }
-                afterEach {
-                    try! RRC.request.realm.write {
-                        RRC.request.realm.delete([task1, task2, task3])
+                    afterEach {
+                        try! RRC.request.realm.write {
+                            RRC.request.realm.delete([task2, task3])
+                        }
+                    }
+                    it("Should have the fetched objects added on the cache") {
+                        expect(RRC.cache.sections.count).to(equal(1))
+                        expect(RRC.cache.sections.first!.allObjects.count).to(equal(1))
                     }
                 }
-                it("Should have the fetched objects added on the cache") {
-                    expect(RRC.cache.sections.count).to(equal(1))
-                    expect(RRC.cache.sections.first!.allObjects.count).to(equal(2))
+                context("we receive an update and a creation") {
+                    var createChange: RealmChange!
+                    var updateChange: RealmChange!
+                    var notifObject: [String : [RealmChange]] = [:]
+                    var task1: Task!
+                    var task2: Task!
+                    beforeEach {
+                        task1 = Task()
+                        task1.id = -111
+                        task2 = Task()
+                        task2.id = -222
+                        try! RRC.request.realm.write {
+                            RRC.request.realm.add(task1)
+                            RRC.request.realm.add(task2)
+                        }
+                        RRC.updateFilter({T in true})
+                        RRC.performFetch()
+                        RRC.cache.sections.first?.objects.removeAllObjects()
+                        RRC.cache.sections.first?.objects.addObject(task2)
+                        createChange = RealmChange(type: Task.self, action: .Create, mirror: getMirror(task1))
+                        updateChange = RealmChange(type: Task.self, action: .Update, mirror: getMirror(task2))
+                        notifObject = [realm.path : [createChange, updateChange]]
+                        RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
+                    }
+                    afterEach {
+                        try! RRC.request.realm.write {
+                            RRC.request.realm.delete([task1, task2])
+                        }
+                    }
+                    it("Should have the fetched objects added on the cache") {
+                        expect(RRC.cache.sections.count).to(equal(1))
+                        expect(RRC.cache.sections.first!.allObjects.count).to(equal(2))
+                    }
                 }
             }
         }
