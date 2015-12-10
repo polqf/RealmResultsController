@@ -37,14 +37,16 @@ extension Realm {
     
     - parameter object: Object to be added to this Realm.
     - parameter update: If true will try to update existing objects with the same primary key.
-
+    
     */
     public func addNotified<N: Object>(object: N, update: Bool = false) {
         defer { add(object, update: update) }
         var primaryKey: String?
         primaryKey = (object as Object).dynamicType.primaryKey()
-        guard let pKey = primaryKey else { return }
-        let primaryKeyValue = (object as Object).valueForKey(pKey)!
+        guard let pKey = primaryKey,
+            let primaryKeyValue = (object as Object).valueForKey(pKey) else {
+                return
+        }
         
         if let _ = objectForPrimaryKey((object as Object).dynamicType.self, key: primaryKeyValue) {
             RealmNotification.loggerForRealm(self).didUpdate(object)
@@ -198,8 +200,8 @@ func getMirror<T: Object>(object: T) -> T {
     let newObject = (object as Object).dynamicType.init()
     let mirror = Mirror(reflecting: object)
     for c in mirror.children.enumerate() {
-        let key = c.1.0!
-        guard !key.hasSuffix(".storage") else { continue }
+        guard let key = c.1.0
+            where !key.hasSuffix(".storage") else { continue }
         let value = (object as Object).valueForKey(key)
         guard let v = value else { continue }
         (newObject as Object).setValue(v, forKey: key)

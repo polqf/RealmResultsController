@@ -289,30 +289,30 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     private func refetchObjects(objects: [RealmChange]) {
         for object in objects {
-            if String(object.type) != String(T.self) { continue }
+            guard String(object.type) == String(T.self), let mirrorObject = object.mirror as? T else { continue }
             if object.action == RealmAction.Delete {
-                temporaryDeleted.append(object.mirror as! T)
+                temporaryDeleted.append(mirrorObject)
                 continue
             }
             
             var passesFilter = true
-            let passesPredicate = self.request.predicate.evaluateWithObject(object.mirror as! T)
+            let passesPredicate = self.request.predicate.evaluateWithObject(mirrorObject)
             
             if let filter = filter {
                 Threading.executeOnMainThread(true) {
-                    passesFilter = filter(object.mirror as! T)
+                    passesFilter = filter(mirrorObject)
                 }
             }
     
             if object.action == RealmAction.Create && passesPredicate && passesFilter {
-                temporaryAdded.append(object.mirror as! T)
+                temporaryAdded.append(mirrorObject)
             }
             else if object.action == RealmAction.Update {
                 if passesFilter && passesPredicate {
-                    temporaryUpdated.append(object.mirror as! T)
+                    temporaryUpdated.append(mirrorObject)
                 }
                 else {
-                    temporaryDeleted.append(object.mirror as! T)
+                    temporaryDeleted.append(mirrorObject)
                 }
             }
         }
