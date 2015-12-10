@@ -17,6 +17,10 @@ struct RealmQueueManager {
     }()
     
     func addOperation(withBlock block: ()->()) {
+        guard !Threading.isTesting else {
+            block()
+            return
+        }
         operationQueue.addOperationWithBlock(block)
     }
 }

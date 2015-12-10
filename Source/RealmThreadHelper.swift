@@ -10,6 +10,11 @@ import Foundation
 
 
 struct Threading {
+    static let isTesting: Bool = {
+        let environment = NSProcessInfo.processInfo().environment
+        return environment["TEST"] != nil
+    }()
+    
     /**
      Execute a block in the main thread.
      If we are already in it, just execute. If not, do a dispatch to execute it.
@@ -20,8 +25,9 @@ struct Threading {
      - parameter block: Block to execute
      */
     static func executeOnMainThread(sync: Bool = false, block: ()->()) {
-        if NSThread.currentThread().isMainThread {
+        guard !NSThread.currentThread().isMainThread else {
             block()
+            return
         }
         executeOnQueue(dispatch_get_main_queue(), sync: sync, block: block)
     }
