@@ -481,8 +481,8 @@ class RealmResultsControllerSpec: QuickSpec {
 
         }
         describe("finishWriteTransaction()") {
-            var cacheSections: [Section<Task>]!
             context("If there are no pending changes") {
+                var cacheSections: [Section<Task>]!
                 beforeEach {
                     RRC.temporaryAdded.removeAll()
                     RRC.temporaryUpdated.removeAll()
@@ -492,29 +492,6 @@ class RealmResultsControllerSpec: QuickSpec {
                 it("Should return false") {
                     expect(RRC.pendingChanges()).to(beFalsy())
                     expect(RRC.cache?.sections).to(equal(cacheSections))
-                }
-            }
-            context("If the temporaryUpdated contains a MOVE") {
-                beforeEach {
-                    let sorts = [SortDescriptor(property: "name", ascending: true)]
-                    let request = RealmRequest<Task>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: sorts)
-                    RRC = try! RealmResultsController<Task, Task>(forTESTRequest: request, sectionKeyPath: nil) { $0 }
-                    RRC.delegate = RRCDelegate
-                    let task = Task()
-                    task.id = 12
-                    task.name = "bbb"
-                    let task2 = Task()
-                    task2.id = 13
-                    task2.name = "ccc"
-                    
-                    RRC.cache.reset([task, task2])
-                    task2.name = "aaa"
-                    RRC.temporaryUpdated.append(task2)
-                    let notif = NSNotification(name: "", object: [realm.path : [RealmChange]()])
-                    RRC.didReceiveRealmChanges(notif)
-                }
-                it("Should return false") {
-                    expect(RRC.pendingChanges()).to(beFalsy())
                 }
             }
         }
