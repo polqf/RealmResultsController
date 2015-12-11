@@ -70,8 +70,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     private(set) public var filter: (T -> Bool)?
     var mapper: T -> U
     var sectionKeyPath: String? = ""
-    var backgroundQueue = dispatch_queue_create("com.RRC.\(arc4random_uniform(1000))", DISPATCH_QUEUE_SERIAL)
-    
+    var queueManager: RealmQueueManager = RealmQueueManager()
     var temporaryAdded: [T] = []
     var temporaryUpdated: [T] = []
     var temporaryDeleted: [T] = []
@@ -239,32 +238,32 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     //MARK: Cache delegate
     
     func didInsert<T: Object>(object: T, indexPath: NSIndexPath) {
-        executeOnMainThread {
+        Threading.executeOnMainThread {
             self.delegate?.didChangeObject(self, object: object, oldIndexPath: indexPath, newIndexPath: indexPath, changeType: .Insert)
         }
     }
     
     func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
-        executeOnMainThread {
+        Threading.executeOnMainThread {
             self.delegate?.didChangeObject(self, object: object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: changeType)
         }
     }
     
     func didDelete<T: Object>(object: T, indexPath: NSIndexPath) {
-        executeOnMainThread {
+        Threading.executeOnMainThread {
             self.delegate?.didChangeObject(self, object: object, oldIndexPath: indexPath, newIndexPath: indexPath, changeType: .Delete)
         }
     }
     
     func didInsertSection<T : Object>(section: Section<T>, index: Int) {
         if populating { return }
-        executeOnMainThread {
+        Threading.executeOnMainThread {
             self.delegate?.didChangeSection(self, section: self.realmSectionMapper(section), index: index, changeType: .Insert)
         }
     }
     
     func didDeleteSection<T : Object>(section: Section<T>, index: Int) {
-        executeOnMainThread {
+        Threading.executeOnMainThread {
             self.delegate?.didChangeSection(self, section: self.realmSectionMapper(section), index: index, changeType: .Delete)
         }
     }
@@ -278,13 +277,14 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     }
     
     @objc func didReceiveRealmChanges(notification: NSNotification) {
-        guard case let notificationObject as [String : [RealmChange]] = notification.object else { return }
-        guard notificationObject.keys.first == request.realm.path else { return }
-        executeOnCorrectThread {
-            let objects = notificationObject[self.request.realm.path]!
+        guard case let notificationObject as [String : [RealmChange]] = notification.object
+            where notificationObject.keys.first == request.realm.path,
+            let objects = notificationObject[self.request.realm.path] else { return }
+        queueManager.addOperation {
             self.refetchObjects(objects)
             self.finishWriteTransaction()
         }
+        
     }
     
     private func refetchObjects(objects: [RealmChange]) {
@@ -299,7 +299,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
             let passesPredicate = self.request.predicate.evaluateWithObject(object.mirror as! T)
             
             if let filter = filter {
-                executeOnMainThread(true) {
+                Threading.executeOnMainThread(true) {
                     passesFilter = filter(object.mirror as! T)
                 }
             }
@@ -326,7 +326,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     
     private func finishWriteTransaction() {
         if !pendingChanges() { return }
-        executeOnMainThread(true) {
+        Threading.executeOnMainThread(true) {
             self.delegate?.willChangeResults(self)
         }
         var objectsToMove: [T] = []
@@ -343,15 +343,8 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         temporaryAdded.removeAll()
         temporaryDeleted.removeAll()
         temporaryUpdated.removeAll()
-        executeOnMainThread(true) {
+        Threading.executeOnMainThread(true) {
             self.delegate?.didChangeResults(self)
         }
-    }
-    
-    
-    //MARK: Thread management
-    
-    func executeOnCorrectThread(block: ()->()) {
-        _test ? dispatch_sync(backgroundQueue, block) : dispatch_async(backgroundQueue, block)
     }
 }
