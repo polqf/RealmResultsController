@@ -96,10 +96,10 @@ class RealmQueueManagerSpec: QuickSpec {
                     block1Executed = false
                     block2Executed = false
                 }
-                it("should have instantly executed the block 1") {
+                it("should execute block 1 synchronously") {
                     expect(block1Executed).to(beTruthy())
                 }
-                it("should have NOT enqueued the execution of the block 2") {
+                it("should execute block 2 synchronously") {
                     expect(block2Executed).to(beTruthy())
                 }
             }
