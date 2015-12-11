@@ -238,8 +238,8 @@ class RealmResultsCache<T: Object> {
         if let keyPath = sectionKeyPath {
             if keyPath.isEmpty { return  defaultKeyPathValue }
             Threading.executeOnMainThread(true) {
-                if let objectKeyPathValue = object.valueForKeyPath(keyPath) as? String {
-                    keyPathValue = objectKeyPathValue
+                if let objectKeyPathValue = object.valueForKeyPath(keyPath) {
+                    keyPathValue = String(objectKeyPathValue)
                 }
             }
         }
@@ -257,7 +257,8 @@ class RealmResultsCache<T: Object> {
     private func sortedMirrors(mirrors: [T]) -> [T] {
         let mutArray = NSMutableArray(array: mirrors)
         let sorts = request.sortDescriptors.map(toNSSortDescriptor)
-        guard let sortedMirrors = mutArray.sortUsingDescriptors(sorts) as? AnyObject as? [T] else {
+        mutArray.sortUsingDescriptors(sorts)
+        guard let sortedMirrors = NSArray(array: mutArray) as? [T] else {
             return []
         }
         return sortedMirrors
