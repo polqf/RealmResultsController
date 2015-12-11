@@ -36,7 +36,7 @@ The `RealmResultsController<T, U>` needs 4 parameters:
 
 Where `T` is a `Realm` model and `U` is the type of the object you want to receive from the RRC. Since the RRC works in background, we can't work with normal Realm objects, so we either create mirror copies of the objects not associated to any Realm, or we map the Objects to another kind of "entity" of type `U`
 
-The operations the RRC has to execute are enqueued to avoid unordered calls to `willChangeResults` and `didChangeResults`
+Operations on each RRC are enqueued to avoid unordered calls to `willChangeResults` and `didChangeResults`. Each RRC has its own queue.
 
 __Note:__ `T` and `U` can be of the same type, then the RRC will return a copy of the `T` objects but not included in any Realm.
 
