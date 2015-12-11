@@ -1,33 +1,18 @@
 language: objective-c
 osx_image: xcode7.1
-
 branches:
   only:
-    - /^refactor\/.*$/
-    - /^feature\/.*$/
-    - /^bug\/.*$/
-    - /^test\/.*$/
-    - /^chore\/.*$/
-    - /^release.*$/
-
+  - "/^refactor\\/.*$/"
+  - "/^feature\\/.*$/"
+  - "/^bug\\/.*$/"
+  - "/^test\\/.*$/"
+  - "/^chore\\/.*$/"
+  - "/^release.*$/"
 notifications:
   email: false
-
 before_install:
-#- gem install --no-rdoc --no-ri cocoapods -v 0.34.4
-#- gem install --no-rdoc --no-ri pr-changelog mechanize json mcbean xcpretty
-# Temporary workaround to avoid the error: Specify a version for EmacsRequirement. See https://github.com/Homebrew/homebrew/issues/45616
-- brew update || brew update
-- brew install carthage
-- carthage version
-- carthage update --platform iOS --no-use-binaries
-# - xcrun instruments -w "iPhone 5 (9.0 Simulator)" || echo "(Pre)Launched the simulator."
-
-#ignore podfile
+- gem install scan
+- scan --version
 install: true
-
-# before_script:
-# - ./scripts/travis/add-key.sh
-
-script: 
+script:
 - scan -p "RealmResultsController.xcodeproj" -s "RealmResultsController-iOS"
