@@ -1,5 +1,6 @@
 ![](https://img.shields.io/badge/language-swift-blue.svg)
 ![](https://img.shields.io/badge/version-0.3.0-red.svg)
+[![Build Status](https://travis-ci.org/redbooth/RealmResultsController.svg?branch=master)](https://travis-ci.org/redbooth/RealmResultsController)
 
 ![](Images/RRCHigh.png)
 
