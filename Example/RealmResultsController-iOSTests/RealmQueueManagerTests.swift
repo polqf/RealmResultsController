@@ -41,14 +41,13 @@ class RealmQueueManagerSpec: QuickSpec {
     }
     
     func oneBlockFired() -> Bool {
-        let a = self.thread1BlockHasBeenFired || self.thread2BlockHasBeenFired
-        return a && !(self.thread1BlockHasBeenFired && self.thread2BlockHasBeenFired)
+        return self.thread1BlockHasBeenFired != self.thread2BlockHasBeenFired
     }
     
     override func spec() {
         context("addOperation(withBlock:)") {
             context("enqueued operations") {
-                let queueManager = RealmQueueManager(serial: false)
+                let queueManager = RealmQueueManager(sync: false)
                 var block1Executed = false
                 var block2Executed = false
                 let block1 = {
@@ -78,7 +77,7 @@ class RealmQueueManagerSpec: QuickSpec {
                 }
             }
             context("serial operations") {
-                let queueManager = RealmQueueManager(serial: true)
+                let queueManager = RealmQueueManager(sync: true)
                 var block1Executed = false
                 var block2Executed = false
                 let block1 = {
@@ -97,10 +96,10 @@ class RealmQueueManagerSpec: QuickSpec {
                     block1Executed = false
                     block2Executed = false
                 }
-                it("should have instantly executed the block 1") {
+                it("should execute block 1 synchronously") {
                     expect(block1Executed).to(beTruthy())
                 }
-                it("should have NOT enqueued the execution of the block 2") {
+                it("should execute block 2 synchronously") {
                     expect(block2Executed).to(beTruthy())
                 }
             }

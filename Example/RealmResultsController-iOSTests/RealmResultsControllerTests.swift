@@ -352,7 +352,7 @@ class RealmResultsControllerSpec: QuickSpec {
             beforeEach {
                 RRC = try! RealmResultsController<Task, Task>(forTESTRequest: request, sectionKeyPath: nil) { $0 }
                 RRC.delegate = RRCDelegate
-                RRC.queueManager = RealmQueueManager(serial: true)
+                RRC.queueManager = RealmQueueManager(sync: true)
             }
             
             context("it receives an object of another model") {

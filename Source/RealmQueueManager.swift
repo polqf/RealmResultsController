@@ -9,7 +9,7 @@
 import Foundation
 
 struct RealmQueueManager {
-    private var serial: Bool = false
+    private var sync: Bool = false
     let operationQueue: NSOperationQueue = {
         let queue = NSOperationQueue()
         queue.maxConcurrentOperationCount = 1
@@ -17,12 +17,12 @@ struct RealmQueueManager {
         return queue
     }()
     
-    init(serial: Bool = false) {
-        self.serial = serial
+    init(sync: Bool = false) {
+        self.sync = sync
     }
     
     func addOperation(withBlock block: ()->()) {
-        guard !serial else {
+        guard !sync else {
             block()
             return
         }
