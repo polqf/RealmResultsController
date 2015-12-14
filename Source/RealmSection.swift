@@ -75,8 +75,8 @@ class Section<T: Object> : NSObject {
     func objectForPrimaryKey(value: AnyObject) -> T? {
         for object in objects {
             guard let primaryKey = T.primaryKey(),
-            let primaryKeyValue = object.valueForKey(primaryKey) else {
-                continue
+                let primaryKeyValue = object.valueForKey(primaryKey) else {
+                    continue
             }
             if primaryKeyValue.isEqual(value){
                 return (object as? T)

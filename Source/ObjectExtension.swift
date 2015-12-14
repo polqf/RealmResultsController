@@ -44,7 +44,7 @@ extension Object {
     */
     public func objectIdentifier() -> String? {
         guard let primaryKey = self.dynamicType.primaryKey(),
-        let primaryKeyValue = (self as Object).valueForKey(primaryKey) else { return nil }
+            let primaryKeyValue = (self as Object).valueForKey(primaryKey) else { return nil }
         return String(self.dynamicType) + "-" + String(primaryKeyValue)
     }
 }
