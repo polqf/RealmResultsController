@@ -1,6 +1,6 @@
-![](https://img.shields.io/badge/coverage-100%25-green.svg)
 ![](https://img.shields.io/badge/language-swift-blue.svg)
-![](https://img.shields.io/badge/version-0.2.5-red.svg)
+![](https://img.shields.io/badge/version-0.3.0-red.svg)
+[![Build Status](https://travis-ci.org/redbooth/RealmResultsController.svg?branch=master)](https://travis-ci.org/redbooth/RealmResultsController)
 
 ![](Images/RRCHigh.png)
 
@@ -36,6 +36,8 @@ The `RealmResultsController<T, U>` needs 4 parameters:
 - A filter like `func filter(obj: T) -> Bool` (optional)
 
 Where `T` is a `Realm` model and `U` is the type of the object you want to receive from the RRC. Since the RRC works in background, we can't work with normal Realm objects, so we either create mirror copies of the objects not associated to any Realm, or we map the Objects to another kind of "entity" of type `U`
+
+Operations on each RRC are enqueued to avoid unordered calls to `willChangeResults` and `didChangeResults`. Each RRC has its own queue.
 
 __Note:__ `T` and `U` can be of the same type, then the RRC will return a copy of the `T` objects but not included in any Realm.
 
@@ -257,7 +259,7 @@ To use the demo, just run the following command to install the Realm dependencie
 #### Carthage:
 
 ```
-github "redbooth/RealmResultsController" "0.2.5"
+github "redbooth/RealmResultsController" "0.3.0"
 ```
 
 #### CocoaPods:
@@ -265,7 +267,7 @@ github "redbooth/RealmResultsController" "0.2.5"
 ```
 use_frameworks!
 
-pod 'RealmResultsController', '~> 0.2.5'
+pod 'RealmResultsController', '~> 0.3.0'
 ```
 
 #### Manual:
