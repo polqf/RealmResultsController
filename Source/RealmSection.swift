@@ -57,8 +57,8 @@ class Section<T: Object> : NSObject {
     }
     
     func outdatedObject(object: T) -> T? {
-        let primaryKey = T.primaryKey()!
-        let primaryKeyValue = (object as Object).valueForKey(primaryKey)!
+        guard let primaryKey = T.primaryKey(),
+            let primaryKeyValue = (object as Object).valueForKey(primaryKey) else { return nil }
         return objectForPrimaryKey(primaryKeyValue)
     }
     
@@ -74,8 +74,10 @@ class Section<T: Object> : NSObject {
     
     func objectForPrimaryKey(value: AnyObject) -> T? {
         for object in objects {
-            let primaryKey = T.primaryKey()!
-            let primaryKeyValue = object.valueForKey(primaryKey)!
+            guard let primaryKey = T.primaryKey(),
+                let primaryKeyValue = object.valueForKey(primaryKey) else {
+                    continue
+            }
             if primaryKeyValue.isEqual(value){
                 return (object as? T)
             }

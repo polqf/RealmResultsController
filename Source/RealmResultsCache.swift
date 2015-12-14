@@ -77,7 +77,7 @@ class RealmResultsCache<T: Object> {
         for object in mirrorsArray {
             let section = getOrCreateSection(object) //Calls the delegate when there is an insertion
             let rowIndex = section.insertSorted(object)
-            let sectionIndex = indexForSection(section)!
+            guard let sectionIndex = indexForSection(section) else { continue }
             let indexPath = NSIndexPath(forRow: rowIndex, inSection: sectionIndex)
             
             // If the object was not deleted previously, it is just an INSERT.
@@ -88,17 +88,17 @@ class RealmResultsCache<T: Object> {
             
             // If the object was already deleted, then is a MOVE, and the insert/deleted
             // should be wrapped in only one operation to the delegate
-            let oldIndexPath = temporalDeletionsIndexPath[object]
-            delegate?.didUpdate(object, oldIndexPath: oldIndexPath!, newIndexPath: indexPath, changeType: RealmResultsChangeType.Move)
-            let index = temporalDeletions.indexOf(object)
-            temporalDeletions.removeAtIndex(index!)
+            guard let oldIndexPath = temporalDeletionsIndexPath[object] else { continue }
+            delegate?.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: indexPath, changeType: RealmResultsChangeType.Move)
+            guard let index = temporalDeletions.indexOf(object) else { continue }
+            temporalDeletions.removeAtIndex(index)
             temporalDeletionsIndexPath.removeValueForKey(object)
         }
         
         // The remaining objects, not MOVED or INSERTED, are DELETES, and must be deleted at the end
         for object in temporalDeletions {
-            let oldIndexPath = temporalDeletionsIndexPath[object]
-            delegate?.didDelete(object, indexPath: oldIndexPath!)
+            guard let oldIndexPath = temporalDeletionsIndexPath[object] else { continue }
+            delegate?.didDelete(object, indexPath: oldIndexPath)
         }
         temporalDeletions.removeAll()
         temporalDeletionsIndexPath.removeAll()
@@ -109,16 +109,18 @@ class RealmResultsCache<T: Object> {
         for object in objects {
             guard let section = sectionForOutdateObject(object) else { continue }
             let index = section.indexForOutdatedObject(object)
-            if index == -1 { continue }
-            outdated.append(section.objects.objectAtIndex(index) as! T)
+            guard index != -1,
+                let object = section.objects.objectAtIndex(index) as? T else { continue }
+            outdated.append(object)
         }
         
         let mirrorsArray = sortedMirrors(outdated).reverse() as [T]
         
         for object in mirrorsArray {
-            let section = sectionForOutdateObject(object)!
+            guard let section = sectionForOutdateObject(object),
+                let sectionIndex = indexForSection(section) else { continue }
             let index = section.deleteOutdatedObject(object)
-            let indexPath = NSIndexPath(forRow: index, inSection: indexForSection(section)!)
+            let indexPath = NSIndexPath(forRow: index, inSection: sectionIndex)
             
             temporalDeletions.append(object)
             temporalDeletionsIndexPath[object] = indexPath
@@ -133,8 +135,8 @@ class RealmResultsCache<T: Object> {
     
     func update(objects: [T]) {
         for object in objects {
-            guard let oldSection = sectionForOutdateObject(object) else { continue }
-            let oldSectionIndex = indexForSection(oldSection)!
+            guard let oldSection = sectionForOutdateObject(object),
+                let oldSectionIndex = indexForSection(oldSection) else { continue }
             let oldIndexRow = oldSection.indexForOutdatedObject(object)
             
             if oldIndexRow == -1 {
@@ -169,8 +171,10 @@ class RealmResultsCache<T: Object> {
     //MARK: Retrieve
     private func getOrCreateSection(object: T) -> Section<T> {
         let key = keyPathForObject(object)
-        let section = sectionForKeyPath(key)
-        return section != nil ? section! : createNewSection(key)
+        guard let section = sectionForKeyPath(key) else {
+            return createNewSection(key)
+        }
+        return section
     }
     
     private func sectionForKeyPath(keyPath: String, create: Bool = true) -> Section<T>? {
@@ -233,12 +237,9 @@ class RealmResultsCache<T: Object> {
         var keyPathValue = defaultKeyPathValue
         if let keyPath = sectionKeyPath {
             if keyPath.isEmpty { return  defaultKeyPathValue }
-            if NSThread.currentThread().isMainThread {
-                keyPathValue = String(object.valueForKeyPath(keyPath)!)
-            }
-            else {
-                dispatch_sync(dispatch_get_main_queue()) {
-                    keyPathValue = String(object.valueForKeyPath(keyPath)!)
+            Threading.executeOnMainThread(true) {
+                if let objectKeyPathValue = object.valueForKeyPath(keyPath) {
+                    keyPathValue = String(objectKeyPathValue)
                 }
             }
         }
@@ -257,7 +258,10 @@ class RealmResultsCache<T: Object> {
         let mutArray = NSMutableArray(array: mirrors)
         let sorts = request.sortDescriptors.map(toNSSortDescriptor)
         mutArray.sortUsingDescriptors(sorts)
-        return mutArray as AnyObject as! [T]
+        guard let sortedMirrors = NSArray(array: mutArray) as? [T] else {
+            return []
+        }
+        return sortedMirrors
     }
 
     /**
