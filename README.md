@@ -283,6 +283,6 @@ More info [here](https://realm.io/docs/swift/latest/#installation-swift-20)
 - Swift 2.1
 
 ###Licenses
-All source code is licensed under the MIT License.
+All source code is licensed under the `MIT License`.
 
 If you use it, we'll be happy to know about it.
