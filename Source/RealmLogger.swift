@@ -21,9 +21,11 @@ class RealmLogger {
     
     init(realm: Realm) {
         self.realm = realm
-        self.notificationToken = self.realm.addNotificationBlock { (notification, realm) -> Void in
-            if notification == .DidChange {
-                self.finishRealmTransaction()
+        Threading.executeOnMainThread(true) {
+            self.notificationToken = self.realm.addNotificationBlock { (notification, realm) -> Void in
+                if notification == .DidChange {
+                    self.finishRealmTransaction()
+                }
             }
         }
     }
