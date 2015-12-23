@@ -120,6 +120,7 @@ class RealmResultsCache<T: Object> {
             guard let section = sectionForOutdateObject(object),
                 let sectionIndex = indexForSection(section) else { continue }
             let index = section.deleteOutdatedObject(object)
+            guard index != -1 else { continue }
             let indexPath = NSIndexPath(forRow: index, inSection: sectionIndex)
             
             temporalDeletions.append(object)
