@@ -119,10 +119,11 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     - returns: Self
     */
     public init(request: RealmRequest<T>, sectionKeyPath: String? ,mapper: T -> U, filter: (T -> Bool)? = nil) throws {
+      let sorter: SortDescriptor? = sectionKeyPath == nil ? nil : request.sortDescriptors.first!
         self.request = request
         self.mapper = mapper
         self.sectionKeyPath = sectionKeyPath
-        self.cache = RealmResultsCache<T>(request: request, sectionKeyPath: sectionKeyPath)
+        self.cache = RealmResultsCache<T>(request: request, sectionSorting: sorter)
         self.filter = filter
         if sortDescriptorsAreEmpty(request.sortDescriptors) {
             throw RRCError.EmptySortDescriptors
