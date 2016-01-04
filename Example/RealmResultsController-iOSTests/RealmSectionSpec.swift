@@ -98,8 +98,8 @@ class SectionSpec: QuickSpec {
                     anotherTask = Task()
                     index = section.delete(anotherTask)
                 }
-                it("returns index NotFound") {
-                    expect(index).to(equal(NotFound))
+                it("returns index nil") {
+                    expect(index).to(beNil())
                 }
             }
         }
@@ -130,8 +130,8 @@ class SectionSpec: QuickSpec {
                     anotherTask = Task()
                     index = section.deleteOutdatedObject(anotherTask)
                 }
-                it("returns index NotFound") {
-                    expect(index).to(equal(NotFound))
+                it("returns index nil") {
+                    expect(index).to(beNil())
                 }
             }
         }
