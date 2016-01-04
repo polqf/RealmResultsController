@@ -82,14 +82,18 @@ class RealmResultsCache<T: Object> {
             
             // If the object was not deleted previously, it is just an INSERT.
             if !temporalDeletions.contains(object) {
-                delegate?.didInsert(object, indexPath: indexPath)
+                Threading.executeOnMainThread {
+                    self.delegate?.didInsert(object, indexPath: indexPath)
+                }
                 continue
             }
             
             // If the object was already deleted, then is a MOVE, and the insert/deleted
             // should be wrapped in only one operation to the delegate
             guard let oldIndexPath = temporalDeletionsIndexPath[object] else { continue }
-            delegate?.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: indexPath, changeType: RealmResultsChangeType.Move)
+            Threading.executeOnMainThread {
+                self.delegate?.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: indexPath, changeType: RealmResultsChangeType.Move)
+            }
             guard let index = temporalDeletions.indexOf(object) else { continue }
             temporalDeletions.removeAtIndex(index)
             temporalDeletionsIndexPath.removeValueForKey(object)
@@ -98,7 +102,9 @@ class RealmResultsCache<T: Object> {
         // The remaining objects, not MOVED or INSERTED, are DELETES, and must be deleted at the end
         for object in temporalDeletions {
             guard let oldIndexPath = temporalDeletionsIndexPath[object] else { continue }
-            delegate?.didDelete(object, indexPath: oldIndexPath)
+            Threading.executeOnMainThread {
+                self.delegate?.didDelete(object, indexPath: oldIndexPath)
+            }
         }
         temporalDeletions.removeAll()
         temporalDeletionsIndexPath.removeAll()
@@ -127,7 +133,9 @@ class RealmResultsCache<T: Object> {
             
             if section.objects.count == 0 {
                 sections.removeAtIndex(indexPath.section)
-                delegate?.didDeleteSection(section, index: indexPath.section)
+                Threading.executeOnMainThread {
+                    self.delegate?.didDeleteSection(section, index: indexPath.section)
+                }
             }
         }
     }
@@ -149,7 +157,9 @@ class RealmResultsCache<T: Object> {
             oldSection.deleteOutdatedObject(object)
             let newIndexRow = oldSection.insertSorted(object)
             let newIndexPath = NSIndexPath(forRow: newIndexRow, inSection: oldSectionIndex)
-            delegate?.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: .Update)
+            Threading.executeOnMainThread {
+                self.delegate?.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: .Update)
+            }
         }
     }
 
@@ -162,7 +172,9 @@ class RealmResultsCache<T: Object> {
         sortSections()
         let index = indexForSection(newSection)!
         if notifyDelegate {
-            delegate?.didInsertSection(newSection, index: index)
+            Threading.executeOnMainThread {
+                self.delegate?.didInsertSection(newSection, index: index)
+            }
         }
         return newSection
     }
