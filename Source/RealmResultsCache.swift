@@ -135,8 +135,8 @@ class RealmResultsCache<T: Object> {
     func update(objects: [T]) {
         for object in objects {
             guard let oldSection = sectionForOutdateObject(object),
-                let oldSectionIndex = indexForSection(oldSection) else { continue }
-            guard let oldIndexRow = oldSection.indexForOutdatedObject(object) else {
+                let oldSectionIndex = indexForSection(oldSection),
+                let oldIndexRow = oldSection.indexForOutdatedObject(object) else {
                 insert([object])
                 continue
             }
