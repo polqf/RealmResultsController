@@ -9,6 +9,8 @@
 import Foundation
 import RealmSwift
 
+let NotFound: Int = -1
+
 enum RealmCacheUpdateType: String {
     case Move
     case Update
@@ -109,7 +111,7 @@ class RealmResultsCache<T: Object> {
         for object in objects {
             guard let section = sectionForOutdateObject(object) else { continue }
             let index = section.indexForOutdatedObject(object)
-            guard index != -1,
+            guard index != NotFound,
                 let object = section.objects.objectAtIndex(index) as? T else { continue }
             outdated.append(object)
         }
@@ -120,7 +122,7 @@ class RealmResultsCache<T: Object> {
             guard let section = sectionForOutdateObject(object),
                 let sectionIndex = indexForSection(section) else { continue }
             let index = section.deleteOutdatedObject(object)
-            guard index != -1 else { continue }
+            guard index != NotFound else { continue }
             let indexPath = NSIndexPath(forRow: index, inSection: sectionIndex)
             
             temporalDeletions.append(object)
@@ -140,7 +142,7 @@ class RealmResultsCache<T: Object> {
                 let oldSectionIndex = indexForSection(oldSection) else { continue }
             let oldIndexRow = oldSection.indexForOutdatedObject(object)
             
-            if oldIndexRow == -1 {
+            if oldIndexRow == NotFound {
                 insert([object])
                 continue
             }
@@ -185,7 +187,7 @@ class RealmResultsCache<T: Object> {
     
     private func sectionForOutdateObject(object: T) -> Section<T>? {
         for section in sections {
-            if section.indexForOutdatedObject(object) != -1 {
+            if section.indexForOutdatedObject(object) != NotFound {
                 return section
             }
         }
@@ -221,7 +223,7 @@ class RealmResultsCache<T: Object> {
         
         //Indexes
         let oldIndexRow = oldSection.delete(outdatedCopy)
-        if oldIndexRow == -1 { return .Insert }
+        if oldIndexRow == NotFound { return .Insert }
         let newIndexRow = newSection.insertSorted(object)
 
         //Restore

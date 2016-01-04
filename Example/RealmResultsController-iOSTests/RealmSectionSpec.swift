@@ -98,8 +98,8 @@ class SectionSpec: QuickSpec {
                     anotherTask = Task()
                     index = section.delete(anotherTask)
                 }
-                it("returns index -1") {
-                    expect(index).to(equal(-1))
+                it("returns index NotFound") {
+                    expect(index).to(equal(NotFound))
                 }
             }
         }
@@ -130,8 +130,8 @@ class SectionSpec: QuickSpec {
                     anotherTask = Task()
                     index = section.deleteOutdatedObject(anotherTask)
                 }
-                it("returns index -1") {
-                    expect(index).to(equal(-1))
+                it("returns index NotFound") {
+                    expect(index).to(equal(NotFound))
                 }
             }
         }

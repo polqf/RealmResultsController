@@ -44,7 +44,7 @@ class Section<T: Object> : NSObject {
             objects.removeObject(object)
             return index
         }
-        return -1
+        return NotFound
     }
     
     //MARK: Outdated objects
@@ -53,7 +53,7 @@ class Section<T: Object> : NSObject {
         if let object = outdatedObject(object) {
             return delete(object)
         }
-        return -1
+        return NotFound
     }
     
     func outdatedObject(object: T) -> T? {
@@ -67,7 +67,7 @@ class Section<T: Object> : NSObject {
         if let obj = objectToDelete {
             return objects.indexOfObject(obj)
         }
-        return -1
+        return NotFound
     }
     
     //MARK: Helpers
