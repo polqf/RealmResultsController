@@ -108,8 +108,7 @@ class RealmResultsCache<T: Object> {
         var outdated: [T] = []
         for object in objects {
             guard let section = sectionForOutdateObject(object) else { continue }
-            let index = section.indexForOutdatedObject(object)
-            guard index != -1,
+            guard let index = section.indexForOutdatedObject(object),
                 let object = section.objects.objectAtIndex(index) as? T else { continue }
             outdated.append(object)
         }
@@ -119,7 +118,7 @@ class RealmResultsCache<T: Object> {
         for object in mirrorsArray {
             guard let section = sectionForOutdateObject(object),
                 let sectionIndex = indexForSection(section) else { continue }
-            let index = section.deleteOutdatedObject(object)
+            guard let index = section.deleteOutdatedObject(object) else { continue }
             let indexPath = NSIndexPath(forRow: index, inSection: sectionIndex)
             
             temporalDeletions.append(object)
@@ -136,10 +135,8 @@ class RealmResultsCache<T: Object> {
     func update(objects: [T]) {
         for object in objects {
             guard let oldSection = sectionForOutdateObject(object),
-                let oldSectionIndex = indexForSection(oldSection) else { continue }
-            let oldIndexRow = oldSection.indexForOutdatedObject(object)
-            
-            if oldIndexRow == -1 {
+                let oldSectionIndex = indexForSection(oldSection),
+                let oldIndexRow = oldSection.indexForOutdatedObject(object) else {
                 insert([object])
                 continue
             }
@@ -184,7 +181,7 @@ class RealmResultsCache<T: Object> {
     
     private func sectionForOutdateObject(object: T) -> Section<T>? {
         for section in sections {
-            if section.indexForOutdatedObject(object) != -1 {
+            if let _ = section.indexForOutdatedObject(object) {
                 return section
             }
         }
@@ -219,8 +216,7 @@ class RealmResultsCache<T: Object> {
         guard let outdatedCopy = oldSection.outdatedObject(object) else { return .Insert }
         
         //Indexes
-        let oldIndexRow = oldSection.delete(outdatedCopy)
-        if oldIndexRow == -1 { return .Insert }
+        guard let oldIndexRow = oldSection.delete(outdatedCopy) else { return .Insert }
         let newIndexRow = newSection.insertSorted(object)
 
         //Restore

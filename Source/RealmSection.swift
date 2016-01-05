@@ -38,22 +38,22 @@ class Section<T: Object> : NSObject {
         return objects.indexOfObject(object)
     }
     
-    func delete(object: T) -> Int {
+    func delete(object: T) -> Int? {
         let index = objects.indexOfObject(object)
         if index < objects.count {
             objects.removeObject(object)
             return index
         }
-        return -1
+        return nil
     }
     
     //MARK: Outdated objects
     
-    func deleteOutdatedObject(object: T) -> Int {
+    func deleteOutdatedObject(object: T) -> Int? {
         if let object = outdatedObject(object) {
             return delete(object)
         }
-        return -1
+        return nil
     }
     
     func outdatedObject(object: T) -> T? {
@@ -62,12 +62,12 @@ class Section<T: Object> : NSObject {
         return objectForPrimaryKey(primaryKeyValue)
     }
     
-    func indexForOutdatedObject(object: T) -> Int {
+    func indexForOutdatedObject(object: T) -> Int? {
         let objectToDelete: T? = outdatedObject(object)
         if let obj = objectToDelete {
             return objects.indexOfObject(obj)
         }
-        return -1
+        return nil
     }
     
     //MARK: Helpers
