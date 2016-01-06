@@ -26,18 +26,11 @@ class RealmLogger {
             registerNotificationBlock()
         }
         else {
-            //Attaches execution to a runloop
-            NSRunLoop.currentRunLoop().performSelector("registerNotificationBlock",
-                target: self,
-                argument: nil,
-                order: 0,
-                modes: [NSDefaultRunLoopMode])
-            
-            //Blocking here until the selector has been executed and we received a notification token
-            while (self.notificationToken == nil &&
-                NSRunLoop.currentRunLoop().runMode(NSDefaultRunLoopMode,
-                    beforeDate: NSDate().dateByAddingTimeInterval(0.01)) ) {}
-            
+            CFRunLoopPerformBlock(CFRunLoopGetCurrent(), kCFRunLoopDefaultMode) {
+                self.registerNotificationBlock()
+                CFRunLoopStop(CFRunLoopGetCurrent())
+            }
+            CFRunLoopRun()
         }
     }
     
