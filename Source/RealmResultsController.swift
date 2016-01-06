@@ -296,10 +296,11 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
             }
             
             var passesFilter = true
-            let passesPredicate = self.request.predicate.evaluateWithObject(mirrorObject)
+            var passesPredicate = true
             
-            if let filter = filter {
-                Threading.executeOnMainThread(true) {
+            Threading.executeOnMainThread(true) {
+                passesPredicate = self.request.predicate.evaluateWithObject(mirrorObject)
+                if let filter = self.filter {
                     passesFilter = filter(mirrorObject)
                 }
             }
