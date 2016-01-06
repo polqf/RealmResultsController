@@ -33,12 +33,22 @@ class Section<T: Object> : NSObject {
     //MARK: Actions
     
     func insertSorted(object: T) -> Int {
-        objects.addObject(object)
+        self.insert(object)
+        
         Threading.executeOnMainThread(true) {
-            self.objects.sortUsingDescriptors(self.sortDescriptors)
+            self.sort()
         }
+        
         return objects.indexOfObject(object)
     }
+  
+  func insert(object: T) {
+    objects.addObject(object)
+  }
+  
+  func sort() {
+    objects.sortUsingDescriptors(sortDescriptors)
+  }
     
     func delete(object: T) -> Int? {
         let index = objects.indexOfObject(object)
