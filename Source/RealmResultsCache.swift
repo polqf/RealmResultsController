@@ -59,25 +59,15 @@ class RealmResultsCache<T: Object> {
 
     //MARK: Population
     func populateSections(objects: [T]) {
-      let objectsAndSections = objects.map {
-        (object) -> (T, Section<T>) in
+        let sections: [Section<T>] = objects.map {
+            let section = getOrCreateSection($0)
+            section.insert($0)
+            return section
+        }
         
-        let section = getOrCreateSection(object)
-        return (object, section)
-      }
-      
-      let sections = objectsAndSections.map {
-        (object, section) -> (Section<T>) in
-        
-        section.insert(object)
-        return section
-      }
-      
-      Set(sections).forEach {
-        (section) in
-        
-        section.sort()
-      }
+        Set(sections).forEach {
+            $0.sort()
+        }
     }
   
     func reset(objects: [T]) {
