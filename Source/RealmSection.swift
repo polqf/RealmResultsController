@@ -41,14 +41,14 @@ class Section<T: Object> : NSObject {
         
         return objects.indexOfObject(object)
     }
-  
-  func insert(object: T) {
-    objects.addObject(object)
-  }
-  
-  func sort() {
-    objects.sortUsingDescriptors(sortDescriptors)
-  }
+    
+    func insert(object: T) {
+        objects.addObject(object)
+    }
+    
+    func sort() {
+        objects.sortUsingDescriptors(sortDescriptors)
+    }
     
     func delete(object: T) -> Int? {
         let index = objects.indexOfObject(object)
