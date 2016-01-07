@@ -47,4 +47,40 @@ extension Object {
             let primaryKeyValue = (self as Object).valueForKey(primaryKey) else { return nil }
         return String(self.dynamicType) + "-" + String(primaryKeyValue)
     }
+    
+    
+    /**
+     Create a mirror of an object <T: Object>.
+     This mirror is not added to any Raelm so it is
+     "thread safe" as long as you don't try to access
+     any relationship from a background thread
+     
+     If you want safely access relationships, you have to override
+     this method in your subclass for creating mirrors for relationships on your own,
+     like the code below:
+     
+     extension Product {
+        override func getMirror() -> Product {
+            let clone = super.getMirror() as! Product
+            clone.category = self.category?.getMirror() as? Category
+            return clone
+        }
+     }
+     
+     - parameter object Original object (T) to mirror
+     
+     - returns a copy of the original object (T) but not included in any realm
+     */
+    public func getMirror() -> Object {
+        let newObject = self.dynamicType.init()
+        let mirror = Mirror(reflecting: self)
+        for c in mirror.children.enumerate() {
+            guard let key = c.1.0
+                where !key.hasSuffix(".storage") else { continue }
+            let value = self.valueForKey(key)
+            guard let v = value else { continue }
+            (newObject as Object).setValue(v, forKey: key)
+        }
+        return newObject
+    }
 }

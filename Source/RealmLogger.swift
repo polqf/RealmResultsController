@@ -10,16 +10,6 @@ import Foundation
 import RealmSwift
 
 /**
- Public extension for Object lets overriding to specify the custom
- Object-to-Mirror translation in case you need the relationship mirroring.
- */
-public extension Object {
-  public func rrc_mapObjectToMirror() -> Object {
-    return getMirror(self)
-  }
-}
-
-/**
  Internal RealmResultsController class
  In charge of listen to Realm notifications and notify the RRCs when finished
  A logger is associated with one and only one Realm.
@@ -81,7 +71,7 @@ class RealmLogger {
     - parameter action Action that was performed on that object
     */
     func addObject<T: Object>(object: T, action: RealmAction) {
-        let realmChange = RealmChange(type: (object as Object).dynamicType, action: action, mirror: object.rrc_mapObjectToMirror())
+        let realmChange = RealmChange(type: (object as Object).dynamicType, action: action, mirror: object.getMirror())
         temporary.append(realmChange)
     }
     
