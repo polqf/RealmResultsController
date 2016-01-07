@@ -26,7 +26,7 @@ RLM_ASSUME_NONNULL_BEGIN
 @class RLMObject;
 
 /**
-Provides both the old and new versions of an object in this Realm. Objects properties can only be
+Provides both the old and new versions of an object in this Realm. Object properties can only be
 accessed using keyed subscripting.
 
 @param oldObject Object in original RLMRealm (read-only).
@@ -83,9 +83,6 @@ typedef void (^RLMObjectMigrationBlock)(RLMObject * __nullable oldObject, RLMObj
                     When passing in an NSArray, all properties must be present, valid and in the same order as the properties defined in the model.
  */
 -(RLMObject *)createObject:(NSString *)className withValue:(id)value;
-
-/// :nodoc:
--(RLMObject *)createObject:(NSString *)className withObject:(id)object DEPRECATED_MSG_ATTRIBUTE("use createObject:withValue:");
 
 /**
  Delete an object from a Realm during a migration. This can be called within `enumerateObjects:block:`.

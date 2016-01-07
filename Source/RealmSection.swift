@@ -34,7 +34,9 @@ class Section<T: Object> : NSObject {
     
     func insertSorted(object: T) -> Int {
         objects.addObject(object)
-        objects.sortUsingDescriptors(sortDescriptors)
+        Threading.executeOnMainThread(true) {
+            self.objects.sortUsingDescriptors(self.sortDescriptors)
+        }
         return objects.indexOfObject(object)
     }
     
@@ -74,11 +76,12 @@ class Section<T: Object> : NSObject {
     
     func objectForPrimaryKey(value: AnyObject) -> T? {
         for object in objects {
-            guard let primaryKey = T.primaryKey(),
-                let primaryKeyValue = object.valueForKey(primaryKey) else {
-                    continue
+            guard let primaryKey = T.primaryKey() else { continue }
+            var primaryKeyValue: AnyObject?
+            Threading.executeOnMainThread(true) {
+                primaryKeyValue = object.valueForKey(primaryKey)
             }
-            if primaryKeyValue.isEqual(value){
+            if value.isEqual(primaryKeyValue) {
                 return (object as? T)
             }
         }

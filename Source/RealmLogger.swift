@@ -21,7 +21,21 @@ class RealmLogger {
     
     init(realm: Realm) {
         self.realm = realm
-        self.notificationToken = self.realm.addNotificationBlock { (notification, realm) -> Void in
+        
+        if NSThread.isMainThread() {
+            registerNotificationBlock()
+        }
+        else {
+            CFRunLoopPerformBlock(CFRunLoopGetCurrent(), kCFRunLoopDefaultMode) {
+                self.registerNotificationBlock()
+                CFRunLoopStop(CFRunLoopGetCurrent())
+            }
+            CFRunLoopRun()
+        }
+    }
+    
+    @objc func registerNotificationBlock() {
+        self.notificationToken = self.realm.addNotificationBlock { notification, realm in
             if notification == .DidChange {
                 self.finishRealmTransaction()
             }
