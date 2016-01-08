@@ -136,6 +136,53 @@ class SectionSpec: QuickSpec {
             }
         }
         
+        describe("insert(object:)") {
+            context("when the section is empty") {
+                it("beforeAll") {
+                    section = Section<Task>(keyPath: "keyPath", sortDescriptors: sortDescriptors)
+                    section.insert(openTask)
+                }
+                it("has one item") {
+                    expect(section.objects.count).to(equal(1))
+                }
+                it("item is latest") {
+                    expect(section.objects.lastObject === openTask).to(beTrue())
+                }
+            }
+            
+            context("when the section is not empty") {
+                it("beforeAll") {
+                    section.insert(resolvedTask)
+                }
+                it("has two items") {
+                    expect(section.objects.count).to(equal(2))
+                }
+                it("item is latest") {
+                    expect(section.objects.lastObject === resolvedTask).to(beTrue())
+                }
+            }
+        }
+        
+        describe("sort()") {
+            context("when the section is not empty") {
+                it("beforeAll") {
+                    section = Section<Task>(keyPath: "keyPath", sortDescriptors: sortDescriptors)
+                    section.insert(openTask)
+                    section.insert(resolvedTask)
+                }
+                it("before items have been sorted") {
+                    expect(section.objects.firstObject === openTask).to(beTrue())
+                    expect(section.objects.lastObject === resolvedTask).to(beTrue())
+                }
+                it("sort items") {
+                    section.sort()
+                }
+                it("after items have been sorted") {
+                    expect(section.objects.firstObject === resolvedTask).to(beTrue())
+                    expect(section.objects.lastObject === openTask).to(beTrue())
+                }
+            }
+        }
     }
 }
 

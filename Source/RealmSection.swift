@@ -36,7 +36,7 @@ class Section<T: Object> : NSObject {
         insert(object)
         
         Threading.executeOnMainThread(true) {
-            sort()
+            self.sort()
         }
         
         return objects.indexOfObject(object)
