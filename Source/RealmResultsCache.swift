@@ -41,7 +41,7 @@ so calling only `delete` will change the cache but not call the delegate.
 */
 class RealmResultsCache<T: Object> {
     var request: RealmRequest<T>
-    var sectionKeyPath: String? = ""
+    var sectionSorter: SortDescriptor?
     var sections: [Section<T>] = []
     let defaultKeyPathValue = "default"
     weak var delegate: RealmResultsCacheDelegate?
@@ -51,9 +51,9 @@ class RealmResultsCache<T: Object> {
     
     
     //MARK: Initializer
-    init(request: RealmRequest<T>, sectionKeyPath: String?) {
+    init(request: RealmRequest<T>, sectionSorter: SortDescriptor?) {
         self.request = request
-        self.sectionKeyPath = sectionKeyPath
+        self.sectionSorter = sectionSorter
     }
     
 
@@ -235,7 +235,7 @@ class RealmResultsCache<T: Object> {
     
     func keyPathForObject(object: T) -> String {
         var keyPathValue = defaultKeyPathValue
-        if let keyPath = sectionKeyPath {
+        if let keyPath = sectionSorter?.property {
             if keyPath.isEmpty { return  defaultKeyPathValue }
             Threading.executeOnMainThread(true) {
                 if let objectKeyPathValue = object.valueForKeyPath(keyPath) {
@@ -268,7 +268,15 @@ class RealmResultsCache<T: Object> {
     Sort the sections using the Given KeyPath
     */
     private func sortSections() {
-        sections.sortInPlace { $0.keyPath.localizedCaseInsensitiveCompare($1.keyPath) == NSComparisonResult.OrderedAscending }
+        let comparator: NSComparisonResult
+        if let ascending = sectionSorter?.ascending where ascending {
+            comparator = .OrderedAscending
+        }
+        else {
+            comparator = .OrderedDescending
+        }
+        
+        sections.sortInPlace { $0.keyPath.localizedCaseInsensitiveCompare($1.keyPath) == comparator }
     }
     
     /**
