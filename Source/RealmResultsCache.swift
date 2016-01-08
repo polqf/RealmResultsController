@@ -268,7 +268,9 @@ class RealmResultsCache<T: Object> {
     Sort the sections using the Given KeyPath
     */
     private func sortSections() {
-        sections.sortInPlace { $0.keyPath.localizedCaseInsensitiveCompare($1.keyPath) == NSComparisonResult.OrderedAscending }
+        guard let sortd =  request.sortDescriptors.first else { return }
+        let comparator: NSComparisonResult = sortd.ascending ? .OrderedAscending : .OrderedDescending
+        sections.sortInPlace { $0.keyPath.localizedCaseInsensitiveCompare($1.keyPath) == comparator }
     }
     
     /**
