@@ -65,9 +65,7 @@ class RealmResultsCache<T: Object> {
             return section
         }
         
-        Set(sections).forEach {
-            $0.sort()
-        }
+        Set(sections).forEach { $0.sort() }
     }
   
     func reset(objects: [T]) {
