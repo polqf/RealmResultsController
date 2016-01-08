@@ -69,6 +69,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     private(set) public var request: RealmRequest<T>
     private(set) public var filter: (T -> Bool)?
     var mapper: T -> U
+    var sectionKeyPath: String? = ""
     var queueManager: RealmQueueManager = RealmQueueManager()
     var temporaryAdded: [T] = []
     var temporaryUpdated: [T] = []
@@ -98,35 +99,35 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     //MARK: Initializers
 
     /**
-    Create a RealmResultsController with a Request, choose whether you want to group the results and a mapper.
+    Create a RealmResultsController with a Request, a SectionKeypath to group the results and a mapper.
     This init NEEDS a mapper, and all the Realm Models (T) will be transformed using the mapper
     to objects of type (U). Done this way to avoid using Realm objects that are not thread safe.
     And to decouple the Model layer of the View Layer.
     If you want the RRC to return Realm objects that are thread safe, you should use the init
     that doesn't require a mapper.
     
-    NOTE: If you want to group the results, you must specify at least one sorter, because the first of them will be used for grouping. If not, RRC will throw an error.
+    NOTE: If sectionKeyPath is used, it must be equal to the property used in the first SortDescriptor
+    of the RealmRequest. If not, RRC will throw an error.
     NOTE2: Realm does not support sorting by KeyPaths, so you must only use properties of the model
     you want to fetch and not KeyPath to any relationship
     NOTE3: The RealmRequest needs at least one SortDescriptor
     
     - param: request        Request to fetch objects
-    - param: group          Boolean, should RRC group the results or not
+    - param: sectionKeyPath KeyPath to group the results by sections
     - param: mapper         Mapper to map the results.
     
     - returns: Self
     */
-    public init(request: RealmRequest<T>, group: Bool, mapper: T -> U, filter: (T -> Bool)? = nil) throws {
-        let sectionSorter = group ? request.sortDescriptors.first : nil
-        
+    public init(request: RealmRequest<T>, sectionKeyPath: String? ,mapper: T -> U, filter: (T -> Bool)? = nil) throws {
         self.request = request
         self.mapper = mapper
-        self.cache = RealmResultsCache<T>(request: request, sectionSorter: sectionSorter)
+        self.sectionKeyPath = sectionKeyPath
+        self.cache = RealmResultsCache<T>(request: request, sectionKeyPath: sectionKeyPath)
         self.filter = filter
         if sortDescriptorsAreEmpty(request.sortDescriptors) {
             throw RRCError.EmptySortDescriptors
         }
-        if group && sectionSorter == nil {
+        if !keyPathIsValid(sectionKeyPath, sorts: request.sortDescriptors) {
             throw RRCError.InvalidKeyPath
         }
         self.cache?.delegate = self
@@ -140,20 +141,21 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     All objects sent to the delegate of the RRC will be of the model type but
     they will be "mirrors", i.e. they don't belong to any Realm DB.
     
-    NOTE: If you want to group the results, you must specify at least one sorter, because the first of them will be used for grouping. If not, RRC will throw an error.
+    NOTE: If sectionKeyPath is used, it must be equal to the property used in the first SortDescriptor
+    of the RealmRequest. If not, RRC will throw an error
     NOTE2: The RealmRequest needs at least one SortDescriptor
     
     - param: request        Request to fetch objects
-     - param: group          Boolean, should RRC group the results or not
+    - param: sectionKeyPath keyPath to group the results of the request
     
     - returns: self
     */
-    public convenience init(request: RealmRequest<T>, group: Bool) throws {
-        try self.init(request: request, group: group, mapper: {$0 as! U})
+    public convenience init(request: RealmRequest<T>, sectionKeyPath: String?) throws {
+        try self.init(request: request, sectionKeyPath: sectionKeyPath, mapper: {$0 as! U})
     }
     
-    internal convenience init(forTESTRequest request: RealmRequest<T>, group: Bool, mapper: (T)->(U)) throws {
-        try self.init(request: request, group: group, mapper: mapper)
+    internal convenience init(forTESTRequest request: RealmRequest<T>, sectionKeyPath: String?, mapper: (T)->(U)) throws {
+        try self.init(request: request, sectionKeyPath: sectionKeyPath, mapper: mapper)
         self._test = true
     }
     
