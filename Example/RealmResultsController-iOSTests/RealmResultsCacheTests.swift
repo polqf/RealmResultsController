@@ -272,8 +272,8 @@ class CacheSpec: QuickSpec {
                 var indexPath: NSIndexPath!
                 it("beforeAll") {
                     initWithoutKeypath()
-
-                    cache.delete([getMirror(initialObjects[10])])
+                    let task = initialObjects[10].getMirror()
+                    cache.delete([task])
                     cache.insert([]) //call insert to commit the changes!
                     object = CacheDelegateMock.sharedInstance.object
                     indexPath = CacheDelegateMock.sharedInstance.indexPath

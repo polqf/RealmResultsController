@@ -184,7 +184,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
     */
     public func performFetch() {
         populating = true
-        var objects = self.request.execute().toArray().map{ $0.getMirror() as! T }
+        var objects = self.request.execute().toArray().map{ $0.getMirror() }
         if let filter = filter {
             objects = objects.filter(filter)
         }

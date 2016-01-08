@@ -71,7 +71,7 @@ extension Object {
      
      - returns a copy of the original object (T) but not included in any realm
      */
-    public func getMirror() -> Object {
+    public func getMirror() -> Self {
         let newObject = self.dynamicType.init()
         let mirror = Mirror(reflecting: self)
         for c in mirror.children.enumerate() {
