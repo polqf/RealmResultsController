@@ -185,27 +185,3 @@ extension Results {
         return array
     }
 }
-
-/**
-Create a mirror of an object <T: Object>.
-This mirror is not added to any Raelm so it is 
-"thread safe" as long as you don't try to access 
-any relationship from a background thread
-
-- parameter object Original object (T) to mirror
-
-- returns a copy of the original object (T) but not included in any realm
-*/
-func getMirror<T: Object>(object: T) -> T {
-    let newObject = (object as Object).dynamicType.init()
-    let mirror = Mirror(reflecting: object)
-    for c in mirror.children.enumerate() {
-        guard let key = c.1.0
-            where !key.hasSuffix(".storage") else { continue }
-        let value = (object as Object).valueForKey(key)
-        guard let v = value else { continue }
-        (newObject as Object).setValue(v, forKey: key)
-    }
-    return newObject as! T
-}
-
