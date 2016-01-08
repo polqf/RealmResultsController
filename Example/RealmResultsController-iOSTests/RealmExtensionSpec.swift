@@ -231,7 +231,7 @@ class RealmExtensionSpec: QuickSpec {
                 beforeEach {
                     initial = Dummy()
                     initial.id = 4
-                    mirrored = getMirror(initial)
+                    mirrored = initial.getMirror()
                 }
                 it("Should have a nil 'optionalNilValue'") {
                     expect(mirrored.optionalNilValue).to(beNil())

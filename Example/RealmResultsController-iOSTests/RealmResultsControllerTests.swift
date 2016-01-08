@@ -436,8 +436,8 @@ class RealmResultsControllerSpec: QuickSpec {
                         RRC.cache.sections.first?.objects.removeAllObjects()
                         RRC.cache.sections.first?.objects.addObject(task2)
                         RRC.cache.sections.first?.objects.addObject(task3)
-                        updateChange = RealmChange(type: Task.self, action: .Update, mirror: getMirror(task2))
-                        deleteChange = RealmChange(type: Task.self, action: .Delete, mirror: getMirror(task3))
+                        updateChange = RealmChange(type: Task.self, action: .Update, mirror: task2.getMirror())
+                        deleteChange = RealmChange(type: Task.self, action: .Delete, mirror: task3.getMirror())
                         notifObject = [realm.path : [updateChange, deleteChange]]
                         RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
                     }
@@ -470,8 +470,8 @@ class RealmResultsControllerSpec: QuickSpec {
                         RRC.performFetch()
                         RRC.cache.sections.first?.objects.removeAllObjects()
                         RRC.cache.sections.first?.objects.addObject(task2)
-                        createChange = RealmChange(type: Task.self, action: .Create, mirror: getMirror(task1))
-                        updateChange = RealmChange(type: Task.self, action: .Update, mirror: getMirror(task2))
+                        createChange = RealmChange(type: Task.self, action: .Create, mirror: task1.getMirror())
+                        updateChange = RealmChange(type: Task.self, action: .Update, mirror: task2.getMirror())
                         notifObject = [realm.path : [createChange, updateChange]]
                         RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
                     }
