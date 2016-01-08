@@ -33,8 +33,8 @@ class Section<T: Object> : NSObject {
     //MARK: Actions
     
     func insertSorted(object: T) -> Int {
-        self.insert(object)
-        self.sort()
+        insert(object)
+        sort()
         return objects.indexOfObject(object)
     }
     
