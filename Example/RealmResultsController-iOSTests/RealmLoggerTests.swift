@@ -54,9 +54,9 @@ class RealmLoggerSpec: QuickSpec {
         }
         
         describe("finishRealmTransaction()") {
-            let newObject = RealmChange(type: Task.self, action: .Create, mirror: nil)
-            let updatedObject = RealmChange(type: Task.self, action: .Update, mirror: nil)
-            let deletedObject = RealmChange(type: Task.self, action: .Delete, mirror: nil)
+            let newObject = RealmChange(type: Task.self, action: .Create, object: nil)
+            let updatedObject = RealmChange(type: Task.self, action: .Update, object: nil)
+            let deletedObject = RealmChange(type: Task.self, action: .Delete, object: nil)
             beforeEach {
                 logger.cleanAll()
                 logger.temporary.append(newObject)
@@ -141,7 +141,7 @@ class RealmLoggerSpec: QuickSpec {
             var newObject: RealmChange!
             context("object without mirror") {
                 beforeEach {
-                    newObject = RealmChange(type: Task.self, action: .Create, mirror: nil)
+                    newObject = RealmChange(type: Task.self, action: .Create, object: nil)
                     logger.cleanAll()
                     logger.temporary.append(newObject)
                     logger.finishRealmTransaction()
@@ -157,7 +157,7 @@ class RealmLoggerSpec: QuickSpec {
             
             context("object with mirror without primaryKey") {
                 beforeEach {
-                    newObject = RealmChange(type: Task.self, action: .Create, mirror: Dummy())
+                    newObject = RealmChange(type: Task.self, action: .Create, object: Dummy())
                     logger.cleanAll()
                     logger.temporary.append(newObject)
                     logger.finishRealmTransaction()
@@ -175,7 +175,7 @@ class RealmLoggerSpec: QuickSpec {
                 beforeEach {
                     let task = Task()
                     task.id = 123
-                    newObject = RealmChange(type: Task.self, action: .Create, mirror: task)
+                    newObject = RealmChange(type: Task.self, action: .Create, object: task)
                     logger.cleanAll()
                     logger.temporary.append(newObject)
                     logger.finishRealmTransaction()
