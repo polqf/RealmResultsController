@@ -137,8 +137,12 @@ class SectionSpec: QuickSpec {
         }
         
         describe("insert(object:)") {
+            afterEach {
+                section.objects.removeAllObjects()
+            }
+            
             context("when the section is empty") {
-                it("beforeAll") {
+                beforeEach {
                     section = Section<Task>(keyPath: "keyPath", sortDescriptors: sortDescriptors)
                     section.insert(openTask)
                 }
@@ -151,35 +155,50 @@ class SectionSpec: QuickSpec {
             }
             
             context("when the section is not empty") {
-                it("beforeAll") {
+                beforeEach {
+                    section.objects = [openTask]
                     section.insert(resolvedTask)
                 }
                 it("has two items") {
                     expect(section.objects.count).to(equal(2))
                 }
-                it("item is latest") {
+                it("lastObject is resolvedTask") {
                     expect(section.objects.lastObject === resolvedTask).to(beTrue())
                 }
             }
         }
         
         describe("sort()") {
-            context("when the section is not empty") {
-                it("beforeAll") {
-                    section = Section<Task>(keyPath: "keyPath", sortDescriptors: sortDescriptors)
-                    section.insert(openTask)
-                    section.insert(resolvedTask)
-                }
-                it("before items have been sorted") {
-                    expect(section.objects.firstObject === openTask).to(beTrue())
-                    expect(section.objects.lastObject === resolvedTask).to(beTrue())
-                }
-                it("sort items") {
+            afterEach {
+                section.objects.removeAllObjects()
+            }
+            
+            context("when the section is not empty and we add items unsorted") {
+                let aTask = Task()
+                aTask.id = 1502
+                aTask.name = "aaaaa"
+                
+                let bTask = Task()
+                bTask.id = 1503
+                bTask.name = "bbbbb"
+                
+                var aTaskIndex: Int!
+                var bTaskIndex: Int!
+                beforeEach {
+                    let ascendingSortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
+                    section = Section<Task>(keyPath: "keyPath", sortDescriptors: ascendingSortDescriptors)
+                    //ADDING Tasks unsorted
+                    section.insert(bTask)
+                    section.insert(aTask)
+                    aTaskIndex = section.objects.indexOfObject(aTask)
+                    bTaskIndex = section.objects.indexOfObject(bTask)
                     section.sort()
                 }
-                it("after items have been sorted") {
-                    expect(section.objects.firstObject === resolvedTask).to(beTrue())
-                    expect(section.objects.lastObject === openTask).to(beTrue())
+                it("should have the items sorted") {
+                    expect(section.objects.indexOfObject(aTask)) != aTaskIndex
+                    expect(section.objects.indexOfObject(aTask)) == 0
+                    expect(section.objects.indexOfObject(bTask)) != bTaskIndex
+                    expect(section.objects.indexOfObject(bTask)) == 1
                 }
             }
         }
