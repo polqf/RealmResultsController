@@ -194,10 +194,17 @@ class SectionSpec: QuickSpec {
                     bTaskIndex = section.objects.indexOfObject(bTask)
                     section.sort()
                 }
-                it("should have the items sorted") {
+                
+                it("the aTask should not be in the same index as before") {
                     expect(section.objects.indexOfObject(aTask)) != aTaskIndex
+                }
+                it("the aTask index should be 0") {
                     expect(section.objects.indexOfObject(aTask)) == 0
+                }
+                it("the bTask should not be in the same index as before") {
                     expect(section.objects.indexOfObject(bTask)) != bTaskIndex
+                }
+                it("the bTask index should be 1") {
                     expect(section.objects.indexOfObject(bTask)) == 1
                 }
             }
