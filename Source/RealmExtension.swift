@@ -198,10 +198,8 @@ any relationship from a background thread
 */
 func getMirror<T: Object>(object: T) -> T {
     let newObject = (object as Object).dynamicType.init()
-    let mirror = Mirror(reflecting: object)
-    for c in mirror.children.enumerate() {
-        guard let key = c.1.0
-            where !key.hasSuffix(".storage") else { continue }
+    let propertyNames = (object as Object).objectSchema.properties.map { $0.name }
+    for key in propertyNames {
         let value = (object as Object).valueForKey(key)
         guard let v = value else { continue }
         (newObject as Object).setValue(v, forKey: key)
