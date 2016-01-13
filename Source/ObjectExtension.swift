@@ -73,10 +73,8 @@ extension Object {
      */
     public func getMirror() -> Self {
         let newObject = self.dynamicType.init()
-        let mirror = Mirror(reflecting: self)
-        for c in mirror.children.enumerate() {
-            guard let key = c.1.0
-                where !key.hasSuffix(".storage") else { continue }
+        let propertyNames = objectSchema.properties.map { $0.name }
+        for key in propertyNames {
             let value = self.valueForKey(key)
             guard let v = value else { continue }
             (newObject as Object).setValue(v, forKey: key)
