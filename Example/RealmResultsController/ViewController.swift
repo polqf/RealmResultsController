@@ -14,7 +14,7 @@ import RealmResultsController
 class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, RealmResultsControllerDelegate {
     
     let tableView: UITableView = UITableView(frame: CGRectZero, style: .Grouped)
-    var rrc: RealmResultsController<TaskModelObject, TaskObject>?
+    var rrc: RealmResultsController<CarObject, CarObject>?
     var realm: Realm!
     let button: UIButton = UIButton()
     
@@ -35,56 +35,83 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             return
         }
     
-        realm = try! Realm(path: realmPath)
+        realm = try! Realm()
         
         try! realm.write {
             self.realm.deleteAll()
         }
+        
         populateDB()
-        let request = RealmRequest<TaskModelObject>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [SortDescriptor(property: "projectID")  , SortDescriptor(property: "name")])
-        rrc = try! RealmResultsController<TaskModelObject, TaskObject>(request: request, sectionKeyPath: "projectID", mapper: TaskObject.map)
+        rrc = CarObject.resultsController()
         rrc!.delegate = self
         rrc!.performFetch()
         setupSubviews()
         addInBackground()
     }
-
+//
     func populateDB() {
-        try! realm.write {
-            for i in 1...2 {
-                let task = TaskModelObject()
-                task.id = i
-                task.name = "Task-\(i)"
-                task.projectID = 0
-                let user = UserObject()
-                user.id = i
-                user.name = String(Int(arc4random_uniform(1000)))
-                task.user = user
-                self.realm.add(task)
-            }
-            for i in 3...4 {
-                let task = TaskModelObject()
-                task.id = i
-                task.name = "Task-\(i)"
-                task.projectID = 1
-                let user = UserObject()
-                user.id = i
-                user.name = String(Int(arc4random_uniform(1000)))
-                task.user = user
-                self.realm.add(task)
-            }
-            for i in 5...6 {
-                let task = TaskModelObject()
-                task.id = i
-                task.name = "Task-\(i)"
-                task.projectID = 2
-                let user = UserObject()
-                user.id = i
-                user.name = String(Int(arc4random_uniform(1000)))
-                task.user = user
-                self.realm.add(task)
-            }
-        }
+        let carsDictionaries = [
+            [
+                "pictureURL" : "http://myURL",
+                "modelName" : "Model S1",
+                "manudacturerName" : "Tesla",
+                "userName" : "poolqf",
+                "href" : "1"
+            ],
+            [
+                "pictureURL" : "http://myURL",
+                "modelName" : "Model S2",
+                "manudacturerName" : "Tesla",
+                "userName" : "poolqf",
+                "href" : "2"
+            ],
+            [
+                "pictureURL" : "http://myURL",
+                "modelName" : "Model S3",
+                "manufacturerName" : "Tesla",
+                "userName" : "poolqf",
+                "href" : "3"
+            ],
+            [
+                "pictureURL" : "http://myURL",
+                "modelName" : "Model S4",
+                "manudacturerName" : "Tesla",
+                "userName" : "poolqf",
+                "href" : "4"
+            ],
+            [
+                "pictureURL" : "http://myURL",
+                "modelName" : "Model S5",
+                "manudacturerName" : "Tesla",
+                "userName" : "poolqf",
+                "href" : "5"
+            ],
+            [
+                "pictureURL" : "http://myURL",
+                "modelName" : "Model S6",
+                "manudacturerName" : "Tesla",
+                "userName" : "poolqf",
+                "href" : "6"
+            ]
+        ]
+        
+        let startDate: NSDate = NSDate(timeIntervalSince1970: 100)
+        let untilDate: NSDate = NSDate(timeIntervalSince1970: 2000)
+        let location = "My place"
+        
+        let carsObjects : [CarObject] = carsDictionaries.map({CarObject(value: $0)})
+        
+        let query : QueryModel = QueryModel(startDate: startDate, untilDate: untilDate, location: location)
+        
+        carsObjects.forEach({$0.searchQueries.append(query)})
+        
+        query.cars.appendContentsOf(carsObjects)
+        
+        let realm : Realm = try! Realm()
+        
+        try! realm.write({ () -> Void in
+            realm.addNotified(carsObjects, update: true)
+        })
     }
     
     func addInBackground() {
@@ -92,13 +119,20 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         let queue: dispatch_queue_t = dispatch_queue_create("label", nil)
         dispatch_async(queue) {
             autoreleasepool {
-                let realm = try! Realm(path: self.realmPath)
+                let realm = try! Realm()
                 try! realm.write {
-                    let task = TaskModelObject()
-                    task.id = 12345
-                    task.name = "Task-\(12345)"
-                    task.projectID = 0
-                    realm.addNotified(task, update: true)
+                    let obj = realm.objectForPrimaryKey(CarObject.self, key: "6")
+                    
+                    let update = [
+                        "pictureURL" : "http://myURL",
+                        "modelName" : "Model S6Updated",
+                        "manudacturerName" : "Tesla",
+                        "userName" : "poolqf",
+                        "href" : "6"
+                    ]
+                    let updateObject = CarObject(value: update)
+                    realm.addNotified(updateObject, update: true)
+                    realm.deleteNotified(obj!)
                 }
             }
         }
@@ -119,25 +153,29 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
 
     func addNewObject() {
-        let projectID = Int(arc4random_uniform(3))
         
-        let queue: dispatch_queue_t = dispatch_queue_create("label", nil)
-        dispatch_async(queue) {
-            autoreleasepool {
-                let realm = try! Realm(path: self.realmPath)
-                try! realm.write {
-                    let task = TaskModelObject()
-                    task.id = Int(arc4random_uniform(9999))
-                    task.name = "Task-\(task.id)"
-                    task.projectID = projectID
-                    let user = UserObject()
-                    user.id = task.id
-                    user.name = String(Int(arc4random_uniform(1000)))
-                    task.user = user
-                    realm.addNotified(task, update: true)
-                }
-            }
-        }
+        
+        
+        
+//        let projectID = Int(arc4random_uniform(3))
+//        
+//        let queue: dispatch_queue_t = dispatch_queue_create("label", nil)
+//        dispatch_async(queue) {
+//            autoreleasepool {
+//                let realm = try! Realm(path: self.realmPath)
+//                try! realm.write {
+//                    let task = TaskModelObject()
+//                    task.id = Int(arc4random_uniform(9999))
+//                    task.name = "Task-\(task.id)"
+//                    task.projectID = projectID
+//                    let user = UserObject()
+//                    user.id = task.id
+//                    user.name = String(Int(arc4random_uniform(1000)))
+//                    task.user = user
+//                    realm.addNotified(task, update: true)
+//                }
+//            }
+//        }
     }
     
     
@@ -156,26 +194,28 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         if cell == nil {
             cell = UITableViewCell(style: .Default, reuseIdentifier: "celltask")
         }
-        let task = rrc!.objectAt(indexPath)
-        cell?.textLabel?.text = task.name + " :: " + String(task.projectID)
+        let car = rrc!.objectAt(indexPath)
+        cell?.textLabel?.text = car.manufacturerName + " :: " + car.modelName
         return cell!
     }
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        let task = rrc!.objectAt(indexPath)
-        try! realm.write {
-            let model = self.realm.objectForPrimaryKey(TaskModelObject.self, key: task.id)!
-            self.realm.deleteNotified(model)
-        }
-    }
+//    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+//        let task = rrc!.objectAt(indexPath)
+//        try! realm.write {
+//            let model = self.realm.objectForPrimaryKey(TaskModelObject.self, key: task.id)!
+//            self.realm.deleteNotified(model)
+//        }
+//    }
     
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        let keyPath: String = rrc!.sections[section].keyPath
-        return "ProjectID \(keyPath)"
+//        let keyPath: String = rrc!.sections[section].keyPath
+//        return "ProjectID \(keyPath)"
+        return "HEADER SECTION \(section)"
     }
     
     func tableView(tableView: UITableView, titleForFooterInSection section: Int) -> String? {
-        return section == 2 ? "Tap on a row to delete it" : nil
+//        return section == 2 ? "Tap on a row to delete it" : nil
+        return "FOOTER SECTION \(section)"
     }
     
     // MARK: RealmResult
@@ -186,7 +226,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     func didChangeObject<U>(controller: AnyObject, object: U, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
-        print("🎁 didChangeObject '\((object as! TaskModelObject).name)' from: [\(oldIndexPath.section):\(oldIndexPath.row)] to: [\(newIndexPath.section):\(newIndexPath.row)] --> \(changeType)")
+//        print("🎁 didChangeObject '\((object as! TaskModelObject).name)' from: [\(oldIndexPath.section):\(oldIndexPath.row)] to: [\(newIndexPath.section):\(newIndexPath.row)] --> \(changeType)")
         switch changeType {
         case .Delete:
             tableView.deleteRowsAtIndexPaths([newIndexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
