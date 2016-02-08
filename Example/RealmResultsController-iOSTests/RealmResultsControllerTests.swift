@@ -14,7 +14,6 @@ import RealmSwift
 @testable import RealmResultsController
 
 class RealmResultsDelegate: RealmResultsControllerDelegate {
-    static let sharedInstance = RealmResultsDelegate()
     var oldIndexPath: NSIndexPath?
     var newIndexPath: NSIndexPath?
     var sectionIndex: Int = 0
@@ -47,7 +46,7 @@ class RealmResultsControllerSpec: QuickSpec {
         var realm: Realm!
         var request: RealmRequest<Task>!
         var RRC: RealmResultsController<Task, Task>!
-        let RRCDelegate = RealmResultsDelegate.sharedInstance
+        let RRCDelegate = RealmResultsDelegate()
         
         beforeSuite {
             RealmTestHelper.loadRealm()
@@ -523,6 +522,61 @@ class RealmResultsControllerSpec: QuickSpec {
                 it("Should return false") {
                     expect(RRC.pendingChanges()).to(beFalsy())
                     expect(RRC.cache?.sections).to(equal(cacheSections))
+                }
+            }
+        }
+        describe("removeDuplicates") {
+            beforeEach {
+                RRC.temporaryAdded.removeAll()
+                RRC.temporaryUpdated.removeAll()
+                RRC.temporaryDeleted.removeAll()
+            }
+            context("Adding object and removing it in the same transaction") {
+                let id = 5
+                beforeEach {
+                    RRC.temporaryAdded = [NewTask(id)]
+                    RRC.temporaryDeleted = [NewTask(id)]
+                    RRC.removeDuplicates()
+                }
+                it("should only contain the task as deletion") {
+                    expect(RRC.temporaryAdded.count) == 0
+                    expect(RRC.temporaryUpdated.count) == 0
+                    expect(RRC.temporaryDeleted.count) == 1
+                }
+                it("should contain the task with id = 5") {
+                    expect(RRC.temporaryDeleted.first!.id) == id
+                }
+            }
+            context("Adding object and updating it in the same transaction") {
+                let id = 5
+                beforeEach {
+                    RRC.temporaryAdded = [NewTask(id)]
+                    RRC.temporaryUpdated = [NewTask(id)]
+                    RRC.removeDuplicates()
+                }
+                it("should only contain the task as update") {
+                    expect(RRC.temporaryAdded.count) == 0
+                    expect(RRC.temporaryUpdated.count) == 1
+                    expect(RRC.temporaryDeleted.count) == 0
+                }
+                it("should contain the task with id = 5") {
+                    expect(RRC.temporaryUpdated.first!.id) == id
+                }
+            }
+            context("Deleting object and updating it in the same transaction") {
+                let id = 5
+                beforeEach {
+                    RRC.temporaryUpdated = [NewTask(id)]
+                    RRC.temporaryDeleted = [NewTask(id)]
+                    RRC.removeDuplicates()
+                }
+                it("should only contain the task as deletion") {
+                    expect(RRC.temporaryAdded.count) == 0
+                    expect(RRC.temporaryUpdated.count) == 0
+                    expect(RRC.temporaryDeleted.count) == 1
+                }
+                it("should contain the task with id = 5") {
+                    expect(RRC.temporaryDeleted.first!.id) == id
                 }
             }
         }

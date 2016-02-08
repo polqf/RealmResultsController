@@ -102,6 +102,14 @@ extension Object {
         return primaryKeyValue
     }
     
+    /**
+     Returns true whether both objects have the same primary key values.
+     If they don't have primary key, it returns false
+     
+     - parameter object     Object to be compared with the current instance
+     
+     - returns Bool         true if they have the same primary key value
+    */
     func hasSamePrimaryKeyValue<T: Object>(object: T) -> Bool {
         return (object as Object).primaryKeyValue()?.isEqual(primaryKeyValue()) ?? false
     }

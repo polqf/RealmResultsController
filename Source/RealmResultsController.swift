@@ -331,20 +331,7 @@ public class RealmResultsController<T: RealmSwift.Object, U> : RealmResultsCache
             self.delegate?.willChangeResults(self)
         }
         
-        // DELETED > UPDATED > ADDED
-        temporaryDeleted.forEach { deletedObject in
-            if let index = temporaryAdded.indexOf({ $0.hasSamePrimaryKeyValue(deletedObject)}) {
-                temporaryAdded.removeAtIndex(index)
-            }
-            if let index = temporaryUpdated.indexOf({ $0.hasSamePrimaryKeyValue(deletedObject)}) {
-                temporaryUpdated.removeAtIndex(index)
-            }
-        }
-        temporaryUpdated.forEach { updatedObject in
-            if let index = temporaryAdded.indexOf({ $0.hasSamePrimaryKeyValue(updatedObject)}) {
-                temporaryAdded.removeAtIndex(index)
-            }
-        }
+        removeDuplicates()
         
         var objectsToMove: [T] = []
         var objectsToUpdate: [T] = []
@@ -362,6 +349,23 @@ public class RealmResultsController<T: RealmSwift.Object, U> : RealmResultsCache
         temporaryUpdated.removeAll()
         Threading.executeOnMainThread(true) {
             self.delegate?.didChangeResults(self)
+        }
+    }
+    
+    func removeDuplicates() {
+        // DELETED > UPDATED > ADDED
+        temporaryDeleted.forEach { deletedObject in
+            if let index = temporaryAdded.indexOf({ $0.hasSamePrimaryKeyValue(deletedObject)}) {
+                temporaryAdded.removeAtIndex(index)
+            }
+            if let index = temporaryUpdated.indexOf({ $0.hasSamePrimaryKeyValue(deletedObject)}) {
+                temporaryUpdated.removeAtIndex(index)
+            }
+        }
+        temporaryUpdated.forEach { updatedObject in
+            if let index = temporaryAdded.indexOf({ $0.hasSamePrimaryKeyValue(updatedObject)}) {
+                temporaryAdded.removeAtIndex(index)
+            }
         }
     }
 }

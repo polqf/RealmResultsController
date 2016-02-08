@@ -44,12 +44,32 @@ class RealmLoggerSpec: QuickSpec {
         
         describe("init(realm:)") {
             var newLogger: RealmLogger!
-            beforeEach {
-                newLogger = RealmLogger(realm: realm)
+            context("from main thread") {
+                beforeEach {
+                    newLogger = RealmLogger(realm: realm)
+                }
+                it("Should have a valid realm and a notificationToken") {
+                    expect(newLogger.realm) === realm
+                    expect(newLogger.notificationToken).toNot(beNil())
+                }
             }
-            it("Should have a valid realm and a notificationToken") {
-                expect(newLogger.realm) === realm
-                expect(newLogger.notificationToken).toNot(beNil())
+            context("not from main thread") {
+                var realm: Realm!
+                beforeEach {
+                    let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
+                    waitUntil { done in
+                        dispatch_async(queue) {
+                            let configuration = Realm.Configuration(inMemoryIdentifier: "testingRealmBG")
+                            realm = try! Realm(configuration: configuration)
+                            newLogger = RealmLogger(realm: realm)
+                            done()
+                        }
+                    }
+                }
+                it("Should have a valid realm and a notificationToken") {
+                    expect(newLogger.realm) === realm
+                    expect(newLogger.notificationToken).toNot(beNil())
+                }
             }
         }
         
@@ -57,32 +77,71 @@ class RealmLoggerSpec: QuickSpec {
             let newObject = RealmChange(type: Task.self, action: .Create, mirror: nil)
             let updatedObject = RealmChange(type: Task.self, action: .Update, mirror: nil)
             let deletedObject = RealmChange(type: Task.self, action: .Delete, mirror: nil)
-            beforeEach {
-                logger.cleanAll()
-                logger.temporary.append(newObject)
-                logger.temporary.append(updatedObject)
-                logger.temporary.append(deletedObject)
-                NSNotificationCenter.defaultCenter().addObserver(NotificationListener.sharedInstance, selector: "notificationReceived:", name: "realmChangesTest", object: nil)
-                logger.finishRealmTransaction()
-            }
-            afterEach {
-                NSNotificationCenter.defaultCenter().removeObserver(self)
-            }
-            it("Should have received a notification with a valid dictionary") {
-                let notificationArray = NotificationListener.sharedInstance.array
-                var createdObject: Bool = false
-                var updatedObject: Bool = false
-                var deletedObject: Bool = false
-                for object: RealmChange in notificationArray[realm.path]! {
-                    if object.action == RealmAction.Create { createdObject = true}
-                    if object.action == RealmAction.Update { updatedObject = true}
-                    if object.action == RealmAction.Delete { deletedObject = true}
+            context("from main thread") {
+                beforeEach {
+                    logger.cleanAll()
+                    logger.temporary.append(newObject)
+                    logger.temporary.append(updatedObject)
+                    logger.temporary.append(deletedObject)
+                    NSNotificationCenter.defaultCenter().addObserver(NotificationListener.sharedInstance, selector: "notificationReceived:", name: "realmChangesTest", object: nil)
+                    logger.finishRealmTransaction()
                 }
-                expect(createdObject).to(beTruthy())
-                expect(updatedObject).to(beTruthy())
-                expect(deletedObject).to(beTruthy())
+                afterEach {
+                    NSNotificationCenter.defaultCenter().removeObserver(self)
+                }
+                it("Should have received a notification with a valid dictionary") {
+                    let notificationArray = NotificationListener.sharedInstance.array
+                    var createdObject: Bool = false
+                    var updatedObject: Bool = false
+                    var deletedObject: Bool = false
+                    for object: RealmChange in notificationArray[realm.path]! {
+                        if object.action == RealmAction.Create { createdObject = true}
+                        if object.action == RealmAction.Update { updatedObject = true}
+                        if object.action == RealmAction.Delete { deletedObject = true}
+                    }
+                    expect(createdObject).to(beTruthy())
+                    expect(updatedObject).to(beTruthy())
+                    expect(deletedObject).to(beTruthy())
+                }
             }
-
+            
+            context("not from main thread") {
+                beforeEach {
+                    var newLogger: RealmLogger!
+                    let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
+                    waitUntil { done in
+                        dispatch_async(queue) {
+                            let configuration = Realm.Configuration(inMemoryIdentifier: "testingRealmBG")
+                            let realm = try! Realm(configuration: configuration)
+                            newLogger = RealmLogger(realm: realm)
+                            done()
+                        }
+                    }
+                    newLogger.cleanAll()
+                    newLogger.temporary.append(newObject)
+                    newLogger.temporary.append(updatedObject)
+                    newLogger.temporary.append(deletedObject)
+                    NSNotificationCenter.defaultCenter().addObserver(NotificationListener.sharedInstance, selector: "notificationReceived:", name: "realmChangesTest", object: nil)
+                    newLogger.finishRealmTransaction()
+                }
+                afterEach {
+                    NSNotificationCenter.defaultCenter().removeObserver(self)
+                }
+                it("Should have received a notification with a valid dictionary") {
+                    let notificationArray = NotificationListener.sharedInstance.array
+                    var createdObject: Bool = false
+                    var updatedObject: Bool = false
+                    var deletedObject: Bool = false
+                    for object: RealmChange in notificationArray[realm.path]! {
+                        if object.action == RealmAction.Create { createdObject = true}
+                        if object.action == RealmAction.Update { updatedObject = true}
+                        if object.action == RealmAction.Delete { deletedObject = true}
+                    }
+                    expect(createdObject).to(beTruthy())
+                    expect(updatedObject).to(beTruthy())
+                    expect(deletedObject).to(beTruthy())
+                }
+            }
         }
         
         describe("didAdd<T: Object>(object: T)") {

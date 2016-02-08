@@ -9,6 +9,11 @@
 import Foundation
 import RealmSwift
 
+func NewTask(id: Int) -> Task {
+    let task = Task()
+    task.id = id
+    return task
+}
 
 class Task: Object {
     dynamic var id = 0
