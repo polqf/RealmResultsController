@@ -60,7 +60,7 @@ class RealmLogger {
         for change: RealmChange in temporary {
             guard let object = change.mirror else { continue }
             guard let name = object.objectIdentifier() else { continue }
-            NSNotificationCenter.defaultCenter().postNotificationName(name, object: nil)
+            NSNotificationCenter.defaultCenter().postNotificationName(name, object: change)
         }
     }
     

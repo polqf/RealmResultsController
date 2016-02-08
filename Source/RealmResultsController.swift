@@ -60,7 +60,7 @@ public protocol RealmResultsControllerDelegate: class {
     func didChangeResults(controller: AnyObject)
 }
 
-public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
+public class RealmResultsController<T: RealmSwift.Object, U> : RealmResultsCacheDelegate {
     public weak var delegate: RealmResultsControllerDelegate?
     var _test: Bool = false
     var populating: Bool = false
@@ -330,6 +330,22 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         Threading.executeOnMainThread(true) {
             self.delegate?.willChangeResults(self)
         }
+        
+        // DELETED > UPDATED > ADDED
+        temporaryDeleted.forEach { deletedObject in
+            if let index = temporaryAdded.indexOf({ $0.hasSamePrimaryKeyValue(deletedObject)}) {
+                temporaryAdded.removeAtIndex(index)
+            }
+            if let index = temporaryUpdated.indexOf({ $0.hasSamePrimaryKeyValue(deletedObject)}) {
+                temporaryUpdated.removeAtIndex(index)
+            }
+        }
+        temporaryUpdated.forEach { updatedObject in
+            if let index = temporaryAdded.indexOf({ $0.hasSamePrimaryKeyValue(updatedObject)}) {
+                temporaryAdded.removeAtIndex(index)
+            }
+        }
+        
         var objectsToMove: [T] = []
         var objectsToUpdate: [T] = []
         for object in temporaryUpdated {
