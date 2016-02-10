@@ -142,7 +142,7 @@ class RealmObjectSpec: QuickSpec {
                         let dummy2 = Task()
                         value = dummy1.hasSamePrimaryKeyValue(dummy2)
                     }
-                    it("should return false") {
+                    it("should return true") {
                         expect(value).to(beTruthy())
                     }
                 }
