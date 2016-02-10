@@ -10,7 +10,7 @@ import Foundation
 import RealmSwift
 
 public enum RealmAction {
-    case Create
+    case Add
     case Update
     case Delete
 }

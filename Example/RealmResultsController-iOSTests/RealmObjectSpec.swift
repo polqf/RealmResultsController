@@ -97,7 +97,7 @@ class RealmObjectSpec: QuickSpec {
                     let dummy = Task()
                     value = dummy.primaryKeyValue()
                 }
-                it("should be nil") {
+                it("should be 0") {
                     expect(value as? Int) == 0
                 }
             }

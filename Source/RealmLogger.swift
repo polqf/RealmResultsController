@@ -65,7 +65,7 @@ class RealmLogger {
     }
     
     func didAdd<T: Object>(object: T) {
-        addObject(object, action: .Create)
+        addObject(object, action: .Add)
     }
     
     func didUpdate<T: Object>(object: T) {
