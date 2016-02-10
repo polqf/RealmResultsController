@@ -54,20 +54,17 @@ class RealmLoggerSpec: QuickSpec {
                 }
             }
             context("not from main thread") {
-                var realm: Realm!
+                var bgRealm: Realm!
                 beforeEach {
-                    let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
-                    waitUntil { done in
-                        dispatch_async(queue) {
-                            let configuration = Realm.Configuration(inMemoryIdentifier: "testingRealmBG")
-                            realm = try! Realm(configuration: configuration)
-                            newLogger = RealmLogger(realm: realm)
-                            done()
-                        }
+                    let queue = dispatch_queue_create("TESTBG", nil)
+                    dispatch_sync(queue) {
+                        let configuration = Realm.Configuration(inMemoryIdentifier: "testingRealmBG")
+                        bgRealm = try! Realm(configuration: configuration)
+                        newLogger = RealmLogger(realm: bgRealm)
                     }
                 }
                 it("Should have a valid realm and a notificationToken") {
-                    expect(newLogger.realm) === realm
+                    expect(newLogger.realm) === bgRealm
                     expect(newLogger.notificationToken).toNot(beNil())
                 }
             }
@@ -108,14 +105,11 @@ class RealmLoggerSpec: QuickSpec {
             context("not from main thread") {
                 beforeEach {
                     var newLogger: RealmLogger!
-                    let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
-                    waitUntil { done in
-                        dispatch_async(queue) {
-                            let configuration = Realm.Configuration(inMemoryIdentifier: "testingRealmBG")
-                            let realm = try! Realm(configuration: configuration)
-                            newLogger = RealmLogger(realm: realm)
-                            done()
-                        }
+                    let queue = dispatch_queue_create("TESTBG", nil)
+                    dispatch_sync(queue) {
+                        let configuration = Realm.Configuration(inMemoryIdentifier: "testingRealmBG")
+                        let realm = try! Realm(configuration: configuration)
+                        newLogger = RealmLogger(realm: realm)
                     }
                     newLogger.cleanAll()
                     newLogger.temporary.append(newObject)
