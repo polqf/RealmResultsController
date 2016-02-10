@@ -87,6 +87,8 @@ typedef int swift_int3  __attribute__((__ext_vector_type__(3)));
 typedef int swift_int4  __attribute__((__ext_vector_type__(4)));
 #if defined(__has_feature) && __has_feature(modules)
 @import ObjectiveC;
+@import Foundation;
+@import XCTest;
 #endif
 
 #pragma clang diagnostic ignored "-Wproperty-attribute-mismatch"
@@ -134,8 +136,6 @@ SWIFT_CLASS("_TtC5Quick13Configuration")
 /// whether that example should be excluded from the examples
 /// that are run.
 - (void)exclude:(BOOL (^ __nonnull)(Example * __nonnull))filter;
-
-/// Identical to Quick.Configuration.beforeEach, except the closure is provided with metadata on the example that the closure is being run prior to.
 - (void)beforeEachWithMetadata:(void (^ __nonnull)(ExampleMetadata * __nonnull))closure;
 
 /// Like Quick.DSL.beforeEach, this configures Quick to execute the given closure before each example that is run. The closure passed to this method is executed before each example Quick runs, globally across the test suite. You may call this method multiple times across mulitple +[QuickConfigure configure:] methods in order to define several closures to run before each example.
@@ -149,8 +149,6 @@ SWIFT_CLASS("_TtC5Quick13Configuration")
 /// \param closure The closure to be executed before each example
 /// in the test suite.
 - (void)beforeEach:(void (^ __nonnull)(void))closure;
-
-/// Identical to Quick.Configuration.afterEach, except the closure is provided with metadata on the example that the closure is being run after.
 - (void)afterEachWithMetadata:(void (^ __nonnull)(ExampleMetadata * __nonnull))closure;
 
 /// Like Quick.DSL.afterEach, this configures Quick to execute the given closure after each example that is run. The closure passed to this method is executed after each example Quick runs, globally across the test suite. You may call this method multiple times across mulitple +[QuickConfigure configure:] methods in order to define several closures to run after each example.
@@ -231,6 +229,31 @@ SWIFT_CLASS("_TtC5Quick6Filter")
 
 /// Example and example groups with [Pending: true] are excluded from test runs. Use this to temporarily suspend examples that you know do not pass yet.
 + (NSString * __nonnull)pending;
+- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
+@interface NSBundle (SWIFT_EXTENSION(Quick))
+@end
+
+
+
+/// A base class for a class cluster of Quick test suites, that should correctly build dynamic test suites for XCTest to execute.
+SWIFT_CLASS("_TtC5Quick14QuickTestSuite")
+@interface QuickTestSuite : XCTestSuite
+
+/// Construct a test suite for a specific, selected subset of test cases (rather than the default, which as all test cases).
+///
+/// If this method is called multiple times for the same test case class, e.g..
+///
+/// FooSpec/testFoo
+/// FooSpec/testBar
+///
+/// It is expected that the first call should return a valid test suite, and
+/// all subsequent calls should return <code>nil
+/// </code>.
++ (QuickTestSuite * __nullable)selectedTestSuiteForTestCaseWithName:(NSString * __nonnull)name;
+- (nonnull instancetype)initWithName:(NSString * __nonnull)name OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 

@@ -223,7 +223,12 @@ SWIFT_CLASS_NAMED("Object")
 - (id __nullable)objectForKeyedSubscript:(NSString * __nonnull)key;
 - (void)setObject:(id __nullable)value forKeyedSubscript:(NSString * __nonnull)key;
 
-/// Returns whether both objects are equal. Objects are considered equal when they are both from the same Realm and point to the same underlying object in the database.
+/// Returns whether both objects are equal.
+///
+/// Objects are considered equal when they are both from the same Realm and point to the same
+/// underlying object in the database.
+///
+/// \param object Object to compare for equality.
 - (BOOL)isEqual:(id __nullable)object;
 
 /// WARNING: This is an internal initializer not intended for public use. :nodoc:

@@ -198,6 +198,11 @@ SWIFT_CLASS("_TtC6Nimble14NMBObjCMatcher")
 
 
 @interface NMBObjCMatcher (SWIFT_EXTENSION(Nimble))
++ (NMBObjCMatcher * __nonnull)satisfyAnyOfMatcher:(NSArray<NMBObjCMatcher *> * __nonnull)matchers;
+@end
+
+
+@interface NMBObjCMatcher (SWIFT_EXTENSION(Nimble))
 + (NMBObjCMatcher * __nonnull)endWithMatcher:(id __nonnull)expected;
 @end
 
