@@ -60,7 +60,7 @@ public protocol RealmResultsControllerDelegate: class {
     func didChangeResults(controller: AnyObject)
 }
 
-public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
+public class RealmResultsController<T: RealmSwift.Object, U> : RealmResultsCacheDelegate {
     public weak var delegate: RealmResultsControllerDelegate?
     var _test: Bool = false
     var populating: Bool = false
@@ -305,7 +305,7 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
                 }
             }
     
-            if object.action == RealmAction.Create && passesPredicate && passesFilter {
+            if object.action == RealmAction.Add && passesPredicate && passesFilter {
                 temporaryAdded.append(mirrorObject)
             }
             else if object.action == RealmAction.Update {
@@ -330,6 +330,9 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         Threading.executeOnMainThread(true) {
             self.delegate?.willChangeResults(self)
         }
+        
+        removeDuplicates()
+        
         var objectsToMove: [T] = []
         var objectsToUpdate: [T] = []
         for object in temporaryUpdated {
@@ -347,5 +350,30 @@ public class RealmResultsController<T: Object, U> : RealmResultsCacheDelegate {
         Threading.executeOnMainThread(true) {
             self.delegate?.didChangeResults(self)
         }
+    }
+    
+    func removeDuplicates() {
+        // DELETED > UPDATED > ADDED
+        temporaryDeleted.forEach { deletedObject in
+            if let index = temporaryAdded.indexOf({ $0.hasSamePrimaryKeyValue(deletedObject)}) {
+                warnDuplicated(T.self, originalChange: .Add, prevails: .Delete)
+                temporaryAdded.removeAtIndex(index)
+            }
+            if let index = temporaryUpdated.indexOf({ $0.hasSamePrimaryKeyValue(deletedObject)}) {
+                warnDuplicated(T.self, originalChange: .Update, prevails: .Delete)
+                temporaryUpdated.removeAtIndex(index)
+            }
+        }
+        temporaryUpdated.forEach { updatedObject in
+            if let index = temporaryAdded.indexOf({ $0.hasSamePrimaryKeyValue(updatedObject)}) {
+                warnDuplicated(T.self, originalChange: .Add, prevails: .Update)
+                temporaryAdded.removeAtIndex(index)
+            }
+        }
+    }
+    
+    func warnDuplicated(type: Object.Type, originalChange: RealmAction, prevails: RealmAction) {
+        NSLog("[WARNING] Attempt to \(prevails) and \(originalChange) an object of type \(type). \(prevails) prevails")
+        NSLog("Set a symbolic breakpoint on 'RealmResultsController.warnDuplicated' to debug this error")
     }
 }

@@ -60,12 +60,12 @@ class RealmLogger {
         for change: RealmChange in temporary {
             guard let object = change.mirror else { continue }
             guard let name = object.objectIdentifier() else { continue }
-            NSNotificationCenter.defaultCenter().postNotificationName(name, object: nil)
+            NSNotificationCenter.defaultCenter().postNotificationName(name, object: change)
         }
     }
     
     func didAdd<T: Object>(object: T) {
-        addObject(object, action: .Create)
+        addObject(object, action: .Add)
     }
     
     func didUpdate<T: Object>(object: T) {

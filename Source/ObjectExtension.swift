@@ -83,4 +83,34 @@ extension Object {
         }
         return newObject
     }
+    
+    /**
+     Returns the value of the its primary key.
+     If the type does not have primaryKey set, it returns nil.
+     
+     The access to the value of the primary key is done in the main thread, and sync,
+     to avoid Realm being accessed from incorrect threads.
+     
+     - returns  the primary key value as AnyObject
+     */
+    public func primaryKeyValue() -> AnyObject? {
+        guard let primaryKey = self.dynamicType.primaryKey() else { return nil }
+        var primaryKeyValue: AnyObject?
+        Threading.executeOnMainThread(true) {
+            primaryKeyValue = self.valueForKey(primaryKey)
+        }
+        return primaryKeyValue
+    }
+    
+    /**
+     Returns true whether both objects have the same primary key values.
+     If they don't have primary key, it returns false
+     
+     - parameter object     Object to be compared with the current instance
+     
+     - returns Bool         true if they have the same primary key value
+    */
+    func hasSamePrimaryKeyValue<T: Object>(object: T) -> Bool {
+        return (object as Object).primaryKeyValue()?.isEqual(primaryKeyValue()) ?? false
+    }
 }

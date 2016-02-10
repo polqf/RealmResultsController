@@ -81,6 +81,83 @@ class RealmObjectSpec: QuickSpec {
                 }
             }
         }
-
+        describe("primaryKeyValue()") {
+            var value: AnyObject?
+            context("if the object does not have primary key") {
+                beforeEach {
+                    let dummy = Dummy()
+                    value = dummy.primaryKeyValue()
+                }
+                it("should be nil") {
+                    expect(value).to(beNil())
+                }
+            }
+            context("if the object have primary key") {
+                beforeEach {
+                    let dummy = Task()
+                    value = dummy.primaryKeyValue()
+                }
+                it("should be 0") {
+                    expect(value as? Int) == 0
+                }
+            }
+        }
+        
+        describe("hasSamePrimaryKeyValue(object:)") {
+            var value: Bool!
+            context("if both object don't have primary key") {
+                beforeEach {
+                    let dummy1 = Dummy()
+                    let dummy2 = Dummy()
+                    value = dummy1.hasSamePrimaryKeyValue(dummy2)
+                }
+                it("should return false") {
+                    expect(value).to(beFalsy())
+                }
+            }
+            context("if passed object does not have primary key") {
+                beforeEach {
+                    let dummy1 = Task()
+                    let dummy2 = Dummy()
+                    value = dummy1.hasSamePrimaryKeyValue(dummy2)
+                }
+                it("should return false") {
+                    expect(value).to(beFalsy())
+                }
+            }
+            context("if only the instance object does not have primary key") {
+                beforeEach {
+                    let dummy1 = Dummy()
+                    let dummy2 = Task()
+                    value = dummy1.hasSamePrimaryKeyValue(dummy2)
+                }
+                it("should return false") {
+                    expect(value).to(beFalsy())
+                }
+            }
+            context("if both objects have primary key") {
+                context("when the primary keys match") {
+                    beforeEach {
+                        let dummy1 = Task()
+                        let dummy2 = Task()
+                        value = dummy1.hasSamePrimaryKeyValue(dummy2)
+                    }
+                    it("should return true") {
+                        expect(value).to(beTruthy())
+                    }
+                }
+                context("when primary keys do not match") {
+                    beforeEach {
+                        let dummy1 = Task()
+                        let dummy2 = Task()
+                        dummy2.id = 2
+                        value = dummy1.hasSamePrimaryKeyValue(dummy2)
+                    }
+                    it("should return false") {
+                        expect(value).to(beFalsy())
+                    }
+                }
+            }
+        }
     }
 }
