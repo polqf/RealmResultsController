@@ -230,7 +230,7 @@ class RealmResultsCache<T: Object> {
     func keyPathForObject(object: T) -> String {
         var keyPathValue = defaultKeyPathValue
         if let keyPath = sectionKeyPath {
-            if keyPath.isEmpty { return  defaultKeyPathValue }
+            if keyPath.isEmpty { return defaultKeyPathValue }
             Threading.executeOnMainThread(true) {
                 if let objectKeyPathValue = object.valueForKeyPath(keyPath) {
                     keyPathValue = String(objectKeyPathValue)

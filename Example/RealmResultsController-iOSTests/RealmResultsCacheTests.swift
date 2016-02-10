@@ -487,15 +487,14 @@ class CacheSpec: QuickSpec {
                 var keyPath: String?
                 beforeEach {
                     initWithKeypath()
-                    waitUntil(timeout: 2) { done in
+                    waitUntil { done in
                         let queue = dispatch_queue_create("lock", DISPATCH_QUEUE_SERIAL)
                         dispatch_async(queue) {
                             let task = Task()
                             task.id = 1
                             keyPath = cache.keyPathForObject(task)
+                            done()
                         }
-                        while keyPath != nil {}
-                        done()
                     }
                 }
                 it("executes in main thread at the end and works") {
