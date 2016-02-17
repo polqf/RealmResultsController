@@ -16,7 +16,7 @@ import RealmSwift
 */
 class RealmLogger {
     var realm: Realm
-    var temporary: [RealmChange] = []
+    var temporary: [String : RealmChange] = [:]
     var notificationToken: NotificationToken?
     
     init(realm: Realm) {
@@ -48,16 +48,17 @@ class RealmLogger {
     */
     func finishRealmTransaction() {
         let name = realm.path.hasSuffix("testingRealm") ? "realmChangesTest" : "realmChanges"
-        NSNotificationCenter.defaultCenter().postNotificationName(name, object: [realm.path : temporary])
-        postIndividualNotifications()
+        let values = [RealmChange](temporary.values)
+        NSNotificationCenter.defaultCenter().postNotificationName(name, object: [realm.path : values])
+        postIndividualNotifications(values)
         cleanAll()
     }
     
     /**
     Posts a notification for every change occurred in Realm
     */
-    func postIndividualNotifications() {
-        for change: RealmChange in temporary {
+    func postIndividualNotifications(values: [RealmChange]) {
+        for change: RealmChange in values {
             guard let object = change.mirror else { continue }
             guard let name = object.objectIdentifier() else { continue }
             NSNotificationCenter.defaultCenter().postNotificationName(name, object: change)
@@ -86,7 +87,8 @@ class RealmLogger {
     */
     func addObject<T: Object>(object: T, action: RealmAction) {
         let realmChange = RealmChange(type: (object as Object).dynamicType, action: action, mirror: object.getMirror())
-        temporary.append(realmChange)
+        guard let key = realmChange.mirror?.objectIdentifier() else { return }
+        temporary[key] = realmChange
     }
     
     func cleanAll() {
