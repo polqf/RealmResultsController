@@ -95,8 +95,9 @@ class RealmLogger {
     }
     
     
-    func warnDuplicated(type: Object.Type, originalChange: RealmAction, newChange: RealmAction) {
-        NSLog("[WARNING] Attempt to \(newChange) a \(type) object that had a previous action (\(originalChange)). Last change (\(newChange)) prevails")
+    func warnDuplicated<T: Object>(type: T.Type, originalChange: RealmAction, newChange: RealmAction) {
+        NSLog("[WARNING] Attempt to \(newChange) a \(type) object that had a previous action (\(originalChange)). " +
+            "Last change (\(newChange)) prevails")
         NSLog("Set a symbolic breakpoint on 'RealmLogger.warnDuplicated' to debug this error")
     }
     
