@@ -331,8 +331,6 @@ public class RealmResultsController<T: RealmSwift.Object, U> : RealmResultsCache
             self.delegate?.willChangeResults(self)
         }
         
-        removeDuplicates()
-        
         var objectsToMove: [T] = []
         var objectsToUpdate: [T] = []
         for object in temporaryUpdated {
@@ -350,30 +348,5 @@ public class RealmResultsController<T: RealmSwift.Object, U> : RealmResultsCache
         Threading.executeOnMainThread(true) {
             self.delegate?.didChangeResults(self)
         }
-    }
-    
-    func removeDuplicates() {
-        // DELETED > UPDATED > ADDED
-        temporaryDeleted.forEach { deletedObject in
-            if let index = temporaryAdded.indexOf({ $0.hasSamePrimaryKeyValue(deletedObject)}) {
-                warnDuplicated(T.self, originalChange: .Add, prevails: .Delete)
-                temporaryAdded.removeAtIndex(index)
-            }
-            if let index = temporaryUpdated.indexOf({ $0.hasSamePrimaryKeyValue(deletedObject)}) {
-                warnDuplicated(T.self, originalChange: .Update, prevails: .Delete)
-                temporaryUpdated.removeAtIndex(index)
-            }
-        }
-        temporaryUpdated.forEach { updatedObject in
-            if let index = temporaryAdded.indexOf({ $0.hasSamePrimaryKeyValue(updatedObject)}) {
-                warnDuplicated(T.self, originalChange: .Add, prevails: .Update)
-                temporaryAdded.removeAtIndex(index)
-            }
-        }
-    }
-    
-    func warnDuplicated(type: Object.Type, originalChange: RealmAction, prevails: RealmAction) {
-        NSLog("[WARNING] Attempt to \(prevails) and \(originalChange) an object of type \(type). \(prevails) prevails")
-        NSLog("Set a symbolic breakpoint on 'RealmResultsController.warnDuplicated' to debug this error")
     }
 }

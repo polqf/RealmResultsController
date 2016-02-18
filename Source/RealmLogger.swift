@@ -88,12 +88,19 @@ class RealmLogger {
     func addObject<T: Object>(object: T, action: RealmAction) {
         let realmChange = RealmChange(type: (object as Object).dynamicType, action: action, mirror: object.getMirror())
         guard let key = realmChange.mirror?.objectIdentifier() else { return }
+        if let oldChange = temporary[key] {
+            warnDuplicated(T.self, originalChange: oldChange.action, newChange: action)
+        }
         temporary[key] = realmChange
+    }
+    
+    
+    func warnDuplicated(type: Object.Type, originalChange: RealmAction, newChange: RealmAction) {
+        NSLog("[WARNING] Attempt to \(newChange) a \(type) object that had a previous action (\(originalChange)). Last change (\(newChange)) prevails")
+        NSLog("Set a symbolic breakpoint on 'RealmLogger.warnDuplicated' to debug this error")
     }
     
     func cleanAll() {
         temporary.removeAll()
     }
-    
 }
-
