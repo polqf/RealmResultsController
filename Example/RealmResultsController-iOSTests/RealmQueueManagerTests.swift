@@ -107,8 +107,8 @@ class RealmQueueManagerSpec: QuickSpec {
             context("equeued operations from different threads") {
                 beforeEach {
                     let date = NSDate().dateByAddingTimeInterval(1)
-                    let timer1 = NSTimer(fireDate: date, interval: 0, target: self, selector: "fireThread1Block", userInfo: nil, repeats: false)
-                    let timer2 = NSTimer(fireDate: date, interval: 0, target: self, selector: "fireThread2Block", userInfo: nil, repeats: false)
+                    let timer1 = NSTimer(fireDate: date, interval: 0, target: self, selector: #selector(RealmQueueManagerSpec.fireThread1Block), userInfo: nil, repeats: false)
+                    let timer2 = NSTimer(fireDate: date, interval: 0, target: self, selector: #selector(RealmQueueManagerSpec.fireThread2Block), userInfo: nil, repeats: false)
                     NSRunLoop.currentRunLoop().addTimer(timer1, forMode: NSDefaultRunLoopMode)
                     NSRunLoop.currentRunLoop().addTimer(timer2, forMode: NSDefaultRunLoopMode)
                 }

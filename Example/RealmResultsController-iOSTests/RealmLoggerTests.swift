@@ -80,7 +80,7 @@ class RealmLoggerSpec: QuickSpec {
                     logger.temporary.append(newObject)
                     logger.temporary.append(updatedObject)
                     logger.temporary.append(deletedObject)
-                    NSNotificationCenter.defaultCenter().addObserver(NotificationListener.sharedInstance, selector: "notificationReceived:", name: "realmChangesTest", object: nil)
+                    NSNotificationCenter.defaultCenter().addObserver(NotificationListener.sharedInstance, selector: #selector(NotificationListener.notificationReceived), name: "realmChangesTest", object: nil)
                     logger.finishRealmTransaction()
                 }
                 afterEach {
@@ -115,7 +115,7 @@ class RealmLoggerSpec: QuickSpec {
                     newLogger.temporary.append(newObject)
                     newLogger.temporary.append(updatedObject)
                     newLogger.temporary.append(deletedObject)
-                    NSNotificationCenter.defaultCenter().addObserver(NotificationListener.sharedInstance, selector: "notificationReceived:", name: "realmChangesTest", object: nil)
+                    NSNotificationCenter.defaultCenter().addObserver(NotificationListener.sharedInstance, selector: #selector(NotificationListener.notificationReceived), name: "realmChangesTest", object: nil)
                     newLogger.finishRealmTransaction()
                 }
                 afterEach {
