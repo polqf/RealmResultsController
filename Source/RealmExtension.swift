@@ -98,7 +98,8 @@ extension Realm {
     
     - returns: The created object.
     */
-    public func createNotified<T: Object>(type: T.Type, value: AnyObject = [:], var update: Bool = false) -> T? {
+    public func createNotified<T: Object>(type: T.Type, value: AnyObject = [:], update upd: Bool = false) -> T? {
+        var update = upd
         let createBlock = {
             return self.create(type, value: value, update: update)
         }
