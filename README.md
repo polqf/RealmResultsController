@@ -1,5 +1,5 @@
 ![](https://img.shields.io/badge/language-swift-blue.svg)
-![](https://img.shields.io/badge/version-0.4.1-red.svg)
+![](https://img.shields.io/badge/version-0.4.2-red.svg)
 [![Build Status](https://travis-ci.org/redbooth/RealmResultsController.svg?branch=master)](https://travis-ci.org/redbooth/RealmResultsController)
 
 ![](Images/RRCHigh.png)
@@ -259,7 +259,7 @@ To use the demo, just run the following command to install the Realm dependencie
 #### Carthage:
 
 ```
-github "redbooth/RealmResultsController" "0.4.1"
+github "redbooth/RealmResultsController" "0.4.2"
 ```
 
 #### CocoaPods:
@@ -267,7 +267,7 @@ github "redbooth/RealmResultsController" "0.4.1"
 ```
 use_frameworks!
 
-pod 'RealmResultsController', '~> 0.4.1'
+pod 'RealmResultsController', '~> 0.4.2'
 ```
 
 #### Manual:
@@ -280,7 +280,7 @@ Copy the files inside the `/Source` folder to your project
 More info [here](https://realm.io/docs/swift/latest/#installation-swift-20)
 
 ### Technical details:
-- Swift 2.1
+- Swift 2.2
 
 ###Licenses
 All source code is licensed under the `MIT License`.
