@@ -212,9 +212,6 @@ SWIFT_CLASS_NAMED("Object")
 /// WARNING: This is an internal helper method not intended for public use. :nodoc:
 + (Class _Nonnull)objectUtilClass:(BOOL)isSwift;
 
-/// WARNING: This is an internal helper method not intended for public use. :nodoc:
-+ (Class __nonnull)objectUtilClass:(BOOL)isSwift;
-
 /// Override to designate a property as the primary key for an Object subclass. Only properties of type String and Int can be designated as the primary key. Primary key properties enforce uniqueness for each value whenever the property is set which incurs some overhead. Indexes are created automatically for primary key properties.
 ///
 /// \returns  Name of the property designated as the primary key, or <code>nil
