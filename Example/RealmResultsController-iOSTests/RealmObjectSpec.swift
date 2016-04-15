@@ -46,7 +46,7 @@ class RealmObjectSpec: QuickSpec {
                     }
                     
                     NSNotificationCenter.defaultCenter().addObserver(NotificationListener2.sharedInstance,
-                        selector: "notificationReceived:",
+                        selector: #selector(NotificationListener2.notificationReceived),
                         name: user.objectIdentifier(),
                         object: nil)
                     
@@ -70,7 +70,7 @@ class RealmObjectSpec: QuickSpec {
                 beforeEach {
                     let user = Task()
                     NSNotificationCenter.defaultCenter().addObserver(NotificationListener2.sharedInstance,
-                        selector: "notificationReceived:",
+                        selector: #selector(NotificationListener2.notificationReceived),
                         name: user.objectIdentifier(),
                         object: nil)
                     user.name = "new name"

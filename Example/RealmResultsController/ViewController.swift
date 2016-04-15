@@ -109,7 +109,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         button.frame = CGRectMake(0, view.frame.height - height, view.frame.width, height)
         button.backgroundColor = UIColor.redColor()
         button.setTitle("Add Row", forState: .Normal)
-        button.addTarget(self, action: "addNewObject", forControlEvents: .TouchUpInside)
+        button.addTarget(self, action: #selector(addNewObject), forControlEvents: .TouchUpInside)
         view.addSubview(button)
 
         tableView.frame = CGRectMake(0, 0, view.frame.width, view.frame.height - height)

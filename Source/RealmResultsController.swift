@@ -272,7 +272,7 @@ public class RealmResultsController<T: RealmSwift.Object, U> : RealmResultsCache
     //MARK: Realm Notifications
     
     private func addNotificationObservers() {
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "didReceiveRealmChanges:", name: "realmChanges", object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(didReceiveRealmChanges), name: "realmChanges", object: nil)
         observerAdded = true
     }
     
