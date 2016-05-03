@@ -36,7 +36,7 @@ class RealmObjectSpec: QuickSpec {
                 NotificationListener2.sharedInstance.notificationReceived = false
             }
             context("With valid realm") {
-                let id = 22222222222222
+                let id = 22222222
                 beforeEach {
                     let user = Task()
                     try! realm.write {
