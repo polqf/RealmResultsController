@@ -204,12 +204,8 @@
 		54D2990E1C523536710E0345 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				83328AD01CD8C96400B70630 /* Realm.framework */,
-				83328AD11CD8C96400B70630 /* RealmSwift.framework */,
-				C18B28831B9EEB620082F983 /* Realm.framework */,
-				C18B28841B9EEB620082F983 /* RealmSwift.framework */,
-				C1A002461B96F790000C0E8C /* Quick.framework */,
-				C1A002471B96F790000C0E8C /* Nimble.framework */,
+				C1EA7A831CDB5470002E1C58 /* tvOS */,
+				C1EA7A841CDB5477002E1C58 /* iOS */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -300,6 +296,26 @@
 			);
 			name = "RealmResultsController-iOSTests";
 			path = "Example/RealmResultsController-iOSTests";
+			sourceTree = "<group>";
+		};
+		C1EA7A831CDB5470002E1C58 /* tvOS */ = {
+			isa = PBXGroup;
+			children = (
+				83328AD01CD8C96400B70630 /* Realm.framework */,
+				83328AD11CD8C96400B70630 /* RealmSwift.framework */,
+			);
+			name = tvOS;
+			sourceTree = "<group>";
+		};
+		C1EA7A841CDB5477002E1C58 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				C18B28831B9EEB620082F983 /* Realm.framework */,
+				C18B28841B9EEB620082F983 /* RealmSwift.framework */,
+				C1A002461B96F790000C0E8C /* Quick.framework */,
+				C1A002471B96F790000C0E8C /* Nimble.framework */,
+			);
+			name = iOS;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
