@@ -206,8 +206,6 @@
 			children = (
 				C1EA7A831CDB5470002E1C58 /* tvOS */,
 				C1EA7A841CDB5477002E1C58 /* iOS */,
-				C1A002461B96F790000C0E8C /* Quick.framework */,
-				C1A002471B96F790000C0E8C /* Nimble.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -314,6 +312,8 @@
 			children = (
 				C18B28831B9EEB620082F983 /* Realm.framework */,
 				C18B28841B9EEB620082F983 /* RealmSwift.framework */,
+				C1A002461B96F790000C0E8C /* Quick.framework */,
+				C1A002471B96F790000C0E8C /* Nimble.framework */,
 			);
 			name = iOS;
 			sourceTree = "<group>";
