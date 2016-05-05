@@ -11,5 +11,5 @@ Pod::Spec.new do |s|
   s.frameworks   = 'UIKit'
   s.requires_arc = true
   s.social_media_url = 'https://twitter.com/redboothhq'
-  s.dependency 'RealmSwift'
+  s.dependency 'RealmSwift', '0.98.6'
 end
