@@ -93,9 +93,9 @@ typedef int swift_int4  __attribute__((__ext_vector_type__(4)));
 #endif
 #if defined(__has_feature) && __has_feature(modules)
 @import Realm;
-@import Realm.Private;
-@import Foundation;
 @import ObjectiveC;
+@import Foundation;
+@import Realm.Private;
 #endif
 
 #pragma clang diagnostic ignored "-Wproperty-attribute-mismatch"
@@ -106,6 +106,7 @@ typedef int swift_int4  __attribute__((__ext_vector_type__(4)));
 @class RLMProperty;
 @class RLMListBase;
 @class RLMOptionalBase;
+@class LinkingObjectsBase;
 
 
 /// In Realm you define your model classes by subclassing Object and adding properties to be persisted. You then instantiate and use your custom subclasses instead of using the Object class directly.
@@ -224,7 +225,7 @@ SWIFT_CLASS_NAMED("Object")
 /// </code> of property names to ignore.
 + (NSArray<NSString *> * _Nonnull)ignoredProperties;
 
-/// Return an array of property names for properties which should be indexed. Only supported for string and int properties.
+/// Return an array of property names for properties which should be indexed. Only supported for string, integer, boolean and NSDate properties.
 ///
 /// \returns  <code>Array
 /// </code> of property names to index.
@@ -247,6 +248,7 @@ SWIFT_CLASS_NAMED("Object")
 - (nonnull instancetype)initWithValue:(id _Nonnull)value schema:(RLMSchema * _Nonnull)schema OBJC_DESIGNATED_INITIALIZER;
 - (RLMListBase * _Nonnull)listForProperty:(RLMProperty * _Nonnull)prop;
 - (RLMOptionalBase * _Nonnull)optionalForProperty:(RLMProperty * _Nonnull)prop;
+- (LinkingObjectsBase * _Nullable)linkingObjectsForProperty:(RLMProperty * _Nonnull)prop;
 @end
 
 
@@ -256,6 +258,7 @@ SWIFT_CLASS("_TtC10RealmSwift13DynamicObject")
 @interface DynamicObject : RealmSwiftObject
 - (RLMListBase * _Nonnull)listForProperty:(RLMProperty * _Nonnull)prop;
 - (RLMOptionalBase * _Nonnull)optionalForProperty:(RLMProperty * _Nonnull)prop;
+- (LinkingObjectsBase * _Nullable)linkingObjectsForProperty:(RLMProperty * _Nonnull)prop;
 
 /// :nodoc:
 - (id _Nullable)valueForUndefinedKey:(NSString * _Nonnull)key;
@@ -269,6 +272,19 @@ SWIFT_CLASS("_TtC10RealmSwift13DynamicObject")
 - (nonnull instancetype)initWithValue:(id _Nonnull)value OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)initWithRealm:(RLMRealm * _Nonnull)realm schema:(RLMObjectSchema * _Nonnull)schema OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)initWithValue:(id _Nonnull)value schema:(RLMSchema * _Nonnull)schema OBJC_DESIGNATED_INITIALIZER;
+@end
+
+@class RLMResults;
+
+
+/// :nodoc: Internal class. Do not use directly. Used for reflection and initialization
+SWIFT_CLASS("_TtC10RealmSwift18LinkingObjectsBase")
+@interface LinkingObjectsBase : NSObject <NSFastEnumeration>
+@property (nonatomic, strong) RLMResults * _Nonnull rlmResults;
+@property (nonatomic, readonly, copy) NSString * _Nonnull objectClassName;
+@property (nonatomic, readonly, copy) NSString * _Nonnull propertyName;
+- (nonnull instancetype)initWithResults:(RLMResults * _Nonnull)results fromClassName:(NSString * _Nonnull)objectClassName property:(NSString * _Nonnull)propertyName OBJC_DESIGNATED_INITIALIZER;
+- (NSInteger)countByEnumeratingWithState:(NSFastEnumerationState * _Null_unspecified)state objects:(id _Nullable * _Null_unspecified)buffer count:(NSInteger)len;
 @end
 
 @class RLMArray;
@@ -300,7 +316,6 @@ SWIFT_CLASS_NAMED("ObjectUtil")
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
-@class RLMResults;
 
 
 /// :nodoc: Internal class. Do not use directly.
