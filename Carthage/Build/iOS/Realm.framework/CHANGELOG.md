@@ -1,32 +1,3 @@
-0.102.0 Release notes (2016-05-09)
-=============================================================
-
-### API breaking changes
-
-* None.
-
-### Enhancements
-
-* Add a method to rename properties during migrations:
-  * Swift: `Migration.renamePropertyForClass(_:oldName:newName:)`
-  * Objective-C: `-[RLMMigration renamePropertyForClass:oldName:newName:]`
-* Add `deleteRealmIfMigrationNeeded` to
-  `RLMRealmConfiguration`/`Realm.Configuration`. When this is set to `true`,
-  the Realm file will be automatically deleted and recreated when there is a
-  schema mismatch rather than migrated to the new schema.
-
-### Bugfixes
-
-* Fix `BETWEEN` queries that traverse `RLMArray`/`List` properties to ensure that
-  a single related object satisfies the `BETWEEN` criteria, rather than allowing
-  different objects in the array to satisfy the lower and upper bounds.
-* Fix a race condition when a Realm is opened on one thread while it is in the
-  middle of being closed on another thread which could result in crashes.
-* Fix a bug which could result in changes made on one thread being applied
-  incorrectly on other threads when those threads are refreshed.
-* Fix crash when migrating to the new date format introduced in 0.101.0.
-* Fix crash when querying inverse relationships when objects are deleted.
-
 0.101.0 Release notes (2016-05-04)
 =============================================================
 
