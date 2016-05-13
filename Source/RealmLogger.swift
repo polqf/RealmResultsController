@@ -18,14 +18,13 @@ class RealmLogger {
     var realm: Realm
     var temporary: [RealmChange] = []
     var notificationToken: NotificationToken?
-    
+
     init(realm: Realm) {
         self.realm = realm
-        
+
         if NSThread.isMainThread() {
             registerNotificationBlock()
-        }
-        else {
+        } else {
             CFRunLoopPerformBlock(CFRunLoopGetCurrent(), kCFRunLoopDefaultMode) {
                 self.registerNotificationBlock()
                 CFRunLoopStop(CFRunLoopGetCurrent())
@@ -33,7 +32,7 @@ class RealmLogger {
             CFRunLoopRun()
         }
     }
-    
+
     @objc func registerNotificationBlock() {
         self.notificationToken = self.realm.addNotificationBlock { notification, realm in
             if notification == .DidChange {
@@ -41,7 +40,7 @@ class RealmLogger {
             }
         }
     }
-    
+
     /**
     When a Realm finish a write transaction, notify any active RRC via NSNotificaion
     Then clean the current state.
@@ -52,7 +51,7 @@ class RealmLogger {
         postIndividualNotifications()
         cleanAll()
     }
-    
+
     /**
     Posts a notification for every change occurred in Realm
     */
@@ -63,24 +62,24 @@ class RealmLogger {
             NSNotificationCenter.defaultCenter().postNotificationName(name, object: change)
         }
     }
-    
+
     func didAdd<T: Object>(object: T) {
         addObject(object, action: .Add)
     }
-    
+
     func didUpdate<T: Object>(object: T) {
         addObject(object, action: .Update)
     }
-    
+
     func didDelete<T: Object>(object: T) {
         addObject(object, action: .Delete)
     }
-    
+
     /**
     When there is an operation in a Realm, instead of keeping a reference to the original object
     we create a mirror that is thread safe and can be passed to RRC to operate with it safely.
     :warning: the relationships of the Mirror are not thread safe.
-    
+
     - parameter object Object that is involed in the transaction
     - parameter action Action that was performed on that object
     */
@@ -88,10 +87,9 @@ class RealmLogger {
         let realmChange = RealmChange(type: (object as Object).dynamicType, action: action, mirror: object.getMirror())
         temporary.append(realmChange)
     }
-    
+
     func cleanAll() {
         temporary.removeAll()
     }
-    
-}
 
+}
