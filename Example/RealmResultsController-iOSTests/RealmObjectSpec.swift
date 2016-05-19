@@ -16,14 +16,14 @@ import RealmSwift
 class NotificationListener2 {
     static let sharedInstance = NotificationListener2()
     var notificationReceived: Bool = false
-    
+
     @objc func notificationReceived(notification: NSNotification) {
         notificationReceived = true
     }
 }
 
 class RealmObjectSpec: QuickSpec {
-    
+
     override func spec() {
         var realm: Realm!
         beforeSuite {
@@ -44,18 +44,18 @@ class RealmObjectSpec: QuickSpec {
                         user.name = "old name"
                         realm.addNotified(user, update: true)
                     }
-                    
+
                     NSNotificationCenter.defaultCenter().addObserver(NotificationListener2.sharedInstance,
-                        selector: #selector(NotificationListener2.notificationReceived),
+                        selector: Selector("notificationReceived:"),
                         name: user.objectIdentifier(),
                         object: nil)
-                    
+
                     try! realm.write {
                         user.name = "new name"
                         user.notifyChange() //Notifies that there's a change on the object
                     }
                 }
-                
+
                 afterEach {
                     try! realm.write {
                         let tasks = realm.objects(Task).toArray().filter { $0.id == id }
@@ -70,7 +70,7 @@ class RealmObjectSpec: QuickSpec {
                 beforeEach {
                     let user = Task()
                     NSNotificationCenter.defaultCenter().addObserver(NotificationListener2.sharedInstance,
-                        selector: #selector(NotificationListener2.notificationReceived),
+                        selector: Selector("notificationReceived:"),
                         name: user.objectIdentifier(),
                         object: nil)
                     user.name = "new name"
@@ -102,7 +102,7 @@ class RealmObjectSpec: QuickSpec {
                 }
             }
         }
-        
+
         describe("hasSamePrimaryKeyValue(object:)") {
             var value: Bool!
             context("if both object don't have primary key") {

@@ -19,7 +19,7 @@ class RealmQueueManagerSpec: QuickSpec {
     private var thread1BlockHasBeenFired = false
     private var thread2BlockHasBeenFired = false
     private var timeoutHasBeenReached = false
-    
+
     func fireThread1Block() {
         let queue = dispatch_queue_create("THREAD 1", DISPATCH_QUEUE_SERIAL)
         Threading.executeOnQueue(queue, sync: true) {
@@ -29,7 +29,7 @@ class RealmQueueManagerSpec: QuickSpec {
             }
         }
     }
-    
+
     func fireThread2Block() {
         let queue = dispatch_queue_create("THREAD 2", DISPATCH_QUEUE_SERIAL)
         Threading.executeOnQueue(queue, sync: true) {
@@ -39,11 +39,11 @@ class RealmQueueManagerSpec: QuickSpec {
             }
         }
     }
-    
+
     func oneBlockFired() -> Bool {
         return self.thread1BlockHasBeenFired != self.thread2BlockHasBeenFired
     }
-    
+
     override func spec() {
         context("addOperation(withBlock:)") {
             context("enqueued operations") {
@@ -103,12 +103,12 @@ class RealmQueueManagerSpec: QuickSpec {
                     expect(block2Executed).to(beTruthy())
                 }
             }
-            
+
             context("equeued operations from different threads") {
                 beforeEach {
                     let date = NSDate().dateByAddingTimeInterval(1)
-                    let timer1 = NSTimer(fireDate: date, interval: 0, target: self, selector: #selector(RealmQueueManagerSpec.fireThread1Block), userInfo: nil, repeats: false)
-                    let timer2 = NSTimer(fireDate: date, interval: 0, target: self, selector: #selector(RealmQueueManagerSpec.fireThread2Block), userInfo: nil, repeats: false)
+                    let timer1 = NSTimer(fireDate: date, interval: 0, target: self, selector: Selector("fireThread1Block"), userInfo: nil, repeats: false)
+                    let timer2 = NSTimer(fireDate: date, interval: 0, target: self, selector: Selector("fireThread2Block"), userInfo: nil, repeats: false)
                     NSRunLoop.currentRunLoop().addTimer(timer1, forMode: NSDefaultRunLoopMode)
                     NSRunLoop.currentRunLoop().addTimer(timer2, forMode: NSDefaultRunLoopMode)
                 }

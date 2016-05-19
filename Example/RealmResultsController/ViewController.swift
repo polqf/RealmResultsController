@@ -12,12 +12,12 @@ import RealmSwift
 import RealmResultsController
 
 class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, RealmResultsControllerDelegate {
-    
-    let tableView: UITableView = UITableView(frame: CGRectZero, style: .Grouped)
+
+    let tableView: UITableView = UITableView(frame: CGRect.zero, style: .Grouped)
     var rrc: RealmResultsController<TaskModelObject, TaskObject>?
     var realm: Realm!
     let button: UIButton = UIButton()
-    
+
     lazy var realmPath: String = {
         guard let doc = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory,
                         NSSearchPathDomainMask.UserDomainMask, true).first else { return "" }
@@ -28,20 +28,20 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         if let _ = NSClassFromString("XCTest") {
             return
         }
-    
+
         realm = try! Realm(path: realmPath)
-        
+
         try! realm.write {
             self.realm.deleteAll()
         }
         populateDB()
-        let request = RealmRequest<TaskModelObject>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [SortDescriptor(property: "projectID")  , SortDescriptor(property: "name")])
+        let request = RealmRequest<TaskModelObject>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [SortDescriptor(property: "projectID"), SortDescriptor(property: "name")])
         rrc = try! RealmResultsController<TaskModelObject, TaskObject>(request: request, sectionKeyPath: "projectID", mapper: TaskObject.map)
         rrc!.delegate = self
         rrc!.performFetch()
@@ -86,9 +86,9 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             }
         }
     }
-    
+
     func addInBackground() {
-        
+
         let queue: dispatch_queue_t = dispatch_queue_create("label", nil)
         dispatch_async(queue) {
             autoreleasepool {
@@ -103,13 +103,13 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             }
         }
     }
-    
+
     func setupSubviews() {
         let height: CGFloat = 50
         button.frame = CGRectMake(0, view.frame.height - height, view.frame.width, height)
         button.backgroundColor = UIColor.redColor()
         button.setTitle("Add Row", forState: .Normal)
-        button.addTarget(self, action: #selector(addNewObject), forControlEvents: .TouchUpInside)
+        button.addTarget(self, action: Selector("addNewObject"), forControlEvents: .TouchUpInside)
         view.addSubview(button)
 
         tableView.frame = CGRectMake(0, 0, view.frame.width, view.frame.height - height)
@@ -120,7 +120,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
     func addNewObject() {
         let projectID = Int(arc4random_uniform(3))
-        
+
         let queue: dispatch_queue_t = dispatch_queue_create("label", nil)
         dispatch_async(queue) {
             autoreleasepool {
@@ -139,18 +139,18 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             }
         }
     }
-    
-    
+
+
     // MARK: Table view protocols
-    
+
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return rrc!.numberOfSections
     }
-    
+
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return rrc!.numberOfObjectsAt(section)
     }
-    
+
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         var cell = tableView.dequeueReusableCellWithIdentifier("celltask")
         if cell == nil {
@@ -160,7 +160,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         cell?.textLabel?.text = task.name + " :: " + String(task.projectID)
         return cell!
     }
-    
+
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         let task = rrc!.objectAt(indexPath)
         try! realm.write {
@@ -168,23 +168,23 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             self.realm.deleteNotified(model)
         }
     }
-    
+
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         let keyPath: String = rrc!.sections[section].keyPath
         return "ProjectID \(keyPath)"
     }
-    
+
     func tableView(tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         return section == 2 ? "Tap on a row to delete it" : nil
     }
-    
+
     // MARK: RealmResult
-    
+
     func willChangeResults(controller: AnyObject) {
         print("🎁 WILLChangeResults")
         tableView.beginUpdates()
     }
-    
+
     func didChangeObject<U>(controller: AnyObject, object: U, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
         print("🎁 didChangeObject '\((object as! TaskModelObject).name)' from: [\(oldIndexPath.section):\(oldIndexPath.row)] to: [\(newIndexPath.section):\(newIndexPath.row)] --> \(changeType)")
         switch changeType {
@@ -203,7 +203,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             break
         }
     }
-    
+
     func didChangeSection<U>(controller: AnyObject, section: RealmSection<U>, index: Int, changeType: RealmResultsChangeType) {
         print("🎁 didChangeSection \(index) --> \(changeType)")
         switch changeType {
@@ -217,10 +217,10 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             break
         }
     }
-    
+
     func didChangeResults(controller: AnyObject) {
         print("🎁 DIDChangeResults")
         tableView.endUpdates()
     }
-    
+
 }

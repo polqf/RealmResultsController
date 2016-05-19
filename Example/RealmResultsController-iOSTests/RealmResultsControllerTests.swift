@@ -20,23 +20,22 @@ class RealmResultsDelegate: RealmResultsControllerDelegate {
     var changeType: RealmResultsChangeType = .Move
     var object: Task?
     var section: RealmSection<Task>!
-    
+
     func willChangeResults(controller: AnyObject) {}
-    
+
     func didChangeObject<U>(controller: AnyObject, object: U, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
         self.object = object as? Task
         self.oldIndexPath = oldIndexPath
         self.newIndexPath = newIndexPath
         self.changeType = changeType
     }
-    
+
     func didChangeSection<U>(controller: AnyObject, section: RealmSection<U>, index: Int, changeType: RealmResultsChangeType) {
         self.section = section as? RealmSection<Task>
         self.sectionIndex = index
         self.changeType = changeType
     }
 
-    
     func didChangeResults(controller: AnyObject) {}
 }
 
@@ -47,7 +46,7 @@ class RealmResultsControllerSpec: QuickSpec {
         var request: RealmRequest<Task>!
         var RRC: RealmResultsController<Task, Task>!
         let RRCDelegate = RealmResultsDelegate()
-        
+
         beforeSuite {
             RealmTestHelper.loadRealm()
             realm = try! Realm()
@@ -61,7 +60,7 @@ class RealmResultsControllerSpec: QuickSpec {
             RRC.delegate = nil
             RRC = nil
         }
-        
+
         describe("sections") {
             beforeEach {
                 RRC.performFetch()
@@ -70,10 +69,10 @@ class RealmResultsControllerSpec: QuickSpec {
                 expect(RRC.sections.count) == 1
             }
         }
-        
+
         describe("init(request:sectionKeyPath:mapper:)") {
             var createdRRC: RealmResultsController<Task, Task>!
-            
+
             beforeEach {
                 createdRRC = try! RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil, mapper: {$0}, filter: nil)
             }
@@ -84,21 +83,21 @@ class RealmResultsControllerSpec: QuickSpec {
                 expect(createdRRC.cache.delegate).toNot(beNil())
                 expect(createdRRC.cache.defaultKeyPathValue).to(equal("default"))
             }
-            
+
             it("try to execute a block in main thread from a background queue") {
                 let queue = dispatch_queue_create("lock", DISPATCH_QUEUE_SERIAL)
                 dispatch_async(queue) {
                     Threading.executeOnMainThread { }
                 }
             }
-            
+
             it("try to execute a block in main thread from a background queue synced") {
                 let queue = dispatch_queue_create("lock", DISPATCH_QUEUE_SERIAL)
                 dispatch_async(queue) {
                     Threading.executeOnMainThread(true) { }
                 }
             }
-            
+
             context("using valid mapper") {
                 var createdRRC: RealmResultsController<Task, TaskModel>!
                 var sameType: Bool = false
@@ -113,12 +112,12 @@ class RealmResultsControllerSpec: QuickSpec {
                     expect(sameType).to(beTruthy())
                 }
             }
-            
+
             context("KeyPath Is not the same as the first sortDescriptor") {
                 var exceptionDetected: Bool = false
-                
+
                 beforeEach {
-                    do  {
+                    do {
                         let request = RealmRequest<Task>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [SortDescriptor(property: "name")])
                         let _ = try RealmResultsController<Task, TaskModel>(request: request, sectionKeyPath: "something", mapper: Task.mapTask)
                     } catch {
@@ -129,11 +128,11 @@ class RealmResultsControllerSpec: QuickSpec {
                     expect(exceptionDetected).to(beTruthy())
                 }
             }
-            
+
             context("RRC doesn't have any Sorts") {
                 var exceptionDetected: Bool = false
                 beforeEach {
-                    do  {
+                    do {
                         let request = RealmRequest<Task>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [])
                         let _ = try RealmResultsController<Task, TaskModel>(request: request, sectionKeyPath: "something", mapper: Task.mapTask)
                     } catch {
@@ -144,11 +143,11 @@ class RealmResultsControllerSpec: QuickSpec {
                     expect(exceptionDetected).to(beTruthy())
                 }
             }
-            
+
             context("If the request sorts are empty") {
                 var exceptionDetected: Bool = false
                 beforeEach {
-                    do  {
+                    do {
                         let request = RealmRequest<Task>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [])
                         let _ = try RealmResultsController<Task, TaskModel>(request: request, sectionKeyPath: "something", mapper: Task.mapTask)
                     } catch {
@@ -160,11 +159,11 @@ class RealmResultsControllerSpec: QuickSpec {
                 }
             }
         }
-        
+
         //Without Mapper
         describe("init(request:sectionKeyPath)") {
             var createdRRC: RealmResultsController<Task, Task>!
-            
+
             beforeEach {
                 createdRRC = try! RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil)
             }
@@ -175,7 +174,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 expect(createdRRC.cache.delegate).toNot(beNil())
                 expect(createdRRC.cache.defaultKeyPathValue).to(equal("default"))
             }
-            
+
             context("the mapper returns an object of the same type") {
                 var sameType: Bool = false
                 beforeEach {
@@ -188,11 +187,11 @@ class RealmResultsControllerSpec: QuickSpec {
                 }
             }
         }
-        
+
         //With filter
         describe("init(request:sectionKeyPath:mapper:filter:)") {
             var createdRRC: RealmResultsController<Task, Task>!
-            
+
             beforeEach {
                 createdRRC = try! RealmResultsController<Task, Task>(request: request, sectionKeyPath: nil, mapper: {$0}, filter: { (task: Task) in task.resolved})
             }
@@ -204,7 +203,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 expect(createdRRC.cache.delegate).toNot(beNil())
                 expect(createdRRC.cache.defaultKeyPathValue).to(equal("default"))
             }
-            
+
             context("the mapper returns an object of the same type") {
                 var sameType: Bool = false
                 beforeEach {
@@ -220,12 +219,12 @@ class RealmResultsControllerSpec: QuickSpec {
                     let resolved = allObjects.filter({$0.resolved})
                     expect(allObjects.count) == resolved.count
                 }
-                
+
                 context("new filter") {
                     beforeEach {
                         createdRRC.updateFilter({ (task: Task) in !task.resolved})
                     }
-    
+
                     it("all tasks are not resolved") {
                         let allObjects: [Task] = createdRRC.cache.sections[0].allObjects
                         let notResolved = allObjects.filter({!$0.resolved})
@@ -234,7 +233,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 }
             }
         }
-        
+
         describe("numberOfSections") {
             beforeEach {
                 RRC.performFetch()
@@ -243,10 +242,10 @@ class RealmResultsControllerSpec: QuickSpec {
                 expect(RRC.numberOfSections) == 1
             }
         }
-        
+
         describe("performFetch()") {
             var requestResult: [Section<Task>]!
-            
+
             beforeEach {
                 RRC.performFetch()
                 requestResult = RRC.cache.sections
@@ -258,7 +257,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 expect(RRC.cache.sections.first!.objects.count) == 1001
             }
         }
-        
+
         describe("numberOfObjectsAt:") {
             var total: Int = 0
             beforeEach {
@@ -269,7 +268,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 expect(total) == 1001
             }
         }
-        
+
         describe("objectAt:") {
             var object: Task?
             var fetchedObject: Task?
@@ -294,7 +293,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 expect(RRCDelegate.newIndexPath) === indexPath
             }
         }
-        
+
         describe("didUpdate<T: Object>(object:oldIndexPath:newIndexPath:)") {
             var object: Task!
             let oldIndexPath = NSIndexPath(forRow: 4, inSection: 2)
@@ -343,7 +342,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 expect(RRCDelegate.sectionIndex).to(equal(index))
             }
         }
-        
+
         describe("didReceiveRealmChanges(notification:)") {
             var temporaryAdded: [Task] = []
             var temporaryDeleted: [Task] = []
@@ -353,7 +352,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 RRC.delegate = RRCDelegate
                 RRC.queueManager = RealmQueueManager(sync: true)
             }
-            
+
             context("it receives an object of another model") {
                 beforeEach {
                     temporaryAdded = RRC.temporaryAdded
@@ -368,7 +367,7 @@ class RealmResultsControllerSpec: QuickSpec {
                     expect(temporaryDeleted.count) == RRC.temporaryDeleted.count
                 }
             }
-            
+
             context("If the notification has the wrong format") {
                 var temporaryAdded: [Task] = []
                 var temporaryDeleted: [Task] = []
@@ -413,7 +412,7 @@ class RealmResultsControllerSpec: QuickSpec {
                     expect(RRC.cache.sections.count).to(equal(0))
                 }
             }
-            
+
             context("if the notification has the CORRECT format") {
                 context("we receive an update and a deletion") {
                     var updateChange: RealmChange!
@@ -486,7 +485,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 }
             }
         }
-        
+
         describe("pendingChanges()") {
             context("If there are no pending changes") {
                 beforeEach {
