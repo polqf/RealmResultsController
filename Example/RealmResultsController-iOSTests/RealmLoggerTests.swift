@@ -36,6 +36,7 @@ class RealmLoggerSpec: QuickSpec {
     override func spec() {
         var realm: Realm!
         var logger: RealmLogger!
+
         beforeSuite {
             let configuration = Realm.Configuration(inMemoryIdentifier: "testingRealm")
             realm = try! Realm(configuration: configuration)
@@ -91,7 +92,7 @@ class RealmLoggerSpec: QuickSpec {
                     var createdObject: Bool = false
                     var updatedObject: Bool = false
                     var deletedObject: Bool = false
-                    for object: RealmChange in notificationArray[realm.path]! {
+                    for object: RealmChange in notificationArray[realm.realmIdentifier]! {
                         if object.action == RealmAction.Add { createdObject = true}
                         if object.action == RealmAction.Update { updatedObject = true}
                         if object.action == RealmAction.Delete { deletedObject = true}
@@ -126,7 +127,7 @@ class RealmLoggerSpec: QuickSpec {
                     var createdObject: Bool = false
                     var updatedObject: Bool = false
                     var deletedObject: Bool = false
-                    for object: RealmChange in notificationArray[realm.path]! {
+                    for object: RealmChange in notificationArray[realm.realmIdentifier]! {
                         if object.action == RealmAction.Add { createdObject = true}
                         if object.action == RealmAction.Update { updatedObject = true}
                         if object.action == RealmAction.Delete { deletedObject = true}
