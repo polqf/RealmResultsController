@@ -278,8 +278,8 @@ public class RealmResultsController<T: RealmSwift.Object, U> : RealmResultsCache
     
     @objc func didReceiveRealmChanges(notification: NSNotification) {
         guard case let notificationObject as [String : [RealmChange]] = notification.object
-            where notificationObject.keys.first == request.realm.path,
-            let objects = notificationObject[self.request.realm.path] else { return }
+            where notificationObject.keys.first == request.realm.realmIdentifier,
+            let objects = notificationObject[self.request.realm.realmIdentifier] else { return }
         queueManager.addOperation {
             self.refetchObjects(objects)
             self.finishWriteTransaction()
