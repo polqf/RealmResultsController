@@ -360,7 +360,7 @@ class RealmResultsControllerSpec: QuickSpec {
                     temporaryUpdated = RRC.temporaryUpdated
                     temporaryDeleted = RRC.temporaryDeleted
                     let createChange = RealmChange(type: User.self, action: .Add, mirror: User())
-                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: [realm.path : [createChange]]))
+                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: [realm.realmIdentifier : [createChange]]))
                 }
                 it("ignores the object") {
                     expect(temporaryAdded) == RRC.temporaryAdded
@@ -406,7 +406,7 @@ class RealmResultsControllerSpec: QuickSpec {
             context("If the notification is EMPTY") {
                 var notifObject: [String :[RealmChange]] = [:]
                 beforeEach {
-                    notifObject = [realm.path : [RealmChange]()]
+                    notifObject = [realm.realmIdentifier : [RealmChange]()]
                     RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
                 }
                 it("Should not have added anything to the cache") {
@@ -437,7 +437,7 @@ class RealmResultsControllerSpec: QuickSpec {
                         RRC.cache.sections.first?.objects.addObject(task3)
                         updateChange = RealmChange(type: Task.self, action: .Update, mirror: task2.getMirror())
                         deleteChange = RealmChange(type: Task.self, action: .Delete, mirror: task3.getMirror())
-                        notifObject = [realm.path : [updateChange, deleteChange]]
+                        notifObject = [realm.realmIdentifier : [updateChange, deleteChange]]
                         RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
                     }
                     afterEach {
@@ -471,7 +471,7 @@ class RealmResultsControllerSpec: QuickSpec {
                         RRC.cache.sections.first?.objects.addObject(task2)
                         createChange = RealmChange(type: Task.self, action: .Add, mirror: task1.getMirror())
                         updateChange = RealmChange(type: Task.self, action: .Update, mirror: task2.getMirror())
-                        notifObject = [realm.path : [createChange, updateChange]]
+                        notifObject = [realm.realmIdentifier : [createChange, updateChange]]
                         RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
                     }
                     afterEach {

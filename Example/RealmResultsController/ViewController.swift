@@ -12,19 +12,21 @@ import RealmSwift
 import RealmResultsController
 
 class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, RealmResultsControllerDelegate {
-    
+
     let tableView: UITableView = UITableView(frame: CGRectZero, style: .Grouped)
     var rrc: RealmResultsController<TaskModelObject, TaskObject>?
     var realm: Realm!
     let button: UIButton = UIButton()
-    
-    lazy var realmPath: String = {
-        guard let doc = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory,
-                        NSSearchPathDomainMask.UserDomainMask, true).first else { return "" }
-        let custom = doc.stringByAppendingString("/example.realm")
-        return custom
-    }()
 
+    lazy var realmConfiguration: Realm.Configuration = {
+        guard let doc = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory,
+                                                            NSSearchPathDomainMask.UserDomainMask, true).first else {
+                                                                return Realm.Configuration.defaultConfiguration
+        }
+        let custom = doc.stringByAppendingString("/example.realm")
+        return Realm.Configuration(fileURL: NSURL(string: custom))
+    }()
+    
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
@@ -34,8 +36,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         if let _ = NSClassFromString("XCTest") {
             return
         }
-    
-        realm = try! Realm(path: realmPath)
+
+        realm = try! Realm(configuration: realmConfiguration)
         
         try! realm.write {
             self.realm.deleteAll()
@@ -92,7 +94,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         let queue: dispatch_queue_t = dispatch_queue_create("label", nil)
         dispatch_async(queue) {
             autoreleasepool {
-                let realm = try! Realm(path: self.realmPath)
+                let realm = try! Realm(configuration: self.realmConfiguration)
                 try! realm.write {
                     let task = TaskModelObject()
                     task.id = 12345
@@ -124,7 +126,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         let queue: dispatch_queue_t = dispatch_queue_create("label", nil)
         dispatch_async(queue) {
             autoreleasepool {
-                let realm = try! Realm(path: self.realmPath)
+                let realm = try! Realm(configuration: self.realmConfiguration)
                 try! realm.write {
                     let task = TaskModelObject()
                     task.id = Int(arc4random_uniform(9999))
