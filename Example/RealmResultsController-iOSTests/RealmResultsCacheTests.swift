@@ -18,9 +18,9 @@ class CacheDelegateMock: RealmResultsCacheDelegate {
     static let sharedInstance = CacheDelegateMock()
     
     var index = -1
-    var oldIndexPath: IndexPath?
-    var indexPath: IndexPath?
-    var object: RealmSwift.Object?
+    var oldIndexPath: NSIndexPath?
+    var indexPath: NSIndexPath?
+    var object: Object?
     
     func reset() {
         index = -1
@@ -63,12 +63,17 @@ class CacheSpec: QuickSpec {
         var request: RealmRequest<Task>!
         var realm: Realm!
         var predicate: NSPredicate!
-        var sortDescriptors: [RealmSwift.SortDescriptor]!
+        var sortDescriptors: [SortDescriptor]!
         var resolvedTasks: [Task]!
         var notResolvedTasks: [Task]!
         
-        func initWithKeypath() {
+        func initWithKeypath(onlyResolved: Bool = false) {
             predicate = NSPredicate(format: "id < %d", 50)
+
+            if onlyResolved {
+                predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate, NSPredicate(format: "resolved == true")])
+            }
+
             sortDescriptors = [RealmSwift.SortDescriptor(property: "name", ascending: true)]
             request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
             initialObjects = request.execute().toArray().sorted { $0.name < $1.name }
@@ -480,7 +485,20 @@ class CacheSpec: QuickSpec {
                     expect(type) == RealmCacheUpdateType.Move
                 }
             }
-           
+
+            context("the object is in the cache and will change sections (where new section doesn't exist yet)") {
+                beforeEach {
+                    initWithKeypath(true)
+
+                    let task = Task()
+                    task.id = resolvedTasks[0].id
+                    task.resolved = false
+                    type = cache.updateType(task)
+                }
+                it("returns type .Move") {
+                    expect(type) == RealmCacheUpdateType.Move
+                }
+            }
         }
         describe("keyPathForObject") {
             context("in background") {
