@@ -208,7 +208,7 @@ class RealmResultsCache<T: Object> {
     func updateType(object: T) -> RealmCacheUpdateType {
         //Sections
         guard let oldSection = sectionForOutdateObject(object) else { return .Insert }
-        guard let newSection = sectionForKeyPath(keyPathForObject(object)) else { return .Insert }
+        guard let newSection = sectionForKeyPath(keyPathForObject(object)) else { return .Move }
         
         //OutdatedCopy
         guard let outdatedCopy = oldSection.outdatedObject(object) else { return .Insert }

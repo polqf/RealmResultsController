@@ -67,11 +67,16 @@ class CacheSpec: QuickSpec {
         var resolvedTasks: [Task]!
         var notResolvedTasks: [Task]!
         
-        func initWithKeypath() {
+        func initWithKeypath(onlyResolved: Bool = false) {
             predicate = NSPredicate(format: "id < %d", 50)
             sortDescriptors = [SortDescriptor(property: "name", ascending: true)]
             request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
             initialObjects = request.execute().toArray().sort { $0.name < $1.name }
+
+            if onlyResolved {
+                initialObjects = initialObjects.filter { $0.resolved }
+            }
+
             resolvedTasks = initialObjects.filter { $0.resolved }
             notResolvedTasks = initialObjects.filter { !$0.resolved }
             cache = RealmResultsCache<Task>(request: request, sectionKeyPath: "resolved")
@@ -480,7 +485,20 @@ class CacheSpec: QuickSpec {
                     expect(type) == RealmCacheUpdateType.Move
                 }
             }
-           
+
+            context("the object is in the cache and will change sections (where new section doesn't exist yet)") {
+                beforeEach {
+                    initWithKeypath(true)
+
+                    let task = Task()
+                    task.id = resolvedTasks[0].id
+                    task.resolved = false
+                    type = cache.updateType(task)
+                }
+                it("returns type .Move") {
+                    expect(type) == RealmCacheUpdateType.Move
+                }
+            }
         }
         describe("keyPathForObject") {
             context("in background") {
