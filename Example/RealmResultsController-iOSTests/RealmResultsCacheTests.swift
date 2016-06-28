@@ -69,14 +69,14 @@ class CacheSpec: QuickSpec {
         
         func initWithKeypath(onlyResolved: Bool = false) {
             predicate = NSPredicate(format: "id < %d", 50)
+            sortDescriptors = [SortDescriptor(property: "name", ascending: true)]
+            request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
+            initialObjects = request.execute().toArray().sort { $0.name < $1.name }
 
             if onlyResolved {
-                predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate, NSPredicate(format: "resolved == true")])
+                initialObjects = initialObjects.filter { $0.resolved }
             }
 
-            sortDescriptors = [RealmSwift.SortDescriptor(property: "name", ascending: true)]
-            request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
-            initialObjects = request.execute().toArray().sorted { $0.name < $1.name }
             resolvedTasks = initialObjects.filter { $0.resolved }
             notResolvedTasks = initialObjects.filter { !$0.resolved }
             cache = RealmResultsCache<Task>(request: request, sectionKeyPath: "resolved")
