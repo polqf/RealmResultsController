@@ -109,6 +109,7 @@ extension Realm {
     
     - returns: The created object.
     */
+    @discardableResult
     public func createNotified<T: RealmSwift.Object>(_ type: T.Type, value: AnyObject = [:], update upd: Bool = false) -> T? {
         var update = upd
         let createBlock = {

@@ -17,7 +17,7 @@ class NotificationListener2 {
     static let sharedInstance = NotificationListener2()
     var notificationReceived: Bool = false
     
-    @objc func notificationReceived(_ notification: Notification) {
+    @objc func notificationReceived(_ notification: Foundation.Notification) {
         notificationReceived = true
     }
 }
@@ -45,9 +45,9 @@ class RealmObjectSpec: QuickSpec {
                         realm.addNotified(user, update: true)
                     }
                     
-                    NotificationCenter.defaultCenter().addObserver(NotificationListener2.sharedInstance,
-                        selector: #selector(NotificationListener2.notificationReceived),
-                        name: user.objectIdentifier(),
+                    NotificationCenter.default.addObserver(NotificationListener2.sharedInstance,
+                        selector: #selector(NotificationListener2.notificationReceived(_:)),
+                        name: user.objectIdentifier().map { NSNotification.Name(rawValue: $0) },
                         object: nil)
                     
                     try! realm.write {
@@ -58,7 +58,7 @@ class RealmObjectSpec: QuickSpec {
                 
                 afterEach {
                     try! realm.write {
-                        let tasks = realm.objects(Task).toArray().filter { $0.id == id }
+                        let tasks = realm.allObjects(ofType: Task.self).toArray().filter { $0.id == id }
                         realm.delete(tasks.first!)
                     }
                 }
@@ -69,9 +69,9 @@ class RealmObjectSpec: QuickSpec {
             context("With invalid realm") {
                 beforeEach {
                     let user = Task()
-                    NotificationCenter.defaultCenter().addObserver(NotificationListener2.sharedInstance,
-                        selector: #selector(NotificationListener2.notificationReceived),
-                        name: user.objectIdentifier(),
+                    NotificationCenter.default.addObserver(NotificationListener2.sharedInstance,
+                        selector: #selector(NotificationListener2.notificationReceived(_:)),
+                        name: user.objectIdentifier().map { NSNotification.Name(rawValue: $0) },
                         object: nil)
                     user.name = "new name"
                     user.notifyChange() //Notifies that there's a change on the object
@@ -109,7 +109,7 @@ class RealmObjectSpec: QuickSpec {
                 beforeEach {
                     let dummy1 = Dummy()
                     let dummy2 = Dummy()
-                    value = dummy1.hasSamePrimaryKeyValue(dummy2)
+                    value = dummy1.hasSamePrimaryKeyValue(as: dummy2)
                 }
                 it("should return false") {
                     expect(value).to(beFalsy())
@@ -119,7 +119,7 @@ class RealmObjectSpec: QuickSpec {
                 beforeEach {
                     let dummy1 = Task()
                     let dummy2 = Dummy()
-                    value = dummy1.hasSamePrimaryKeyValue(dummy2)
+                    value = dummy1.hasSamePrimaryKeyValue(as: dummy2)
                 }
                 it("should return false") {
                     expect(value).to(beFalsy())
@@ -129,7 +129,7 @@ class RealmObjectSpec: QuickSpec {
                 beforeEach {
                     let dummy1 = Dummy()
                     let dummy2 = Task()
-                    value = dummy1.hasSamePrimaryKeyValue(dummy2)
+                    value = dummy1.hasSamePrimaryKeyValue(as: dummy2)
                 }
                 it("should return false") {
                     expect(value).to(beFalsy())
@@ -140,7 +140,7 @@ class RealmObjectSpec: QuickSpec {
                     beforeEach {
                         let dummy1 = Task()
                         let dummy2 = Task()
-                        value = dummy1.hasSamePrimaryKeyValue(dummy2)
+                        value = dummy1.hasSamePrimaryKeyValue(as: dummy2)
                     }
                     it("should return true") {
                         expect(value).to(beTruthy())
@@ -151,7 +151,7 @@ class RealmObjectSpec: QuickSpec {
                         let dummy1 = Task()
                         let dummy2 = Task()
                         dummy2.id = 2
-                        value = dummy1.hasSamePrimaryKeyValue(dummy2)
+                        value = dummy1.hasSamePrimaryKeyValue(as: dummy2)
                     }
                     it("should return false") {
                         expect(value).to(beFalsy())

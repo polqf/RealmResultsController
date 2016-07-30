@@ -54,7 +54,7 @@ class RealmExtensionSpec: QuickSpec {
                 beforeEach {
                     self.cleanLoggers()
                     
-                    fetchedTask = realm.objectForPrimaryKey(Task.self, key: 1)
+                    fetchedTask = realm.object(ofType: Task.self, forPrimaryKey: 1)
                     
                     myTask = Task()
                     myTask!.id = 1
@@ -102,7 +102,7 @@ class RealmExtensionSpec: QuickSpec {
                 try! realm.write {
                     realm.createNotified(Task.self, value: ["id":1501, "name": "testingName2"], update: true)
                 }
-                refetchedTask = realm.objectForPrimaryKey(Task.self, key: 1501)
+                refetchedTask = realm.object(ofType: Task.self, forPrimaryKey: 1501)
             }
             it("task is updated") {
                 expect(refetchedTask.name) == "testingName2"
@@ -123,7 +123,7 @@ class RealmExtensionSpec: QuickSpec {
                     try! realm.write {
                         realm.createNotified(Task.self, value: myTask, update: true)
                     }
-                    fetchedTask = realm.objectForPrimaryKey(Task.self, key: 1501)
+                    fetchedTask = realm.object(ofType: Task.self, forPrimaryKey: 1501)
 
                 }
                 it("trying to add the same object again, will update it") {
@@ -141,12 +141,12 @@ class RealmExtensionSpec: QuickSpec {
                 var totalObjectsAfter: Int!
                 beforeEach {
                     self.cleanLoggers()
-                    totalObjectsBefore = realm.objects(Task).count
+                    totalObjectsBefore = realm.allObjects(ofType: Task.self).count
                     object = ["name": "hola"]
                     try! realm.write {
                         realm.createNotified(Dummy.self, value: object, update: true)
                     }
-                    totalObjectsAfter = realm.objects(Task).count
+                    totalObjectsAfter = realm.allObjects(ofType: Task.self).count
                 }
                 it("won't add it to the realm") {
                     expect(totalObjectsBefore) == totalObjectsAfter
@@ -165,12 +165,12 @@ class RealmExtensionSpec: QuickSpec {
                 var totalObjectsAfter: Int!
                 beforeEach {
                     self.cleanLoggers()
-                    totalObjectsBefore = realm.objects(Task).count
+                    totalObjectsBefore = realm.allObjects(ofType: Task.self).count
                     object = ["name": "hola"]
                     try! realm.write {
                         realm.createNotified(Task.self, value: object, update: true)
                     }
-                    totalObjectsAfter = realm.objects(Task).count
+                    totalObjectsAfter = realm.allObjects(ofType: Task.self).count
                 }
                 it("won't add it to the realm") {
                     expect(totalObjectsBefore) == totalObjectsAfter
@@ -188,7 +188,7 @@ class RealmExtensionSpec: QuickSpec {
             var refetchedTask: Task?
 
             beforeEach {
-                refetchedTask = realm.objectForPrimaryKey(Task.self, key: 1500)
+                refetchedTask = realm.object(ofType: Task.self, forPrimaryKey: 1500)
                 try! realm.write {
                     realm.deleteNotified([refetchedTask!])
                 }

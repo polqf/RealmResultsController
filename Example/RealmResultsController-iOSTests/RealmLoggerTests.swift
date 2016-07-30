@@ -17,7 +17,7 @@ class NotificationListener {
     static let sharedInstance = NotificationListener()
     var array: [String : [RealmChange]] = [:]
     
-    @objc func notificationReceived(_ notification: Notification) {
+    @objc func notificationReceived(_ notification: Foundation.Notification) {
         array = notification.object as! [String : [RealmChange]]
     }
 }
@@ -72,16 +72,16 @@ class RealmLoggerSpec: QuickSpec {
         }
         
         describe("finishRealmTransaction()") {
-            let newObject = RealmChange(type: Task.self, action: .Add, mirror: nil)
-            let updatedObject = RealmChange(type: Task.self, action: .Update, mirror: nil)
-            let deletedObject = RealmChange(type: Task.self, action: .Delete, mirror: nil)
+            let newObject = RealmChange(type: Task.self, action: .add, mirror: nil)
+            let updatedObject = RealmChange(type: Task.self, action: .update, mirror: nil)
+            let deletedObject = RealmChange(type: Task.self, action: .delete, mirror: nil)
             context("from main thread") {
                 beforeEach {
                     logger.cleanAll()
                     logger.temporary.append(newObject)
                     logger.temporary.append(updatedObject)
                     logger.temporary.append(deletedObject)
-                    NotificationCenter.default.addObserver(NotificationListener.sharedInstance, selector: #selector(NotificationListener.notificationReceived), name: "realmChangesTest", object: nil)
+                    NotificationCenter.default.addObserver(NotificationListener.sharedInstance, selector: #selector(NotificationListener.notificationReceived), name: "realmChangesTest" as Foundation.Notification.Name, object: nil)
                     logger.finishRealmTransaction()
                 }
                 afterEach {
@@ -93,9 +93,9 @@ class RealmLoggerSpec: QuickSpec {
                     var updatedObject: Bool = false
                     var deletedObject: Bool = false
                     for object: RealmChange in notificationArray[realm.realmIdentifier]! {
-                        if object.action == RealmAction.Add { createdObject = true}
-                        if object.action == RealmAction.Update { updatedObject = true}
-                        if object.action == RealmAction.Delete { deletedObject = true}
+                        if object.action == RealmAction.add { createdObject = true}
+                        if object.action == RealmAction.update { updatedObject = true}
+                        if object.action == RealmAction.delete { deletedObject = true}
                     }
                     expect(createdObject).to(beTruthy())
                     expect(updatedObject).to(beTruthy())
@@ -116,7 +116,7 @@ class RealmLoggerSpec: QuickSpec {
                     newLogger.temporary.append(newObject)
                     newLogger.temporary.append(updatedObject)
                     newLogger.temporary.append(deletedObject)
-                    NotificationCenter.default.addObserver(NotificationListener.sharedInstance, selector: #selector(NotificationListener.notificationReceived), name: "realmChangesTest", object: nil)
+                    NotificationCenter.default.addObserver(NotificationListener.sharedInstance, selector: #selector(NotificationListener.notificationReceived), name: "realmChangesTest" as Foundation.Notification.Name, object: nil)
                     newLogger.finishRealmTransaction()
                 }
                 afterEach {
@@ -128,9 +128,9 @@ class RealmLoggerSpec: QuickSpec {
                     var updatedObject: Bool = false
                     var deletedObject: Bool = false
                     for object: RealmChange in notificationArray[realm.realmIdentifier]! {
-                        if object.action == RealmAction.Add { createdObject = true}
-                        if object.action == RealmAction.Update { updatedObject = true}
-                        if object.action == RealmAction.Delete { deletedObject = true}
+                        if object.action == RealmAction.add { createdObject = true}
+                        if object.action == RealmAction.update { updatedObject = true}
+                        if object.action == RealmAction.delete { deletedObject = true}
                     }
                     expect(createdObject).to(beTruthy())
                     expect(updatedObject).to(beTruthy())
@@ -152,7 +152,7 @@ class RealmLoggerSpec: QuickSpec {
             }
             it("Should be added to the temporaryAdded array") {
                 expect(logger.temporary.count).to(equal(1))
-                expect(logger.temporary.first!.action).to(equal(RealmAction.Add))
+                expect(logger.temporary.first!.action).to(equal(RealmAction.add))
             }
         }
         
@@ -169,7 +169,7 @@ class RealmLoggerSpec: QuickSpec {
             }
             it("Should be added to the temporaryAdded array") {
                 expect(logger.temporary.count).to(equal(1))
-                expect(logger.temporary.first!.action).to(equal(RealmAction.Update))
+                expect(logger.temporary.first!.action).to(equal(RealmAction.update))
             }
         }
         
@@ -186,7 +186,7 @@ class RealmLoggerSpec: QuickSpec {
             }
             it("Should be added to the temporaryAdded array") {
                 expect(logger.temporary.count).to(equal(1))
-                expect(logger.temporary.first!.action).to(equal(RealmAction.Delete))
+                expect(logger.temporary.first!.action).to(equal(RealmAction.delete))
             }
         }
         
@@ -195,7 +195,7 @@ class RealmLoggerSpec: QuickSpec {
             var newObject: RealmChange!
             context("object without mirror") {
                 beforeEach {
-                    newObject = RealmChange(type: Task.self, action: .Add, mirror: nil)
+                    newObject = RealmChange(type: Task.self, action: .add, mirror: nil)
                     logger.cleanAll()
                     logger.temporary.append(newObject)
                     logger.finishRealmTransaction()
@@ -211,7 +211,7 @@ class RealmLoggerSpec: QuickSpec {
             
             context("object with mirror without primaryKey") {
                 beforeEach {
-                    newObject = RealmChange(type: Task.self, action: .Add, mirror: Dummy())
+                    newObject = RealmChange(type: Task.self, action: .add, mirror: Dummy())
                     logger.cleanAll()
                     logger.temporary.append(newObject)
                     logger.finishRealmTransaction()
@@ -229,7 +229,7 @@ class RealmLoggerSpec: QuickSpec {
                 beforeEach {
                     let task = Task()
                     task.id = 123
-                    newObject = RealmChange(type: Task.self, action: .Add, mirror: task)
+                    newObject = RealmChange(type: Task.self, action: .add, mirror: task)
                     logger.cleanAll()
                     logger.temporary.append(newObject)
                     logger.finishRealmTransaction()

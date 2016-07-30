@@ -16,7 +16,7 @@ import RealmSwift
 class SectionSpec: QuickSpec {
     
     override func spec() {
-        var sortDescriptors: [SortDescriptor]!
+        var sortDescriptors: [Foundation.SortDescriptor]!
         var section: Section<Task>!
         var openTask: Task!
         var resolvedTask: Task!
@@ -77,12 +77,12 @@ class SectionSpec: QuickSpec {
             context("when the object exists in section") {
                 beforeEach {
                     section = Section<Task>(keyPath: "keyPath", sortDescriptors: sortDescriptors)
-                    section.insertSorted(resolvedTask)
+                    _ = section.insertSorted(resolvedTask)
                     originalIndex = section.insertSorted(openTask)
                     index = section.delete(openTask)
                 }
                 it("removes it from array") {
-                    expect(section.objects.containsObject(openTask)).to(beFalsy())
+                    expect(section.objects.contains(openTask)).to(beFalsy())
                 }
                 it("returns the index of the deleted object") {
                     expect(index).to(equal(originalIndex))
@@ -93,8 +93,8 @@ class SectionSpec: QuickSpec {
                 var anotherTask: Task!
                 beforeEach {
                     section = Section<Task>(keyPath: "keyPath", sortDescriptors: sortDescriptors)
-                    section.insertSorted(resolvedTask)
-                    section.insertSorted(openTask)
+                    _ = section.insertSorted(resolvedTask)
+                    _ = section.insertSorted(openTask)
                     anotherTask = Task()
                     index = section.delete(anotherTask)
                 }
@@ -110,12 +110,12 @@ class SectionSpec: QuickSpec {
             context("when the object exists in section") {
                 beforeEach {
                     section = Section<Task>(keyPath: "keyPath", sortDescriptors: sortDescriptors)
-                    section.insertSorted(resolvedTask)
+                    _ = section.insertSorted(resolvedTask)
                     originalIndex = section.insertSorted(openTask)
                     index = section.deleteOutdatedObject(openTask)
                 }
                 it("removes it from array") {
-                    expect(section.objects.containsObject(openTask)).to(beFalsy())
+                    expect(section.objects.contains(openTask)).to(beFalsy())
                 }
                 it("returns the index of the deleted object") {
                     expect(index).to(equal(originalIndex))
@@ -125,8 +125,8 @@ class SectionSpec: QuickSpec {
             context("the object does not exists in section") {
                 beforeEach {
                     section = Section<Task>(keyPath: "keyPath", sortDescriptors: sortDescriptors)
-                    section.insertSorted(resolvedTask)
-                    section.insertSorted(openTask)
+                    _ = section.insertSorted(resolvedTask)
+                    _ = section.insertSorted(openTask)
                     anotherTask = Task()
                     index = section.deleteOutdatedObject(anotherTask)
                 }
@@ -190,22 +190,22 @@ class SectionSpec: QuickSpec {
                     //ADDING Tasks unsorted
                     section.insert(bTask)
                     section.insert(aTask)
-                    aTaskIndex = section.objects.indexOfObject(aTask)
-                    bTaskIndex = section.objects.indexOfObject(bTask)
+                    aTaskIndex = section.objects.index(of: aTask)
+                    bTaskIndex = section.objects.index(of: bTask)
                     section.sort()
                 }
                 
                 it("the aTask should not be in the same index as before") {
-                    expect(section.objects.indexOfObject(aTask)) != aTaskIndex
+                    expect(section.objects.index(of: aTask)) != aTaskIndex
                 }
                 it("the aTask index should be 0") {
-                    expect(section.objects.indexOfObject(aTask)) == 0
+                    expect(section.objects.index(of: aTask)) == 0
                 }
                 it("the bTask should not be in the same index as before") {
-                    expect(section.objects.indexOfObject(bTask)) != bTaskIndex
+                    expect(section.objects.index(of: bTask)) != bTaskIndex
                 }
                 it("the bTask index should be 1") {
-                    expect(section.objects.indexOfObject(bTask)) == 1
+                    expect(section.objects.index(of: bTask)) == 1
                 }
             }
         }
