@@ -9,7 +9,7 @@
 import Foundation
 import RealmSwift
 
-extension Object {
+extension RealmSwift.Object {
     
     /**
     Use this func to notify the RRC of changes done in a specific object.
@@ -31,7 +31,7 @@ extension Object {
     */
     public func notifyChange() {
         guard let r = self.realm else { return }
-        RealmNotification.loggerForRealm(r).didUpdate(self)
+        RealmNotification.logger(for: r).didUpdate(self)
     }
 
     /**
@@ -44,7 +44,7 @@ extension Object {
     */
     public func objectIdentifier() -> String? {
         guard let primaryKey = self.dynamicType.primaryKey(),
-            let primaryKeyValue = (self as Object).valueForKey(primaryKey) else { return nil }
+            let primaryKeyValue = (self as RealmSwift.Object).value(forKey: primaryKey) else { return nil }
         return String(self.dynamicType) + "-" + String(primaryKeyValue)
     }
     
@@ -74,12 +74,11 @@ extension Object {
     public func getMirror() -> Self {
         let newObject = self.dynamicType.init()
         let mirror = Mirror(reflecting: self)
-        for c in mirror.children.enumerate() {
-            guard let key = c.1.0
-                where !key.hasSuffix(".storage") else { continue }
-            let value = self.valueForKey(key)
+        for c in mirror.children.enumerated() {
+            guard let key = c.1.0, !key.hasSuffix(".storage") else { continue }
+            let value = self.value(forKey: key)
             guard let v = value else { continue }
-            (newObject as Object).setValue(v, forKey: key)
+            (newObject as RealmSwift.Object).setValue(v, forKey: key)
         }
         return newObject
     }
@@ -97,7 +96,7 @@ extension Object {
         guard let primaryKey = self.dynamicType.primaryKey() else { return nil }
         var primaryKeyValue: AnyObject?
         Threading.executeOnMainThread(true) {
-            primaryKeyValue = self.valueForKey(primaryKey)
+            primaryKeyValue = self.value(forKey: primaryKey)
         }
         return primaryKeyValue
     }
@@ -110,7 +109,7 @@ extension Object {
      
      - returns Bool         true if they have the same primary key value
     */
-    func hasSamePrimaryKeyValue<T: Object>(object: T) -> Bool {
-        return (object as Object).primaryKeyValue()?.isEqual(primaryKeyValue()) ?? false
+    func hasSamePrimaryKeyValue<T: RealmSwift.Object>(as object: T) -> Bool {
+        return (object as RealmSwift.Object).primaryKeyValue()?.isEqual(primaryKeyValue()) ?? false
     }
 }

@@ -339,17 +339,20 @@
 		C18C37591B72670F008DE6A6 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = Redbooth;
 				TargetAttributes = {
 					C18C37601B72670F008DE6A6 = {
 						CreatedOnToolsVersion = 7.0;
+						LastSwiftMigration = 0800;
 					};
 					C1A0028A1B9702C1000C0E8C = {
 						CreatedOnToolsVersion = 7.0;
+						LastSwiftMigration = 0800;
 					};
 					C1A002931B9702C1000C0E8C = {
 						CreatedOnToolsVersion = 7.0;
+						LastSwiftMigration = 0800;
 						TestTargetID = C18C37601B72670F008DE6A6;
 					};
 				};
@@ -602,6 +605,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = redbooth.RealmResultsController;
 				PRODUCT_NAME = "RealmResultsController-Example";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -618,6 +622,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = redbooth.RealmResultsController;
 				PRODUCT_NAME = "RealmResultsController-Example";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -641,6 +647,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "redbooth.RealmResultsController-iOS";
 				PRODUCT_NAME = RealmResultsController;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -666,6 +673,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "redbooth.RealmResultsController-iOS";
 				PRODUCT_NAME = RealmResultsController;
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -682,6 +691,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "redbooth.RealmResultsController-iOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RealmResultsController-Example.app/RealmResultsController-Example";
 			};
 			name = Debug;
@@ -697,6 +707,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "redbooth.RealmResultsController-iOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RealmResultsController-Example.app/RealmResultsController-Example";
 			};
 			name = Release;

@@ -16,14 +16,14 @@ import RealmSwift
 class SectionSpec: QuickSpec {
     
     override func spec() {
-        var sortDescriptors: [NSSortDescriptor]!
+        var sortDescriptors: [SortDescriptor]!
         var section: Section<Task>!
         var openTask: Task!
         var resolvedTask: Task!
         
         
         beforeSuite {
-            sortDescriptors = [NSSortDescriptor(key: "name", ascending: false)]
+            sortDescriptors = [SortDescriptor(key: "name", ascending: false)]
             section = Section<Task>(keyPath: "keyPath", sortDescriptors: sortDescriptors)
             openTask = Task()
             openTask.id = 1500
@@ -185,7 +185,7 @@ class SectionSpec: QuickSpec {
                 var aTaskIndex: Int!
                 var bTaskIndex: Int!
                 beforeEach {
-                    let ascendingSortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
+                    let ascendingSortDescriptors = [SortDescriptor(key: "name", ascending: true)]
                     section = Section<Task>(keyPath: "keyPath", sortDescriptors: ascendingSortDescriptors)
                     //ADDING Tasks unsorted
                     section.insert(bTask)

@@ -194,7 +194,7 @@ class RealmExtensionSpec: QuickSpec {
                 }
             }
             it("object in DB is invalidated") {
-                expect(refetchedTask?.invalidated).to(beTruthy())
+                expect(refetchedTask?.isInvalidated).to(beTruthy())
             }
             afterEach {
                 self.cleanLoggers()
@@ -210,7 +210,7 @@ class RealmExtensionSpec: QuickSpec {
                     task.id = 161123123
                     realm.addNotified([task])
                 }
-                let predicate = NSPredicate(format: "id == %d", 161123123)
+                let predicate = Predicate(format: "id == %d", 161123123)
                 request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: [])
                 result = realm.execute(request).toArray().first!
             }

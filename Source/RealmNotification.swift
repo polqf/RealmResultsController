@@ -14,7 +14,7 @@ class RealmNotification {
     static let sharedInstance = RealmNotification()
     var loggers: [RealmLogger] = []
     
-    static func loggerForRealm(realm: Realm) -> RealmLogger {
+    static func logger(for realm: Realm) -> RealmLogger {
         let logger = RealmNotification.sharedInstance.loggers.filter {$0.realm == realm}
         if let log = logger.first {
             return log

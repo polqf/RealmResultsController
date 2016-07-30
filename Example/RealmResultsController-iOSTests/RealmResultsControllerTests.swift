@@ -14,30 +14,30 @@ import RealmSwift
 @testable import RealmResultsController
 
 class RealmResultsDelegate: RealmResultsControllerDelegate {
-    var oldIndexPath: NSIndexPath?
-    var newIndexPath: NSIndexPath?
+    var oldIndexPath: IndexPath?
+    var newIndexPath: IndexPath?
     var sectionIndex: Int = 0
     var changeType: RealmResultsChangeType = .Move
     var object: Task?
     var section: RealmSection<Task>!
     
-    func willChangeResults(controller: AnyObject) {}
+    func willChangeResults(_ controller: AnyObject) {}
     
-    func didChangeObject<U>(controller: AnyObject, object: U, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
+    func didChangeObject<U>(_ controller: AnyObject, object: U, oldIndexPath: IndexPath, newIndexPath: IndexPath, changeType: RealmResultsChangeType) {
         self.object = object as? Task
         self.oldIndexPath = oldIndexPath
         self.newIndexPath = newIndexPath
         self.changeType = changeType
     }
     
-    func didChangeSection<U>(controller: AnyObject, section: RealmSection<U>, index: Int, changeType: RealmResultsChangeType) {
+    func didChangeSection<U>(_ controller: AnyObject, section: RealmSection<U>, index: Int, changeType: RealmResultsChangeType) {
         self.section = section as? RealmSection<Task>
         self.sectionIndex = index
         self.changeType = changeType
     }
 
     
-    func didChangeResults(controller: AnyObject) {}
+    func didChangeResults(_ controller: AnyObject) {}
 }
 
 class RealmResultsControllerSpec: QuickSpec {
@@ -51,8 +51,8 @@ class RealmResultsControllerSpec: QuickSpec {
         beforeSuite {
             RealmTestHelper.loadRealm()
             realm = try! Realm()
-            let predicate = NSPredicate(value: true)
-            request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: [SortDescriptor(property: "id")])
+            let predicate = Predicate(value: true)
+            request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: [RealmSwift.SortDescriptor(property: "id")])
             RRC = try! RealmResultsController<Task, Task>(forTESTRequest: request, sectionKeyPath: nil) { $0 }
             RRC.delegate = RRCDelegate
         }
@@ -86,15 +86,15 @@ class RealmResultsControllerSpec: QuickSpec {
             }
             
             it("try to execute a block in main thread from a background queue") {
-                let queue = dispatch_queue_create("lock", DISPATCH_QUEUE_SERIAL)
-                dispatch_async(queue) {
+                let queue = DispatchQueue(label: "lock", attributes: DispatchQueueAttributes.serial)
+                queue.async {
                     Threading.executeOnMainThread { }
                 }
             }
             
             it("try to execute a block in main thread from a background queue synced") {
-                let queue = dispatch_queue_create("lock", DISPATCH_QUEUE_SERIAL)
-                dispatch_async(queue) {
+                let queue = DispatchQueue(label: "lock", attributes: DispatchQueueAttributes.serial)
+                queue.async {
                     Threading.executeOnMainThread(true) { }
                 }
             }
@@ -103,10 +103,10 @@ class RealmResultsControllerSpec: QuickSpec {
                 var createdRRC: RealmResultsController<Task, TaskModel>!
                 var sameType: Bool = false
                 beforeEach {
-                    let request = RealmRequest<Task>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [SortDescriptor(property: "id")])
+                    let request = RealmRequest<Task>(predicate: Predicate(value: true), realm: realm, sortDescriptors: [RealmSwift.SortDescriptor(property: "id")])
                     createdRRC = try! RealmResultsController<Task, TaskModel>(request: request, sectionKeyPath: nil, mapper: Task.mapTask)
                     createdRRC.performFetch()
-                    let object = createdRRC.objectAt(NSIndexPath(forRow: 0, inSection: 0))
+                    let object = createdRRC.objectAt(IndexPath(forRow: 0, inSection: 0))
                     sameType = object.isKindOfClass(TaskModel)
                 }
                 it("returns mapped object") {
@@ -119,7 +119,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 
                 beforeEach {
                     do  {
-                        let request = RealmRequest<Task>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [SortDescriptor(property: "name")])
+                        let request = RealmRequest<Task>(predicate: Predicate(value: true), realm: realm, sortDescriptors: [RealmSwift.SortDescriptor(property: "name")])
                         let _ = try RealmResultsController<Task, TaskModel>(request: request, sectionKeyPath: "something", mapper: Task.mapTask)
                     } catch {
                         exceptionDetected = true
@@ -134,7 +134,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 var exceptionDetected: Bool = false
                 beforeEach {
                     do  {
-                        let request = RealmRequest<Task>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [])
+                        let request = RealmRequest<Task>(predicate: Predicate(value: true), realm: realm, sortDescriptors: [])
                         let _ = try RealmResultsController<Task, TaskModel>(request: request, sectionKeyPath: "something", mapper: Task.mapTask)
                     } catch {
                         exceptionDetected = true
@@ -149,7 +149,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 var exceptionDetected: Bool = false
                 beforeEach {
                     do  {
-                        let request = RealmRequest<Task>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [])
+                        let request = RealmRequest<Task>(predicate: Predicate(value: true), realm: realm, sortDescriptors: [])
                         let _ = try RealmResultsController<Task, TaskModel>(request: request, sectionKeyPath: "something", mapper: Task.mapTask)
                     } catch {
                         exceptionDetected = true
@@ -180,7 +180,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 var sameType: Bool = false
                 beforeEach {
                     createdRRC.performFetch()
-                    let object = createdRRC.objectAt(NSIndexPath(forRow: 0, inSection: 0))
+                    let object = createdRRC.object(at: IndexPath(forRow: 0, inSection: 0))
                     sameType = object.isKindOfClass(Task)
                 }
                 it("returns mapped object") {
@@ -209,7 +209,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 var sameType: Bool = false
                 beforeEach {
                     createdRRC.performFetch()
-                    let object = createdRRC.objectAt(NSIndexPath(forRow: 0, inSection: 0))
+                    let object = createdRRC.object(at: IndexPath(forRow: 0, inSection: 0))
                     sameType = object.isKindOfClass(Task)
                 }
                 it("returns mapped object") {
@@ -276,7 +276,7 @@ class RealmResultsControllerSpec: QuickSpec {
             beforeEach {
                 RRC.performFetch()
                 fetchedObject = RRC.cache.sections[0].objects[5] as? Task
-                object = RRC.objectAt(NSIndexPath(forRow: 5, inSection: 0))
+                object = RRC.objectAt(IndexPath(forRow: 5, inSection: 0))
             }
             it("returns the correct object") {
                 expect(object) == fetchedObject
@@ -284,7 +284,7 @@ class RealmResultsControllerSpec: QuickSpec {
         }
         describe("didInsert<T: Object>(object:indexPath:)") {
             var object: Task!
-            let indexPath = NSIndexPath(forRow: 1, inSection: 2)
+            let indexPath = IndexPath(row: 1, section: 2)
             beforeEach {
                 object = Task()
                 RRC.didInsert(object, indexPath: indexPath)
@@ -297,8 +297,8 @@ class RealmResultsControllerSpec: QuickSpec {
         
         describe("didUpdate<T: Object>(object:oldIndexPath:newIndexPath:)") {
             var object: Task!
-            let oldIndexPath = NSIndexPath(forRow: 4, inSection: 2)
-            let newIndexPath = NSIndexPath(forRow: 1, inSection: 2)
+            let oldIndexPath = IndexPath(row: 4, section: 2)
+            let newIndexPath = IndexPath(row: 1, section: 2)
             beforeEach {
                 object = Task()
                 RRC.didUpdate(object, oldIndexPath: oldIndexPath, newIndexPath: newIndexPath, changeType: .Move)
@@ -310,7 +310,7 @@ class RealmResultsControllerSpec: QuickSpec {
             }
         }
         describe("didDelete<T: Object>(object:indexPath:)") {
-            let indexPath = NSIndexPath(forRow: 1, inSection: 2)
+            let indexPath = IndexPath(row: 1, section: 2)
             var task: Task!
             beforeEach {
                 task = Task()
@@ -360,7 +360,7 @@ class RealmResultsControllerSpec: QuickSpec {
                     temporaryUpdated = RRC.temporaryUpdated
                     temporaryDeleted = RRC.temporaryDeleted
                     let createChange = RealmChange(type: User.self, action: .Add, mirror: User())
-                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: [realm.realmIdentifier : [createChange]]))
+                    RRC.didReceiveRealmChanges(Notification(name: "", object: [realm.realmIdentifier : [createChange]]))
                 }
                 it("ignores the object") {
                     expect(temporaryAdded) == RRC.temporaryAdded
@@ -377,7 +377,7 @@ class RealmResultsControllerSpec: QuickSpec {
                     temporaryAdded = RRC.temporaryAdded
                     temporaryUpdated = RRC.temporaryUpdated
                     temporaryDeleted = RRC.temporaryDeleted
-                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: ["wrongRealm" : [RealmChange]()]))
+                    RRC.didReceiveRealmChanges(Notification(name: "", object: ["wrongRealm" : [RealmChange]()]))
                 }
                 it("Should have the same temporary arrays as previously") {
                     expect(temporaryAdded).to(equal(RRC.temporaryAdded))
@@ -394,7 +394,7 @@ class RealmResultsControllerSpec: QuickSpec {
                     temporaryAdded = RRC.temporaryAdded
                     temporaryUpdated = RRC.temporaryUpdated
                     temporaryDeleted = RRC.temporaryDeleted
-                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: nil))
+                    RRC.didReceiveRealmChanges(Notification(name: "", object: nil))
                 }
                 it("Should have the same temporary arrays as previously") {
                     expect(temporaryAdded).to(equal(RRC.temporaryAdded))
@@ -407,7 +407,7 @@ class RealmResultsControllerSpec: QuickSpec {
                 var notifObject: [String :[RealmChange]] = [:]
                 beforeEach {
                     notifObject = [realm.realmIdentifier : [RealmChange]()]
-                    RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
+                    RRC.didReceiveRealmChanges(Notification(name: "", object: notifObject))
                 }
                 it("Should not have added anything to the cache") {
                     expect(RRC.cache.sections.count).to(equal(0))
@@ -438,7 +438,7 @@ class RealmResultsControllerSpec: QuickSpec {
                         updateChange = RealmChange(type: Task.self, action: .Update, mirror: task2.getMirror())
                         deleteChange = RealmChange(type: Task.self, action: .Delete, mirror: task3.getMirror())
                         notifObject = [realm.realmIdentifier : [updateChange, deleteChange]]
-                        RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
+                        RRC.didReceiveRealmChanges(Notification(name: "", object: notifObject))
                     }
                     afterEach {
                         try! RRC.request.realm.write {
@@ -472,7 +472,7 @@ class RealmResultsControllerSpec: QuickSpec {
                         createChange = RealmChange(type: Task.self, action: .Add, mirror: task1.getMirror())
                         updateChange = RealmChange(type: Task.self, action: .Update, mirror: task2.getMirror())
                         notifObject = [realm.realmIdentifier : [createChange, updateChange]]
-                        RRC.didReceiveRealmChanges(NSNotification(name: "", object: notifObject))
+                        RRC.didReceiveRealmChanges(Notification(name: "", object: notifObject))
                     }
                     afterEach {
                         try! RRC.request.realm.write {
