@@ -10,7 +10,7 @@ import Foundation
 import RealmSwift
 
 
-class TaskObject: Object {
+class TaskObject: RealmSwift.Object {
     dynamic var id = 0
     dynamic var name = ""
     dynamic var resolved = false
@@ -25,7 +25,7 @@ class TaskObject: Object {
         true
     }()
     
-    static func map(model: TaskModelObject) -> TaskObject {
+    static func map(_ model: TaskModelObject) -> TaskObject {
         let task = TaskObject()
         task.id = model.id
         task.name = model.name
@@ -34,7 +34,7 @@ class TaskObject: Object {
         return task
     }
     
-    static func mapTask(taskModel: TaskObject) -> TaskModelObject {
+    static func mapTask(_ taskModel: TaskObject) -> TaskModelObject {
         let task = TaskModelObject()
         task.id = taskModel.id
         task.name = taskModel.name
@@ -44,7 +44,7 @@ class TaskObject: Object {
     }
 }
 
-class TaskModelObject: Object {
+class TaskModelObject: RealmSwift.Object {
     dynamic var id = 0
     dynamic var name = ""
     dynamic var resolved = false
@@ -60,7 +60,7 @@ class TaskModelObject: Object {
     }()
 }
 
-class UserObject: Object {
+class UserObject: RealmSwift.Object {
     dynamic var id = 0
     dynamic var name = ""
     dynamic var avatarURL = ""
@@ -70,7 +70,7 @@ class UserObject: Object {
     }
 }
 
-class ProjectObject: Object {
+class ProjectObject: RealmSwift.Object {
     dynamic var id = 0
     dynamic var name = ""
     dynamic var projectDrescription = ""
@@ -80,7 +80,7 @@ class ProjectObject: Object {
     }
 }
 
-class DummyObject: Object {
+class DummyObject: RealmSwift.Object {
     dynamic var id: Int = 0
     dynamic var optionalNilValue: ProjectObject?
 }

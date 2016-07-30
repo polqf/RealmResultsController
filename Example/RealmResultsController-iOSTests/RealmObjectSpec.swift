@@ -17,7 +17,7 @@ class NotificationListener2 {
     static let sharedInstance = NotificationListener2()
     var notificationReceived: Bool = false
     
-    @objc func notificationReceived(notification: NSNotification) {
+    @objc func notificationReceived(_ notification: Notification) {
         notificationReceived = true
     }
 }
@@ -32,7 +32,7 @@ class RealmObjectSpec: QuickSpec {
         }
         describe("notifyChange()") {
             afterEach {
-                NSNotificationCenter.defaultCenter().removeObserver(NotificationListener2.sharedInstance)
+                NotificationCenter.default.removeObserver(NotificationListener2.sharedInstance)
                 NotificationListener2.sharedInstance.notificationReceived = false
             }
             context("With valid realm") {
@@ -45,7 +45,7 @@ class RealmObjectSpec: QuickSpec {
                         realm.addNotified(user, update: true)
                     }
                     
-                    NSNotificationCenter.defaultCenter().addObserver(NotificationListener2.sharedInstance,
+                    NotificationCenter.defaultCenter().addObserver(NotificationListener2.sharedInstance,
                         selector: #selector(NotificationListener2.notificationReceived),
                         name: user.objectIdentifier(),
                         object: nil)
@@ -69,7 +69,7 @@ class RealmObjectSpec: QuickSpec {
             context("With invalid realm") {
                 beforeEach {
                     let user = Task()
-                    NSNotificationCenter.defaultCenter().addObserver(NotificationListener2.sharedInstance,
+                    NotificationCenter.defaultCenter().addObserver(NotificationListener2.sharedInstance,
                         selector: #selector(NotificationListener2.notificationReceived),
                         name: user.objectIdentifier(),
                         object: nil)

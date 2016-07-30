@@ -17,7 +17,7 @@ class NotificationListener {
     static let sharedInstance = NotificationListener()
     var array: [String : [RealmChange]] = [:]
     
-    @objc func notificationReceived(notification: NSNotification) {
+    @objc func notificationReceived(_ notification: Notification) {
         array = notification.object as! [String : [RealmChange]]
     }
 }
@@ -26,7 +26,7 @@ class NotificationObserver {
     
     var notificationReceived: Bool = false
     init() {
-        NSNotificationCenter.defaultCenter().addObserverForName("Task-123", object: nil, queue: nil) { (notification) -> Void in
+        NotificationCenter.default.addObserver(forName: "Task-123" as NSNotification.Name, object: nil, queue: nil) { (notification) -> Void in
             self.notificationReceived = true
         }
     }
@@ -57,8 +57,8 @@ class RealmLoggerSpec: QuickSpec {
             context("not from main thread") {
                 var bgRealm: Realm!
                 beforeEach {
-                    let queue = dispatch_queue_create("TESTBG", nil)
-                    dispatch_sync(queue) {
+                    let queue = DispatchQueue(label: "TESTBG", attributes: [])
+                    queue.sync {
                         let configuration = Realm.Configuration(inMemoryIdentifier: "testingRealmBG")
                         bgRealm = try! Realm(configuration: configuration)
                         newLogger = RealmLogger(realm: bgRealm)
@@ -81,11 +81,11 @@ class RealmLoggerSpec: QuickSpec {
                     logger.temporary.append(newObject)
                     logger.temporary.append(updatedObject)
                     logger.temporary.append(deletedObject)
-                    NSNotificationCenter.defaultCenter().addObserver(NotificationListener.sharedInstance, selector: #selector(NotificationListener.notificationReceived), name: "realmChangesTest", object: nil)
+                    NotificationCenter.default.addObserver(NotificationListener.sharedInstance, selector: #selector(NotificationListener.notificationReceived), name: "realmChangesTest", object: nil)
                     logger.finishRealmTransaction()
                 }
                 afterEach {
-                    NSNotificationCenter.defaultCenter().removeObserver(self)
+                    NotificationCenter.default.removeObserver(self)
                 }
                 it("Should have received a notification with a valid dictionary") {
                     let notificationArray = NotificationListener.sharedInstance.array
@@ -106,8 +106,8 @@ class RealmLoggerSpec: QuickSpec {
             context("not from main thread") {
                 beforeEach {
                     var newLogger: RealmLogger!
-                    let queue = dispatch_queue_create("TESTBG", nil)
-                    dispatch_sync(queue) {
+                    let queue = DispatchQueue(label: "TESTBG", attributes: [])
+                    queue.sync {
                         let configuration = Realm.Configuration(inMemoryIdentifier: "testingRealmBG")
                         let realm = try! Realm(configuration: configuration)
                         newLogger = RealmLogger(realm: realm)
@@ -116,11 +116,11 @@ class RealmLoggerSpec: QuickSpec {
                     newLogger.temporary.append(newObject)
                     newLogger.temporary.append(updatedObject)
                     newLogger.temporary.append(deletedObject)
-                    NSNotificationCenter.defaultCenter().addObserver(NotificationListener.sharedInstance, selector: #selector(NotificationListener.notificationReceived), name: "realmChangesTest", object: nil)
+                    NotificationCenter.default.addObserver(NotificationListener.sharedInstance, selector: #selector(NotificationListener.notificationReceived), name: "realmChangesTest", object: nil)
                     newLogger.finishRealmTransaction()
                 }
                 afterEach {
-                    NSNotificationCenter.defaultCenter().removeObserver(self)
+                    NotificationCenter.default.removeObserver(self)
                 }
                 it("Should have received a notification with a valid dictionary") {
                     let notificationArray = NotificationListener.sharedInstance.array

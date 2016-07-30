@@ -17,13 +17,13 @@ struct RealmTestHelper {
         firstTime = false
         
         let defaultRealmPath = Realm.Configuration.defaultConfiguration.fileURL!.absoluteString
-            .stringByReplacingOccurrencesOfString("file:///", withString: "/")
-        let bundleReamPath: String? = NSBundle.mainBundle().resourcePath! + "/test.realm"
+            .replacingOccurrences(of: "file:///", with: "/")
+        let bundleReamPath: String? = Bundle.main.resourcePath! + "/test.realm"
         
-        if NSFileManager.defaultManager().fileExistsAtPath(defaultRealmPath) {
-            try! NSFileManager.defaultManager().removeItemAtPath(defaultRealmPath)
+        if FileManager.default.fileExists(atPath: defaultRealmPath) {
+            try! FileManager.default.removeItem(atPath: defaultRealmPath)
         }
-        try! NSFileManager.defaultManager().copyItemAtPath(bundleReamPath!, toPath: defaultRealmPath)
+        try! FileManager.default.copyItem(atPath: bundleReamPath!, toPath: defaultRealmPath)
     }
 }
 

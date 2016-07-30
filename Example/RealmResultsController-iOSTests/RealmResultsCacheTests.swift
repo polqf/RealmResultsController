@@ -18,9 +18,9 @@ class CacheDelegateMock: RealmResultsCacheDelegate {
     static let sharedInstance = CacheDelegateMock()
     
     var index = -1
-    var oldIndexPath: NSIndexPath?
-    var indexPath: NSIndexPath?
-    var object: Object?
+    var oldIndexPath: IndexPath?
+    var indexPath: IndexPath?
+    var object: RealmSwift.Object?
     
     func reset() {
         index = -1
@@ -29,24 +29,24 @@ class CacheDelegateMock: RealmResultsCacheDelegate {
         object = nil
     }
     
-    func didInsertSection<T: Object>(section: Section<T>, index: Int) {
+    func didInsertSection<T: RealmSwift.Object>(_ section: Section<T>, index: Int) {
         self.index = index
     }
     
-    func didDeleteSection<T: Object>(section: Section<T>, index: Int) {
+    func didDeleteSection<T: RealmSwift.Object>(_ section: Section<T>, index: Int) {
         self.index = index
     }
     
-    func didInsert<T: Object>(object: T, indexPath: NSIndexPath) {
-        self.object = object as Object
+    func didInsert<T: RealmSwift.Object>(_ object: T, indexPath: IndexPath) {
+        self.object = object as RealmSwift.Object
         self.indexPath = indexPath
     }
-    func didDelete<T: Object>(object: T, indexPath: NSIndexPath) {
+    func didDelete<T: RealmSwift.Object>(_ object: T, indexPath: IndexPath) {
         self.indexPath = indexPath
         self.object = object
     }
-    func didUpdate<T: Object>(object: T, oldIndexPath: NSIndexPath, newIndexPath: NSIndexPath, changeType: RealmResultsChangeType) {
-        self.object = object as Object
+    func didUpdate<T: RealmSwift.Object>(_ object: T, oldIndexPath: IndexPath, newIndexPath: IndexPath, changeType: RealmResultsChangeType) {
+        self.object = object as RealmSwift.Object
         self.oldIndexPath = oldIndexPath
         self.indexPath = newIndexPath
     }
@@ -62,14 +62,14 @@ class CacheSpec: QuickSpec {
         var initialObjects: [Task]!
         var request: RealmRequest<Task>!
         var realm: Realm!
-        var predicate: NSPredicate!
-        var sortDescriptors: [SortDescriptor]!
+        var predicate: Predicate!
+        var sortDescriptors: [RealmSwift.SortDescriptor]!
         var resolvedTasks: [Task]!
         var notResolvedTasks: [Task]!
         
         func initWithKeypath() {
-            predicate = NSPredicate(format: "id < %d", 50)
-            sortDescriptors = [SortDescriptor(property: "name", ascending: true)]
+            predicate = Predicate(format: "id < %d", 50)
+            sortDescriptors = [RealmSwift.SortDescriptor(property: "name", ascending: true)]
             request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
             initialObjects = request.execute().toArray().sort { $0.name < $1.name }
             resolvedTasks = initialObjects.filter { $0.resolved }
@@ -80,8 +80,8 @@ class CacheSpec: QuickSpec {
         }
         
         func initWithoutKeypath() {
-            predicate = NSPredicate(format: "id < %d", 50)
-            sortDescriptors = [SortDescriptor(property: "name", ascending: true)]
+            predicate = Predicate(format: "id < %d", 50)
+            sortDescriptors = [RealmSwift.SortDescriptor(property: "name", ascending: true)]
             request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
             initialObjects = request.execute().toArray()
             resolvedTasks = initialObjects.filter { $0.resolved }
@@ -93,8 +93,8 @@ class CacheSpec: QuickSpec {
         
         // Init with only one object with ID = 0
         func initEmpty() {
-            predicate = NSPredicate(format: "id < %d", 1)
-            sortDescriptors = [SortDescriptor(property: "name", ascending: true)]
+            predicate = Predicate(format: "id < %d", 1)
+            sortDescriptors = [RealmSwift.SortDescriptor(property: "name", ascending: true)]
             request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
             initialObjects = request.execute().toArray().sort { $0.name < $1.name }
             resolvedTasks = initialObjects.filter { $0.resolved }
@@ -176,9 +176,9 @@ class CacheSpec: QuickSpec {
         describe("insert") {
             context("with section keypath") {
                 var newTask: Task!
-                var cacheIndexPath: NSIndexPath!
+                var cacheIndexPath: IndexPath!
                 var memoryIndex: Int!
-                var object: Object!
+                var object: RealmSwift.Object!
                 var resolvedTasksCopy: [Task]!
 
                 it("beforeAll") {
@@ -194,8 +194,8 @@ class CacheSpec: QuickSpec {
                     //replicate the behaviour (adding + sorting) in a copy array
                     resolvedTasksCopy = resolvedTasks
                     resolvedTasksCopy.append(newTask)
-                    resolvedTasksCopy.sortInPlace {$0.name < $1.name}
-                    memoryIndex = resolvedTasksCopy.indexOf { $0 == newTask }
+                    resolvedTasksCopy.sort { $0.name < $1.name }
+                    memoryIndex = resolvedTasksCopy.index { $0 == newTask }
                     
                     //Get the values from the delegate
                     cacheIndexPath = CacheDelegateMock.sharedInstance.indexPath
@@ -221,9 +221,9 @@ class CacheSpec: QuickSpec {
             
             context("without section keypath") {
                 var newTask: Task!
-                var cacheIndexPath: NSIndexPath!
+                var cacheIndexPath: IndexPath!
                 var memoryIndex: Int!
-                var object: Object!
+                var object: RealmSwift.Object!
                 var tasksCopy: [Task]!
                 
                 it("beforeAll") {
@@ -238,8 +238,8 @@ class CacheSpec: QuickSpec {
                     //replicate the behaviour (adding + sorting) in a copy array
                     tasksCopy = initialObjects
                     tasksCopy.append(newTask)
-                    tasksCopy.sortInPlace {$0.name < $1.name}
-                    memoryIndex = tasksCopy.indexOf { $0 == newTask }
+                    tasksCopy.sort { $0.name < $1.name }
+                    memoryIndex = tasksCopy.index { $0 == newTask }
                     
                     //Get the values from the delegate
                     cacheIndexPath = CacheDelegateMock.sharedInstance.indexPath
@@ -268,8 +268,8 @@ class CacheSpec: QuickSpec {
         describe("delete") {
             context("object was in cache") {
                 
-                var object: Object!
-                var indexPath: NSIndexPath!
+                var object: RealmSwift.Object!
+                var indexPath: IndexPath!
                 it("beforeAll") {
                     initWithoutKeypath()
                     let task = initialObjects[10].getMirror()
@@ -293,8 +293,8 @@ class CacheSpec: QuickSpec {
             }
             
             context("object was not in cache") {
-                var object: Object?
-                var indexPath: NSIndexPath?
+                var object: RealmSwift.Object?
+                var indexPath: IndexPath?
                 var newTask: Task!
                 it("beforeAll") {
                     initWithoutKeypath()
@@ -317,8 +317,8 @@ class CacheSpec: QuickSpec {
             }
             
             context("delete last object of section") {
-                var object: Object?
-                var indexPath: NSIndexPath?
+                var object: RealmSwift.Object?
+                var indexPath: IndexPath?
                 var newTask: Task!
                 var deletedSection: Int = -1
                 it("beforeAll") {
@@ -349,9 +349,9 @@ class CacheSpec: QuickSpec {
         
         describe("update") {
             context("an object that is already in cache (without section or position change)") {
-                var object: Object!
-                var indexPath: NSIndexPath?
-                var oldIndexPath: NSIndexPath?
+                var object: RealmSwift.Object!
+                var indexPath: IndexPath?
+                var oldIndexPath: IndexPath?
                 it("beforeAll") {
                     initWithKeypath()
                     cache.update([resolvedTasks[5]])
@@ -372,9 +372,9 @@ class CacheSpec: QuickSpec {
             
             
             context("an object that it is in cache with section change") {
-                var object: Object!
-                var indexPath: NSIndexPath?
-                var oldIndexPath: NSIndexPath?
+                var object: RealmSwift.Object!
+                var indexPath: IndexPath?
+                var oldIndexPath: IndexPath?
                 var myTask: Task!
                 var notResolvedTasksCopy: [Task]!
                 var memoryIndex: Int!
@@ -386,8 +386,8 @@ class CacheSpec: QuickSpec {
                     }
                     notResolvedTasksCopy = notResolvedTasks
                     notResolvedTasksCopy.append(myTask)
-                    notResolvedTasksCopy.sortInPlace {$0.name < $1.name}
-                    memoryIndex = notResolvedTasksCopy.indexOf { $0 == myTask }
+                    notResolvedTasksCopy.sort { $0.name < $1.name }
+                    memoryIndex = notResolvedTasksCopy.index { $0 == myTask }
                     cache.delete([myTask]) // an update changing sections is actually a delete and insert
                     cache.insert([myTask])
                     object = CacheDelegateMock.sharedInstance.object
@@ -417,9 +417,9 @@ class CacheSpec: QuickSpec {
             }
             
             context("an object that is not in the cache (insertion)") {
-                var object: Object!
-                var indexPath: NSIndexPath?
-                var oldIndexPath: NSIndexPath?
+                var object: RealmSwift.Object!
+                var indexPath: IndexPath?
+                var oldIndexPath: IndexPath?
                 var myTask: Task!
                 it("beforeAll") {
                     initWithKeypath()
@@ -488,8 +488,8 @@ class CacheSpec: QuickSpec {
                 beforeEach {
                     initWithKeypath()
                     waitUntil { done in
-                        let queue = dispatch_queue_create("lock", DISPATCH_QUEUE_SERIAL)
-                        dispatch_async(queue) {
+                        let queue = DispatchQueue(label: "lock", attributes: DispatchQueueAttributes.serial)
+                        queue.async {
                             let task = Task()
                             task.id = 1
                             keyPath = cache.keyPathForObject(task)
