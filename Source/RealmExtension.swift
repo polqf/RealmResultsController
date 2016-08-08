@@ -59,7 +59,7 @@ extension Realm {
                 return
         }
 
-        if let _ = object(ofType: obj.dynamicType.self, forPrimaryKey: primaryKeyValue) {
+        if let _ = object(ofType: obj.dynamicType, forPrimaryKey: primaryKeyValue) {
             RealmNotification.logger(for: self).didUpdate(obj)
             return
         }
