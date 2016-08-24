@@ -43,9 +43,9 @@ extension RealmSwift.Object {
     - returns: The identifier as String
     */
     public func objectIdentifier() -> String? {
-        guard let primaryKey = self.dynamicType.primaryKey(),
+        guard let primaryKey = type(of: self).primaryKey(),
             let primaryKeyValue = (self as RealmSwift.Object).value(forKey: primaryKey) else { return nil }
-        return String(self.dynamicType) + "-" + String(primaryKeyValue)
+        return "\(type(of: self))-\(primaryKeyValue)"
     }
     
     
@@ -72,7 +72,7 @@ extension RealmSwift.Object {
      - returns a copy of the original object (T) but not included in any realm
      */
     public func getMirror() -> Self {
-        let newObject = self.dynamicType.init()
+        let newObject = type(of: self).init()
         let mirror = Mirror(reflecting: self)
         for c in mirror.children.enumerated() {
             guard let key = c.1.0, !key.hasSuffix(".storage") else { continue }
@@ -92,9 +92,9 @@ extension RealmSwift.Object {
      
      - returns  the primary key value as AnyObject
      */
-    public func primaryKeyValue() -> AnyObject? {
-        guard let primaryKey = self.dynamicType.primaryKey() else { return nil }
-        var primaryKeyValue: AnyObject?
+    public func primaryKeyValue() -> Any? {
+        guard let primaryKey = type(of: self).primaryKey() else { return nil }
+        var primaryKeyValue: Any?
         Threading.executeOnMainThread(true) {
             primaryKeyValue = self.value(forKey: primaryKey)
         }
@@ -110,6 +110,10 @@ extension RealmSwift.Object {
      - returns Bool         true if they have the same primary key value
     */
     func hasSamePrimaryKeyValue<T: RealmSwift.Object>(as object: T) -> Bool {
-        return (object as RealmSwift.Object).primaryKeyValue()?.isEqual(primaryKeyValue()) ?? false
+        guard let objectValue = object.primaryKeyValue() as? NSObject, let selfValue = primaryKeyValue() as? NSObject else {
+            return false
+        }
+
+        return objectValue.isEqual(selfValue)
     }
 }

@@ -14,7 +14,7 @@ extension Realm {
     var realmIdentifier: String {
         var realmIdentifier = ""
         if let fileURL = configuration.fileURL {
-            realmIdentifier = fileURL.absoluteString!
+            realmIdentifier = fileURL.absoluteString
         }
         else if let identifier = configuration.inMemoryIdentifier {
             realmIdentifier = identifier
@@ -53,13 +53,13 @@ extension Realm {
     public func addNotified<N: RealmSwift.Object>(_ obj: N, update: Bool = false) {
         defer { add(obj, update: update) }
         var primaryKey: String?
-        primaryKey = (obj as RealmSwift.Object).dynamicType.primaryKey()
+        primaryKey = type(of: (obj as RealmSwift.Object)).primaryKey()
         guard let pKey = primaryKey,
             let primaryKeyValue = (obj as RealmSwift.Object).value(forKey: pKey) else {
                 return
         }
 
-        if let _ = object(ofType: obj.dynamicType, forPrimaryKey: primaryKeyValue) {
+        if let _ = object(ofType: type(of: obj), forPrimaryKey: primaryKeyValue) {
             RealmNotification.logger(for: self).didUpdate(obj)
             return
         }
@@ -81,7 +81,7 @@ extension Realm {
     - parameter update: If true will try to update existing objects with the same primary key.
 
     */
-    public func addNotified<S: Sequence where S.Iterator.Element: RealmSwift.Object>(_ objects: S, update: Bool = false) {
+    public func addNotified<S: Sequence>(_ objects: S, update: Bool = false) where S.Iterator.Element: RealmSwift.Object {
         for object in objects {
             addNotified(object, update: update)
         }
@@ -110,15 +110,14 @@ extension Realm {
     - returns: The created object.
     */
     @discardableResult
-    public func createNotified<T: RealmSwift.Object>(_ type: T.Type, value: AnyObject = [:], update upd: Bool = false) -> T? {
+    public func createNotified<T: RealmSwift.Object>(_ type: T.Type, value: Any = [:], update upd: Bool = false) -> T? {
         var update = upd
         let createBlock = {
             return self.createObject(ofType: type, populatedWith: value, update: update)
         }
         
         var create = true
-        guard let primaryKey = T.primaryKey() else { return nil }
-        guard let primaryKeyValue = value.value(forKey: primaryKey) else { return nil }
+        guard let primaryKey = T.primaryKey(), let primaryKeyValue = (value as AnyObject).value(forKey: primaryKey) else { return nil }
         
         if let _ = object(ofType: type, forPrimaryKey: primaryKeyValue) {
             create = false
@@ -162,7 +161,7 @@ extension Realm {
     - parameter object: The objects to be deleted. This can be a `List<Object>`, `Results<Object>`,
     or any other enumerable SequenceType which generates Object.
     */
-    public func deleteNotified<S: Sequence where S.Iterator.Element: RealmSwift.Object>(_ objects: S) {
+    public func deleteNotified<S: Sequence>(_ objects: S) where S.Iterator.Element: RealmSwift.Object {
         for object in objects {
             deleteNotified(object)
         }
@@ -179,7 +178,9 @@ extension Realm {
     - returns Realm Results<T>
     */
     public func execute<T: RealmSwift.Object>(_ request: RealmRequest<T>) -> Results<T> {
-        return allObjects(ofType: request.entityType).filter(using: request.predicate).sorted(with: request.sortDescriptors)
+        let objects = allObjects(ofType: request.entityType).filter(using: request.predicate)
+        if request.sortDescriptors.isEmpty { return objects }
+        return objects.sorted(with: request.sortDescriptors)
     }
 }
 

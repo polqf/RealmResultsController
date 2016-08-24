@@ -115,11 +115,11 @@ class RealmExtensionSpec: QuickSpec {
             }
             
             context("the object already exists on DB") {
-                var myTask: [String: AnyObject]!
+                var myTask: [String : Any]!
                 var fetchedTask: Task!
                 beforeEach {
                     self.cleanLoggers()
-                    myTask = ["name": "hola", "id": 1501, "resolved": 1]
+                    myTask = ["name" : "hola", "id" : 1501, "resolved" : 1]
                     try! realm.write {
                         realm.createNotified(Task.self, value: myTask, update: true)
                     }
@@ -136,13 +136,13 @@ class RealmExtensionSpec: QuickSpec {
 
             
             context("the Model does not have primaryKey") {
-                var object: [String: AnyObject]!
+                var object: [String : Any]!
                 var totalObjectsBefore: Int!
                 var totalObjectsAfter: Int!
                 beforeEach {
                     self.cleanLoggers()
                     totalObjectsBefore = realm.allObjects(ofType: Task.self).count
-                    object = ["name": "hola"]
+                    object = ["name" : "hola"]
                     try! realm.write {
                         realm.createNotified(Dummy.self, value: object, update: true)
                     }
@@ -160,13 +160,13 @@ class RealmExtensionSpec: QuickSpec {
             }
             
             context("the model has primaryKey but the dictionary doesn't") {
-                var object: [String: AnyObject]!
+                var object: [String : Any]!
                 var totalObjectsBefore: Int!
                 var totalObjectsAfter: Int!
                 beforeEach {
                     self.cleanLoggers()
                     totalObjectsBefore = realm.allObjects(ofType: Task.self).count
-                    object = ["name": "hola"]
+                    object = ["name" : "hola"]
                     try! realm.write {
                         realm.createNotified(Task.self, value: object, update: true)
                     }
@@ -210,7 +210,7 @@ class RealmExtensionSpec: QuickSpec {
                     task.id = 161123123
                     realm.addNotified([task])
                 }
-                let predicate = Predicate(format: "id == %d", 161123123)
+                let predicate = NSPredicate(format: "id == %d", 161123123)
                 request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: [])
                 result = realm.execute(request).toArray().first!
             }

@@ -21,7 +21,7 @@ struct RealmQueueManager {
         self.sync = sync
     }
     
-    func addOperation(withBlock block: ()->()) {
+    func addOperation(withBlock block: @escaping ()->()) {
         guard !sync else {
             block()
             return

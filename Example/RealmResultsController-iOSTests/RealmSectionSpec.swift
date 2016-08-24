@@ -16,14 +16,14 @@ import RealmSwift
 class SectionSpec: QuickSpec {
     
     override func spec() {
-        var sortDescriptors: [Foundation.SortDescriptor]!
+        var sortDescriptors: [NSSortDescriptor]!
         var section: Section<Task>!
         var openTask: Task!
         var resolvedTask: Task!
         
         
         beforeSuite {
-            sortDescriptors = [SortDescriptor(key: "name", ascending: false)]
+            sortDescriptors = [NSSortDescriptor(key: "name", ascending: false)]
             section = Section<Task>(keyPath: "keyPath", sortDescriptors: sortDescriptors)
             openTask = Task()
             openTask.id = 1500
@@ -150,7 +150,7 @@ class SectionSpec: QuickSpec {
                     expect(section.objects.count).to(equal(1))
                 }
                 it("item is latest") {
-                    expect(section.objects.lastObject === openTask).to(beTrue())
+                    expect((section.objects.lastObject as! Task) === openTask!).to(beTrue())
                 }
             }
             
@@ -163,7 +163,7 @@ class SectionSpec: QuickSpec {
                     expect(section.objects.count).to(equal(2))
                 }
                 it("lastObject is resolvedTask") {
-                    expect(section.objects.lastObject === resolvedTask).to(beTrue())
+                    expect((section.objects.lastObject as! Task) === resolvedTask!).to(beTrue())
                 }
             }
         }
@@ -185,7 +185,7 @@ class SectionSpec: QuickSpec {
                 var aTaskIndex: Int!
                 var bTaskIndex: Int!
                 beforeEach {
-                    let ascendingSortDescriptors = [SortDescriptor(key: "name", ascending: true)]
+                    let ascendingSortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
                     section = Section<Task>(keyPath: "keyPath", sortDescriptors: ascendingSortDescriptors)
                     //ADDING Tasks unsorted
                     section.insert(bTask)

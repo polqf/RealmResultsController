@@ -10,11 +10,6 @@ import Foundation
 import UIKit
 import RealmSwift
 
-enum RRCError: ErrorProtocol {
-    case invalidKeyPath
-    case emptySortDescriptors
-}
-
 public enum RealmResultsChangeType: String {
     case Insert
     case Delete
@@ -115,10 +110,10 @@ public class RealmResultsController<T: RealmSwift.Object, U> : RealmResultsCache
     - param: request        Request to fetch objects
     - param: sectionKeyPath KeyPath to group the results by sections
     - param: mapper         Mapper to map the results.
-    
+
     - returns: Self
     */
-    public init(request: RealmRequest<T>, sectionKeyPath: String? ,mapper: (T) -> U, filter: ((T) -> Bool)? = nil) throws {
+    public init(request: RealmRequest<T>, sectionKeyPath: String?, mapper: @escaping (T) -> U, filter: ((T) -> Bool)? = nil) throws {
         self.request = request
         self.mapper = mapper
         self.sectionKeyPath = sectionKeyPath
@@ -154,7 +149,7 @@ public class RealmResultsController<T: RealmSwift.Object, U> : RealmResultsCache
         try self.init(request: request, sectionKeyPath: sectionKeyPath, mapper: {$0 as! U})
     }
     
-    internal convenience init(forTESTRequest request: RealmRequest<T>, sectionKeyPath: String?, mapper: (T)->(U)) throws {
+    internal convenience init(forTESTRequest request: RealmRequest<T>, sectionKeyPath: String?, mapper: @escaping (T)->(U)) throws {
         try self.init(request: request, sectionKeyPath: sectionKeyPath, mapper: mapper)
         self._test = true
     }
@@ -169,7 +164,7 @@ public class RealmResultsController<T: RealmSwift.Object, U> : RealmResultsCache
     
     :param: newFilter A Filter closure applied to T: Object
     */
-    public func updateFilter(_ newFilter: (T) -> Bool) {
+    public func updateFilter(_ newFilter: @escaping (T) -> Bool) {
         filter = newFilter
         performFetch()
     }
@@ -272,11 +267,14 @@ public class RealmResultsController<T: RealmSwift.Object, U> : RealmResultsCache
     //MARK: Realm Notifications
     
     private func addNotificationObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(didReceiveRealmChanges), name: "realmChanges" as NSNotification.Name, object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(didReceiveRealmChanges),
+                                               name: NSNotification.Name(rawValue: "realmChanges"),
+                                               object: nil)
         observerAdded = true
     }
     
-    @objc func didReceiveRealmChanges(_ notification: Foundation.Notification) {
+    @objc func didReceiveRealmChanges(_ notification: NSNotification) {
         guard case let notificationObject as [String : [RealmChange]] = notification.object,
             notificationObject.keys.first == request.realm.realmIdentifier,
             let objects = notificationObject[self.request.realm.realmIdentifier] else { return }
@@ -289,7 +287,7 @@ public class RealmResultsController<T: RealmSwift.Object, U> : RealmResultsCache
     
     private func refetchObjects(_ objects: [RealmChange]) {
         for object in objects {
-            guard String(object.type) == String(T.self), let mirrorObject = object.mirror as? T else { continue }
+            guard String(describing: object.type) == String(describing: T.self), let mirrorObject = object.mirror as? T else { continue }
             if object.action == RealmAction.delete {
                 temporaryDeleted.append(mirrorObject)
                 continue

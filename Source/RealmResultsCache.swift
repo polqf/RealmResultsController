@@ -233,7 +233,7 @@ class RealmResultsCache<T: Object> {
             if keyPath.isEmpty { return defaultKeyPathValue }
             Threading.executeOnMainThread(true) {
                 if let objectKeyPathValue = object.value(forKeyPath: keyPath) {
-                    keyPathValue = String(objectKeyPathValue)
+                    keyPathValue = String(describing: objectKeyPathValue)
                 }
             }
         }
@@ -274,7 +274,7 @@ class RealmResultsCache<T: Object> {
     
     :returns: NSSortDescriptor
     */
-    private func toNSSortDescriptor(_ sort: RealmSwift.SortDescriptor) -> Foundation.SortDescriptor {
-        return SortDescriptor(key: sort.property, ascending: sort.ascending)
+    private func toNSSortDescriptor(_ sort: SortDescriptor) -> NSSortDescriptor {
+        return NSSortDescriptor(key: sort.property, ascending: sort.ascending)
     }
 }
