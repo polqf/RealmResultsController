@@ -26,7 +26,7 @@ class NotificationObserver {
     
     var notificationReceived: Bool = false
     init() {
-        NotificationCenter.default.addObserver(forName: "Task-123" as NSNotification.Name, object: nil, queue: nil) { (notification) -> Void in
+        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: "Task-123"), object: nil, queue: nil) { (notification) -> Void in
             self.notificationReceived = true
         }
     }
@@ -81,7 +81,7 @@ class RealmLoggerSpec: QuickSpec {
                     logger.temporary.append(newObject)
                     logger.temporary.append(updatedObject)
                     logger.temporary.append(deletedObject)
-                    NotificationCenter.default.addObserver(NotificationListener.sharedInstance, selector: #selector(NotificationListener.notificationReceived), name: "realmChangesTest" as Foundation.Notification.Name, object: nil)
+                    NotificationCenter.default.addObserver(NotificationListener.sharedInstance, selector: #selector(NotificationListener.notificationReceived), name: NSNotification.Name(rawValue: "realmChangesTest"), object: nil)
                     logger.finishRealmTransaction()
                 }
                 afterEach {
@@ -116,7 +116,7 @@ class RealmLoggerSpec: QuickSpec {
                     newLogger.temporary.append(newObject)
                     newLogger.temporary.append(updatedObject)
                     newLogger.temporary.append(deletedObject)
-                    NotificationCenter.default.addObserver(NotificationListener.sharedInstance, selector: #selector(NotificationListener.notificationReceived), name: "realmChangesTest" as Foundation.Notification.Name, object: nil)
+                    NotificationCenter.default.addObserver(NotificationListener.sharedInstance, selector: #selector(NotificationListener.notificationReceived), name: NSNotification.Name(rawValue: "realmChangesTest"), object: nil)
                     newLogger.finishRealmTransaction()
                 }
                 afterEach {

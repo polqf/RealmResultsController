@@ -21,7 +21,7 @@ class RealmQueueManagerSpec: QuickSpec {
     private var timeoutHasBeenReached = false
     
     func fireThread1Block() {
-        let queue = DispatchQueue(label: "THREAD 1", attributes: DispatchQueueAttributes.serial)
+        let queue = DispatchQueue(label: "THREAD 1")
         Threading.executeOnQueue(queue, sync: true) {
             self.queueManager.addOperation {
                 self.thread1BlockHasBeenFired = true
@@ -31,7 +31,7 @@ class RealmQueueManagerSpec: QuickSpec {
     }
     
     func fireThread2Block() {
-        let queue = DispatchQueue(label: "THREAD 2", attributes: DispatchQueueAttributes.serial)
+        let queue = DispatchQueue(label: "THREAD 2")
         Threading.executeOnQueue(queue, sync: true) {
             self.queueManager.addOperation {
                 self.thread2BlockHasBeenFired = true

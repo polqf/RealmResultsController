@@ -18,14 +18,14 @@ public struct RealmSection<U> {
 class Section<T: Object> : NSObject {
     var objects: NSMutableArray = []
     var keyPath: String = ""
-    var sortDescriptors: [Foundation.SortDescriptor] = []
+    var sortDescriptors: [NSSortDescriptor] = []
     var allObjects: [T] {
         return objects.map {$0 as! T}
     }
     
     //MARK: Initializer
     
-    required init(keyPath: String, sortDescriptors: [Foundation.SortDescriptor]) {
+    required init(keyPath: String, sortDescriptors: [NSSortDescriptor]) {
         self.keyPath = keyPath
         self.sortDescriptors = sortDescriptors
     }
@@ -60,7 +60,7 @@ class Section<T: Object> : NSObject {
     }
     
     //MARK: Outdated objects
-    
+
     func deleteOutdatedObject(_ object: T) -> Int? {
         if let object = outdatedObject(object) {
             return delete(object)
@@ -81,17 +81,17 @@ class Section<T: Object> : NSObject {
         }
         return nil
     }
-    
+
     //MARK: Helpers
     
-    func objectForPrimaryKey(_ value: AnyObject) -> T? {
+    func objectForPrimaryKey(_ value: Any) -> T? {
         for object in objects {
             guard let primaryKey = T.primaryKey() else { continue }
-            var primaryKeyValue: AnyObject?
+            var primaryKeyValue: Any?
             Threading.executeOnMainThread(true) {
-                primaryKeyValue = object.value(forKey: primaryKey)
+                primaryKeyValue = (object as AnyObject).value(forKey: primaryKey)
             }
-            if value.isEqual(primaryKeyValue) {
+            if (value as? NSObject)?.isEqual((primaryKeyValue as? NSObject)) == true {
                 return (object as? T)
             }
         }

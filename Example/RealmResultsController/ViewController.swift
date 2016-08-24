@@ -43,7 +43,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             self.realm.deleteAllObjects()
         }
         populateDB()
-        let request = RealmRequest<TaskModelObject>(predicate: Predicate(value: true), realm: realm, sortDescriptors: [RealmSwift.SortDescriptor(property: "projectID")  , RealmSwift.SortDescriptor(property: "name")])
+        let request = RealmRequest<TaskModelObject>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [RealmSwift.SortDescriptor(property: "projectID")  , RealmSwift.SortDescriptor(property: "name")])
         rrc = try! RealmResultsController<TaskModelObject, TaskObject>(request: request, sectionKeyPath: "projectID", mapper: TaskObject.map)
         rrc!.delegate = self
         rrc!.performFetch()
@@ -109,7 +109,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     func setupSubviews() {
         let height: CGFloat = 50
         button.frame = CGRect(x: 0, y: view.frame.height - height, width: view.frame.width, height: height)
-        button.backgroundColor = UIColor.red()
+        button.backgroundColor = UIColor.red
         button.setTitle("Add Row", for: UIControlState())
         button.addTarget(self, action: #selector(addNewObject), for: .touchUpInside)
         view.addSubview(button)

@@ -62,13 +62,13 @@ class CacheSpec: QuickSpec {
         var initialObjects: [Task]!
         var request: RealmRequest<Task>!
         var realm: Realm!
-        var predicate: Predicate!
+        var predicate: NSPredicate!
         var sortDescriptors: [RealmSwift.SortDescriptor]!
         var resolvedTasks: [Task]!
         var notResolvedTasks: [Task]!
         
         func initWithKeypath() {
-            predicate = Predicate(format: "id < %d", 50)
+            predicate = NSPredicate(format: "id < %d", 50)
             sortDescriptors = [RealmSwift.SortDescriptor(property: "name", ascending: true)]
             request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
             initialObjects = request.execute().toArray().sorted { $0.name < $1.name }
@@ -80,7 +80,7 @@ class CacheSpec: QuickSpec {
         }
         
         func initWithoutKeypath() {
-            predicate = Predicate(format: "id < %d", 50)
+            predicate = NSPredicate(format: "id < %d", 50)
             sortDescriptors = [RealmSwift.SortDescriptor(property: "name", ascending: true)]
             request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
             initialObjects = request.execute().toArray()
@@ -93,7 +93,7 @@ class CacheSpec: QuickSpec {
         
         // Init with only one object with ID = 0
         func initEmpty() {
-            predicate = Predicate(format: "id < %d", 1)
+            predicate = NSPredicate(format: "id < %d", 1)
             sortDescriptors = [RealmSwift.SortDescriptor(property: "name", ascending: true)]
             request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
             initialObjects = request.execute().toArray().sorted { $0.name < $1.name }
@@ -488,7 +488,7 @@ class CacheSpec: QuickSpec {
                 beforeEach {
                     initWithKeypath()
                     waitUntil { done in
-                        let queue = DispatchQueue(label: "lock", attributes: DispatchQueueAttributes.serial)
+                        let queue = DispatchQueue(label: "lock")
                         queue.async {
                             let task = Task()
                             task.id = 1

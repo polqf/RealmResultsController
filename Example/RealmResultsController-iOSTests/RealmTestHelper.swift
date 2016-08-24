@@ -16,7 +16,7 @@ struct RealmTestHelper {
         if !firstTime { return }
         firstTime = false
         
-        let defaultRealmPath = Realm.Configuration.defaultConfiguration.fileURL!.absoluteString!
+        let defaultRealmPath = Realm.Configuration.defaultConfiguration.fileURL!.absoluteString
             .replacingOccurrences(of: "file:///", with: "/")
         let bundleReamPath: String? = Bundle.main.resourcePath! + "/test.realm"
         

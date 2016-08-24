@@ -82,7 +82,7 @@ class RealmObjectSpec: QuickSpec {
             }
         }
         describe("primaryKeyValue()") {
-            var value: AnyObject?
+            var value: Any?
             context("if the object does not have primary key") {
                 beforeEach {
                     let dummy = Dummy()

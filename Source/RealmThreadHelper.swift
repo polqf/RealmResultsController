@@ -24,7 +24,7 @@ struct Threading {
      - parameter sync:  Bool, true if the execution should be dispatch_sync, false for dispatch_async
      - parameter block: Block to execute
      */
-    static func executeOnMainThread(_ sync: Bool = false, block: ()->()) {
+    static func executeOnMainThread(_ sync: Bool = false, block: @escaping ()->()) {
         guard !Thread.current.isMainThread else {
             block()
             return
@@ -40,7 +40,7 @@ struct Threading {
      - parameter sync:  Bool, true if the execution should be dispatch_sync, false for dispatch_async
      - parameter block: Block to execute
      */
-    static func executeOnQueue(_ queue: DispatchQueue, sync: Bool = false, block: ()->()) {
+    static func executeOnQueue(_ queue: DispatchQueue, sync: Bool = false, block: @escaping ()->()) {
         guard !isTesting else { return queue.sync(execute: block) }
         sync ? queue.sync(execute: block) : queue.async(execute: block)
     }
