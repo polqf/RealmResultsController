@@ -286,7 +286,6 @@
 				C18C375E1B72670F008DE6A6 /* Frameworks */,
 				C18C375F1B72670F008DE6A6 /* Resources */,
 				C1A002521B96F892000C0E8C /* Embed Frameworks */,
-				C17A50DB1D4D2F5C00A42D1A /* Fix */,
 			);
 			buildRules = (
 			);
@@ -423,23 +422,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/usr/local/bin/carthage copy-frameworks\n\nfor i in `seq 1 ${SCRIPT_INPUT_FILE_COUNT}`; do\nNUM=`expr $i - 1`\nNEXT_FOLDER_ARG=SCRIPT_INPUT_FILE_$NUM\nINCLUDE_FRAMEWORK_FOLDER_ARGS=\"${INCLUDE_FRAMEWORK_FOLDER_ARGS} --scan-folder ${!NEXT_FOLDER_ARG}\"\ndone\n\n# Run the correct tool 🤗\n${TOOLCHAIN_DIR}/usr/bin/swift-stdlib-tool \\\n--copy --verbose --sign ${EXPANDED_CODE_SIGN_IDENTITY} \\\n--scan-executable \"${TARGET_BUILD_DIR}/${EXECUTABLE_PATH}\" \\\n--scan-folder \"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\" \\\n--scan-folder \"${TARGET_BUILD_DIR}/${PLUGINS_FOLDER_PATH}\" \\\n--platform ${PLATFORM_NAME} \\\n--toolchain ${TOOLCHAIN_DIR} \\\n--destination \"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\" \\\n--strip-bitcode --resource-destination \"${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}\" \\\n--resource-library libswiftRemoteMirror.dylib \\\n${INCLUDE_FRAMEWORK_FOLDER_ARGS}";
-		};
-		C17A50DB1D4D2F5C00A42D1A /* Fix */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/Carthage/iOS/Realm.framework",
-				"$(SRCROOT)/Carthage/iOS/RealmSwift.framework",
-			);
-			name = Fix;
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "for i in `seq 1 ${SCRIPT_INPUT_FILE_COUNT}`; do\nNUM=`expr $i - 1`\nNEXT_FOLDER_ARG=SCRIPT_INPUT_FILE_$NUM\nINCLUDE_FRAMEWORK_FOLDER_ARGS=\"${INCLUDE_FRAMEWORK_FOLDER_ARGS} --scan-folder ${!NEXT_FOLDER_ARG}\"\ndone\n\n# Run the correct tool 🤗\n${TOOLCHAIN_DIR}/usr/bin/swift-stdlib-tool \\\n--copy --verbose --sign ${EXPANDED_CODE_SIGN_IDENTITY} \\\n--scan-executable \"${TARGET_BUILD_DIR}/${EXECUTABLE_PATH}\" \\\n--scan-folder \"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\" \\\n--scan-folder \"${TARGET_BUILD_DIR}/${PLUGINS_FOLDER_PATH}\" \\\n--platform ${PLATFORM_NAME} \\\n--toolchain ${TOOLCHAIN_DIR} \\\n--destination \"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}\" \\\n--strip-bitcode --resource-destination \"${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}\" \\\n--resource-library libswiftRemoteMirror.dylib \\\n${INCLUDE_FRAMEWORK_FOLDER_ARGS}";
+			shellScript = "/usr/local/bin/carthage copy-frameworks";
 		};
 /* End PBXShellScriptBuildPhase section */
 
