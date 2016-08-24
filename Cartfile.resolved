@@ -1,3 +1,3 @@
-github "norio-nomura/Nimble" "0dd42e0dac9f37962088e74ee78f0e3c412b227f"
-github "norio-nomura/Quick" "eaf60d980d88ffefd8c3a7515f53547453d5938b"
-github "realm/realm-cocoa" "v1.0.2"
+github "norio-nomura/Nimble" "512fd29fccd496839defd9f99abeb3e9c9feff98"
+github "norio-nomura/Quick" "4a7f1d0a7db637c3ca15b8f198a516fbc5581f87"
+github "realm/realm-cocoa" "ec8363777b74cd02d0bfa22c5bdf95f0d36c05fa"
