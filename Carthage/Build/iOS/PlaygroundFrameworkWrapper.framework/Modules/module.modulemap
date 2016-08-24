@@ -1,3 +1,0 @@
-framework module PlaygroundFrameworkWrapper {
-    header "PlaygroundFrameworkWrapper-Swift.h"
-}
