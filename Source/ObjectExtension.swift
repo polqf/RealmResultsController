@@ -93,7 +93,7 @@ extension RealmSwift.Object {
      - returns  the primary key value as AnyObject
      */
     public func primaryKeyValue() -> Any? {
-        guard let primaryKey = type(of: self).primaryKey() else { return nil }
+        guard let primaryKey = type(of: (self as Object)).primaryKey() else { return nil }
         var primaryKeyValue: Any?
         Threading.executeOnMainThread(true) {
             primaryKeyValue = self.value(forKey: primaryKey)
