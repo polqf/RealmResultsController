@@ -91,7 +91,7 @@ class RealmLogger {
     - parameter action Action that was performed on that object
     */
     func add<T: RealmSwift.Object>(_ object: T, action: RealmAction) {
-        let realmChange = RealmChange(type: type(of: (object as RealmSwift.Object)), action: action, mirror: object.getMirror())
+        let realmChange = RealmChange(type: type(of: (object as Object)), action: action, mirror: object.getMirror())
         temporary.append(realmChange)
     }
     
