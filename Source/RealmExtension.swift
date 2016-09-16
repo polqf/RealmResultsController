@@ -14,7 +14,7 @@ extension Realm {
     var realmIdentifier: String {
         var realmIdentifier = ""
         if let fileURL = configuration.fileURL {
-            realmIdentifier = fileURL.absoluteString
+            realmIdentifier = fileURL.absoluteString!
         }
         else if let identifier = configuration.inMemoryIdentifier {
             realmIdentifier = identifier
