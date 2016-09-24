@@ -40,7 +40,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         realm = try! Realm(configuration: realmConfiguration)
         
         try! realm.write {
-            self.realm.deleteAllObjects()
+            self.realm.deleteAll()
         }
         populateDB()
         let request = RealmRequest<TaskModelObject>(predicate: NSPredicate(value: true), realm: realm, sortDescriptors: [RealmSwift.SortDescriptor(property: "projectID")  , RealmSwift.SortDescriptor(property: "name")])

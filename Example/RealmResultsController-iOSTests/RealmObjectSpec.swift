@@ -58,7 +58,7 @@ class RealmObjectSpec: QuickSpec {
                 
                 afterEach {
                     try! realm.write {
-                        let tasks = realm.allObjects(ofType: Task.self).toArray().filter { $0.id == id }
+                        let tasks = realm.objects(Task.self).toArray().filter { $0.id == id }
                         realm.delete(tasks.first!)
                     }
                 }
