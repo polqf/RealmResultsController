@@ -141,12 +141,12 @@ class RealmExtensionSpec: QuickSpec {
                 var totalObjectsAfter: Int!
                 beforeEach {
                     self.cleanLoggers()
-                    totalObjectsBefore = realm.allObjects(ofType: Task.self).count
+                    totalObjectsBefore = realm.objects(Task.self).count
                     object = ["name" : "hola"]
                     try! realm.write {
                         realm.createNotified(Dummy.self, value: object, update: true)
                     }
-                    totalObjectsAfter = realm.allObjects(ofType: Task.self).count
+                    totalObjectsAfter = realm.objects(Task.self).count
                 }
                 it("won't add it to the realm") {
                     expect(totalObjectsBefore) == totalObjectsAfter
@@ -165,12 +165,12 @@ class RealmExtensionSpec: QuickSpec {
                 var totalObjectsAfter: Int!
                 beforeEach {
                     self.cleanLoggers()
-                    totalObjectsBefore = realm.allObjects(ofType: Task.self).count
+                    totalObjectsBefore = realm.objects(Task.self).count
                     object = ["name" : "hola"]
                     try! realm.write {
                         realm.createNotified(Task.self, value: object, update: true)
                     }
-                    totalObjectsAfter = realm.allObjects(ofType: Task.self).count
+                    totalObjectsAfter = realm.objects(Task.self).count
                 }
                 it("won't add it to the realm") {
                     expect(totalObjectsBefore) == totalObjectsAfter

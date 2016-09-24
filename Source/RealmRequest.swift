@@ -29,8 +29,8 @@ public struct RealmRequest<T: Object> {
         self.realm = realm
         self.sortDescriptors = sortDescriptors
     }
-    
+
     func execute() -> Results<T> {
-        return  realm.allObjects(ofType: entityType).filter(using: predicate).sorted(with: sortDescriptors)
+        return realm.objects(entityType).filter(predicate).sorted(by: sortDescriptors)
     }
 }

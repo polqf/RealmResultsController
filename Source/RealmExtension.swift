@@ -113,19 +113,19 @@ extension Realm {
     public func createNotified<T: RealmSwift.Object>(_ type: T.Type, value: Any = [:], update upd: Bool = false) -> T? {
         var update = upd
         let createBlock = {
-            return self.createObject(ofType: type, populatedWith: value, update: update)
+            return self.create(type, value: value, update: update)
         }
         
-        var create = true
+        var isCreate = true
         guard let primaryKey = T.primaryKey(), let primaryKeyValue = (value as AnyObject).value(forKey: primaryKey) else { return nil }
         
         if let _ = object(ofType: type, forPrimaryKey: primaryKeyValue) {
-            create = false
+            isCreate = false
             update = true
         }
         let createdObject = createBlock()
         
-        if create {
+        if isCreate {
             RealmNotification.logger(for: self).didAdd(createdObject)
         }
         else {
@@ -172,15 +172,15 @@ extension Realm {
     /**
     Execute a given RealmRequest in the current Realm (ignoring the realm in which the 
     Request was created)
-    
+
     - parameter request RealmRequest to execute
     
     - returns Realm Results<T>
     */
     public func execute<T: RealmSwift.Object>(_ request: RealmRequest<T>) -> Results<T> {
-        let objects = allObjects(ofType: request.entityType).filter(using: request.predicate)
-        if request.sortDescriptors.isEmpty { return objects }
-        return objects.sorted(with: request.sortDescriptors)
+        let retrievedObjects = objects(request.entityType).filter(request.predicate)
+        if request.sortDescriptors.isEmpty { return retrievedObjects }
+        return retrievedObjects.sorted(by: request.sortDescriptors)
     }
 }
 
