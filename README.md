@@ -264,6 +264,12 @@ github "redbooth/RealmResultsController" "0.5.0"
 
 #### CocoaPods:
 
+####:warning: There's an issue with the 0.5.0 on CocoaPods ATM that's being tracked [here](https://github.com/realm/realm-cocoa/issues/4135). 
+####Until this gets fixed, no CocoaPods for 0.5.0 :cry:
+
+####Sorry for the inconveniences
+
+
 ```
 use_frameworks!
 
