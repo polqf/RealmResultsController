@@ -21,7 +21,7 @@ class RealmQueueManagerSpec: QuickSpec {
     private var timeoutHasBeenReached = false
     
     func fireThread1Block() {
-        let queue = dispatch_queue_create("THREAD 1", DISPATCH_QUEUE_SERIAL)
+        let queue = DispatchQueue(label: "THREAD 1")
         Threading.executeOnQueue(queue, sync: true) {
             self.queueManager.addOperation {
                 self.thread1BlockHasBeenFired = true
@@ -31,7 +31,7 @@ class RealmQueueManagerSpec: QuickSpec {
     }
     
     func fireThread2Block() {
-        let queue = dispatch_queue_create("THREAD 2", DISPATCH_QUEUE_SERIAL)
+        let queue = DispatchQueue(label: "THREAD 2")
         Threading.executeOnQueue(queue, sync: true) {
             self.queueManager.addOperation {
                 self.thread2BlockHasBeenFired = true
@@ -106,11 +106,11 @@ class RealmQueueManagerSpec: QuickSpec {
             
             context("equeued operations from different threads") {
                 beforeEach {
-                    let date = NSDate().dateByAddingTimeInterval(1)
-                    let timer1 = NSTimer(fireDate: date, interval: 0, target: self, selector: #selector(RealmQueueManagerSpec.fireThread1Block), userInfo: nil, repeats: false)
-                    let timer2 = NSTimer(fireDate: date, interval: 0, target: self, selector: #selector(RealmQueueManagerSpec.fireThread2Block), userInfo: nil, repeats: false)
-                    NSRunLoop.currentRunLoop().addTimer(timer1, forMode: NSDefaultRunLoopMode)
-                    NSRunLoop.currentRunLoop().addTimer(timer2, forMode: NSDefaultRunLoopMode)
+                    let date = Date().addingTimeInterval(1)
+                    let timer1 = Timer(fireAt: date, interval: 0, target: self, selector: #selector(RealmQueueManagerSpec.fireThread1Block), userInfo: nil, repeats: false)
+                    let timer2 = Timer(fireAt: date, interval: 0, target: self, selector: #selector(RealmQueueManagerSpec.fireThread2Block), userInfo: nil, repeats: false)
+                    RunLoop.current.add(timer1, forMode: RunLoopMode.defaultRunLoopMode)
+                    RunLoop.current.add(timer2, forMode: RunLoopMode.defaultRunLoopMode)
                 }
                 it("should have executed only one block") {
                     expect(self.oneBlockFired()).toEventually(beTruthy(), timeout: 2)

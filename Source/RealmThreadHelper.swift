@@ -11,7 +11,7 @@ import Foundation
 
 struct Threading {
     static let isTesting: Bool = {
-        let environment = NSProcessInfo.processInfo().environment
+        let environment = ProcessInfo.processInfo.environment
         return environment["TEST"] != nil
     }()
     
@@ -24,12 +24,12 @@ struct Threading {
      - parameter sync:  Bool, true if the execution should be dispatch_sync, false for dispatch_async
      - parameter block: Block to execute
      */
-    static func executeOnMainThread(sync: Bool = false, block: ()->()) {
-        guard !NSThread.currentThread().isMainThread else {
+    static func executeOnMainThread(_ sync: Bool = false, block: @escaping ()->()) {
+        guard !Thread.current.isMainThread else {
             block()
             return
         }
-        executeOnQueue(dispatch_get_main_queue(), sync: sync, block: block)
+        executeOnQueue(DispatchQueue.main, sync: sync, block: block)
     }
     
     /**
@@ -40,8 +40,8 @@ struct Threading {
      - parameter sync:  Bool, true if the execution should be dispatch_sync, false for dispatch_async
      - parameter block: Block to execute
      */
-    static func executeOnQueue(queue: dispatch_queue_t, sync: Bool = false, block: ()->()) {
-        guard !isTesting else { return dispatch_sync(queue, block) }
-        sync ? dispatch_sync(queue, block) : dispatch_async(queue, block)
+    static func executeOnQueue(_ queue: DispatchQueue, sync: Bool = false, block: @escaping ()->()) {
+        guard !isTesting else { return queue.sync(execute: block) }
+        sync ? queue.sync(execute: block) : queue.async(execute: block)
     }
 }

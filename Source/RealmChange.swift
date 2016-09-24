@@ -10,9 +10,9 @@ import Foundation
 import RealmSwift
 
 public enum RealmAction {
-    case Add
-    case Update
-    case Delete
+    case add
+    case update
+    case delete
 }
 
 /**
@@ -21,11 +21,11 @@ It includes the type of the object changed, the action performed and a copy of t
 It is important to store a copy and not the real object to make it thread safe
 */
 public class RealmChange {
-    public private(set) var type: Object.Type
+    public private(set) var type: RealmSwift.Object.Type
     public private(set) var action: RealmAction
-    public private(set) var mirror: Object?
+    public private(set) var mirror: RealmSwift.Object?
     
-    init<T:Object>(type: T.Type, action: RealmAction, mirror: Object?) {
+    init<T:RealmSwift.Object>(type: T.Type, action: RealmAction, mirror: RealmSwift.Object?) {
         self.type = type
         self.action = action
         self.mirror = mirror

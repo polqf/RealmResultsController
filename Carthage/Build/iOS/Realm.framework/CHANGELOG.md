@@ -1,3 +1,103 @@
+1.1.0 Release notes (2016-09-16)
+=============================================================
+
+This release brings official support for Xcode 8, Swift 2.3 and Swift 3.0.
+Prebuilt frameworks are now built with Xcode 7.3.1 and Xcode 8.0.
+
+### API breaking changes
+
+* Deprecate `migrateRealm:` in favor of new `performMigrationForConfiguration:error:` method
+  that follows Cocoa's NSError conventions.
+* Fix issue where `RLMResults` used `id `instead of its generic type as the return
+  type of subscript.
+
+### Enhancements
+
+* Improve error message when using NSNumber incorrectly in Swift models.
+* Further reduce the download size of the prebuilt static libraries.
+* Improve sort performance, especially on non-nullable columns.
+* Allow partial initialization of object by `initWithValue:`, deferring
+  required property checks until object is added to Realm.
+
+### Bugfixes
+
+* Fix incorrect truncation of the constant value for queries of the form
+  `column < value` for `float` and `double` columns.
+* Fix crash when an aggregate is accessed as an `Int8`, `Int16`, `Int32`, or `Int64`.
+* Fix a race condition that could lead to a crash if an RLMArray or List was
+  deallocated on a different thread than it was created on.
+* Fix a crash when the last reference to an observed object is released from
+  within the observation.
+* Fix a crash when `initWithValue:` is used to create a nested object for a class
+  with an uninitialized schema.
+* Enforce uniqueness for `RealmOptional` primary keys when using the `value` setter.
+
+1.0.2 Release notes (2016-07-13)
+=============================================================
+
+### API breaking changes
+
+* Attempting to add an object with no properties to a Realm now throws rather than silently
+  doing nothing.
+
+### Enhancements
+
+* Swift: A `write` block may now `throw`, reverting any changes already made in
+  the transaction.
+* Reduce address space used when committing write transactions.
+* Significantly reduce the download size of prebuilt binaries and slightly
+  reduce the final size contribution of Realm to applications.
+* Improve performance of accessing RLMArray properties and creating objects
+  with List properties.
+
+### Bugfixes
+
+* Fix a crash when reading the shared schema from an observed Swift object.
+* Fix crashes or incorrect results when passing an array of values to
+  `createOrUpdate` after reordering the class's properties.
+* Ensure that the initial call of a Results notification block is always passed
+  .Initial even if there is a write transaction between when the notification
+  is added and when the first notification is delivered.
+* Fix a crash when deleting all objects in a Realm while fast-enumerating query
+  results from that Realm.
+* Handle EINTR from flock() rather than crashing.
+* Fix incorrect behavior following a call to `[RLMRealm compact]`.
+* Fix live updating and notifications for Results created from a predicate involving
+  an inverse relationship to be triggered when an object at the other end of the relationship
+  is modified.
+
+1.0.1 Release notes (2016-06-12)
+=============================================================
+
+### API breaking changes
+
+* None.
+
+### Enhancements
+
+* Significantly improve performance of opening Realm files, and slightly
+  improve performance of committing write transactions.
+
+### Bugfixes
+
+* Swift: Fix an error thrown when trying to create or update `Object` instances via
+  `add(:_update:)` with a primary key property of type `RealmOptional`.
+* Xcode playground in Swift release zip now runs successfully.
+* The `key` parameter of `Realm.objectForPrimaryKey(_:key:)`/ `Realm.dynamicObjectForPrimaryKey(_:key:)`
+ is now marked as optional.
+* Fix a potential memory leak when closing Realms after a Realm file has been
+  opened on multiple threads which are running in active run loops.
+* Fix notifications breaking on tvOS after a very large number of write
+  transactions have been committed.
+* Fix a "Destruction of mutex in use" assertion failure after an error while
+  opening a file.
+* Realm now throws an exception if an `Object` subclass is defined with a managed Swift `lazy` property.
+  Objects with ignored `lazy` properties should now work correctly.
+* Update the LLDB script to work with recent changes to the implementation of `RLMResults`.
+* Fix an assertion failure when a Realm file is deleted while it is still open,
+  and then a new Realm is opened at the same path. Note that this is still not
+  a supported scenario, and may break in other ways.
+
 1.0.0 Release notes (2016-05-25)
 =============================================================
 

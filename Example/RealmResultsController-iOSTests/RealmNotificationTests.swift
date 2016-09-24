@@ -24,7 +24,7 @@ class RealmNotificationSpec: QuickSpec {
             var createdLogger: RealmLogger!
             context("Create a logger") {
                 beforeEach {
-                    createdLogger = RealmNotification.loggerForRealm(realm)
+                    createdLogger = RealmNotification.logger(for: realm)
                 }
                 it("Should have stored the logger in its shared instance") {
                     expect(RealmNotification.sharedInstance.loggers.count).to(equal(1))
@@ -34,7 +34,7 @@ class RealmNotificationSpec: QuickSpec {
             context("Retrieve a created logger") {
                 var retrievedLogger: RealmLogger!
                 beforeEach {
-                    retrievedLogger = RealmNotification.loggerForRealm(realm)
+                    retrievedLogger = RealmNotification.logger(for: realm)
                 }
                 it("Should have retrieve the logger stored in its shared instance") {
                     expect(RealmNotification.sharedInstance.loggers.count).to(equal(1))

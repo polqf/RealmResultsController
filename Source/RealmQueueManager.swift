@@ -10,8 +10,8 @@ import Foundation
 
 struct RealmQueueManager {
     private var sync: Bool = false
-    let operationQueue: NSOperationQueue = {
-        let queue = NSOperationQueue()
+    let operationQueue: OperationQueue = {
+        let queue = OperationQueue()
         queue.maxConcurrentOperationCount = 1
         queue.name = "com.RRC.\(arc4random_uniform(1000))"
         return queue
@@ -21,11 +21,11 @@ struct RealmQueueManager {
         self.sync = sync
     }
     
-    func addOperation(withBlock block: ()->()) {
+    func addOperation(withBlock block: @escaping ()->()) {
         guard !sync else {
             block()
             return
         }
-        operationQueue.addOperationWithBlock(block)
+        operationQueue.addOperation(block)
     }
 }

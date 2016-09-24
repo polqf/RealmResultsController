@@ -37,6 +37,7 @@
 		C1A002951B9702C1000C0E8C /* RealmResultsController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A0028B1B9702C1000C0E8C /* RealmResultsController.framework */; };
 		C1A002A01B9702C2000C0E8C /* RealmResultsController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A0028B1B9702C1000C0E8C /* RealmResultsController.framework */; };
 		C1A002A11B9702C2000C0E8C /* RealmResultsController.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = C1A0028B1B9702C1000C0E8C /* RealmResultsController.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		C1BB57341D6E40F600F9E016 /* RRCError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1BB57331D6E40F600F9E016 /* RRCError.swift */; };
 		C1DF1DD11CBA8F9A0040000A /* Quick.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = C1A002461B96F790000C0E8C /* Quick.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C1DF1DD21CBA8F9A0040000A /* Nimble.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = C1A002471B96F790000C0E8C /* Nimble.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C1E4BF661C19F1B900450F14 /* RealmQueueManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A2DC091C19C33F00D2F0F0 /* RealmQueueManagerTests.swift */; };
@@ -134,6 +135,7 @@
 		C1A002941B9702C1000C0E8C /* RealmResultsController-iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RealmResultsController-iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1A0029D1B9702C2000C0E8C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C1A2DC091C19C33F00D2F0F0 /* RealmQueueManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RealmQueueManagerTests.swift; sourceTree = "<group>"; };
+		C1BB57331D6E40F600F9E016 /* RRCError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RRCError.swift; path = Source/RRCError.swift; sourceTree = SOURCE_ROOT; };
 		C1D8710A1B72673E00C0ED18 /* RealmExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RealmExtension.swift; path = ../../Source/RealmExtension.swift; sourceTree = "<group>"; };
 		C1D8710B1B72673E00C0ED18 /* RealmNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RealmNotification.swift; path = ../../Source/RealmNotification.swift; sourceTree = "<group>"; };
 		C1D8710C1B72673E00C0ED18 /* RealmRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RealmRequest.swift; path = ../../Source/RealmRequest.swift; sourceTree = "<group>"; };
@@ -225,6 +227,7 @@
 			children = (
 				C1A0028D1B9702C1000C0E8C /* RealmResultsController-iOS.h */,
 				C1D8710A1B72673E00C0ED18 /* RealmExtension.swift */,
+				C1BB57331D6E40F600F9E016 /* RRCError.swift */,
 				C1D8710B1B72673E00C0ED18 /* RealmNotification.swift */,
 				C14CD7601B739E6300C5BF92 /* RealmLogger.swift */,
 				C11D6BE71B7A0F72000B8398 /* RealmChange.swift */,
@@ -339,17 +342,20 @@
 		C18C37591B72670F008DE6A6 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0700;
+				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = Redbooth;
 				TargetAttributes = {
 					C18C37601B72670F008DE6A6 = {
 						CreatedOnToolsVersion = 7.0;
+						LastSwiftMigration = 0800;
 					};
 					C1A0028A1B9702C1000C0E8C = {
 						CreatedOnToolsVersion = 7.0;
+						LastSwiftMigration = 0800;
 					};
 					C1A002931B9702C1000C0E8C = {
 						CreatedOnToolsVersion = 7.0;
+						LastSwiftMigration = 0800;
 						TestTargetID = C18C37601B72670F008DE6A6;
 					};
 				};
@@ -445,6 +451,7 @@
 				C169FE991C189793001FC9EF /* RealmQueueManager.swift in Sources */,
 				C1565E911B970362003B7ABD /* RealmLogger.swift in Sources */,
 				C1565E921B970362003B7ABD /* RealmChange.swift in Sources */,
+				C1BB57341D6E40F600F9E016 /* RRCError.swift in Sources */,
 				C1565E941B970362003B7ABD /* RealmResultsCache.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -602,6 +609,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = redbooth.RealmResultsController;
 				PRODUCT_NAME = "RealmResultsController-Example";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -618,6 +626,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = redbooth.RealmResultsController;
 				PRODUCT_NAME = "RealmResultsController-Example";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
@@ -641,6 +651,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "redbooth.RealmResultsController-iOS";
 				PRODUCT_NAME = RealmResultsController;
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -666,6 +677,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "redbooth.RealmResultsController-iOS";
 				PRODUCT_NAME = RealmResultsController;
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -682,6 +695,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "redbooth.RealmResultsController-iOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RealmResultsController-Example.app/RealmResultsController-Example";
 			};
 			name = Debug;
@@ -697,6 +711,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "redbooth.RealmResultsController-iOSTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RealmResultsController-Example.app/RealmResultsController-Example";
 			};
 			name = Release;
