@@ -15,7 +15,7 @@ import RealmSwift
  A logger is associated with one and only one Realm.
 */
 class RealmLogger {
-    var realm: Realm
+    weak var realm: Realm?
     var temporary: [RealmChange] = []
     var notificationToken: NotificationToken?
     
@@ -35,9 +35,9 @@ class RealmLogger {
     }
     
     @objc func registerNotificationBlock() {
-        self.notificationToken = self.realm.addNotificationBlock { notification, realm in
+        notificationToken = realm?.addNotificationBlock { [weak self] notification, realm in
             if notification == .didChange {
-                self.finishRealmTransaction()
+                self?.finishRealmTransaction()
             }
         }
     }
@@ -47,7 +47,7 @@ class RealmLogger {
     Then clean the current state.
     */
     func finishRealmTransaction() {
-        let realmIdentifier = realm.realmIdentifier
+        guard let realmIdentifier = realm?.realmIdentifier else { return }
         var notificationName = "realmChanges"
 
         //For testing
