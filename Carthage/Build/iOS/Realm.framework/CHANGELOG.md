@@ -1,3 +1,68 @@
+2.0.2 Release notes (2016-10-05)
+=============================================================
+
+This release is not protocol-compatible with previous version of the Realm
+Mobile Platform.
+
+### API breaking changes
+
+* Rename Realm Swift's `User` to `SyncUser` to make clear that it relates to the
+  Realm Mobile Platform, and to avoid potential conflicts with other `User` types.
+
+### Bugfixes
+
+* Fix Realm headers to be compatible with pre-C++11 dialects of Objective-C++.
+* Fix incorrect merging of RLMArray/List changes when objects with the same
+  primary key are created on multiple devices.
+* Fix bad transaction log errors after deleting objects on a different device.
+* Fix a BadVersion error when a background worker finishes running while older
+  results from that worker are being delivered to a different thread.
+
+2.0.1 Release notes (2016-09-29)
+=============================================================
+
+### Bugfixes
+
+* Fix an assertion failure when opening a Realm file written by a 1.x version
+  of Realm which has an indexed nullable int or bool property.
+
+2.0.0 Release notes (2016-09-27)
+=============================================================
+
+This release introduces support for the Realm Mobile Platform!
+See <https://realm.io/news/introducing-realm-mobile-platform/> for an overview
+of these great new features.
+
+### API breaking changes
+
+* By popular demand, `RealmSwift.Error` has been moved from the top-level
+  namespace into a `Realm` extension and is now `Realm.Error`, so that it no
+  longer conflicts with `Swift.Error`.
+* Files written by Realm 2.0 cannot be read by 1.x or earlier versions. Old
+  files can still be opened.
+
+### Enhancements
+
+* The .log, .log_a and .log_b files no longer exist and the state tracked in
+  them has been moved to the main Realm file. This reduces the number of open
+  files needed by Realm, improves performance of both opening and writing to
+  Realms, and eliminates a small window where committing write transactions
+  would prevent other processes from opening the file.
+
+### Bugfixes
+
+* Fix an assertion failure when sorting by zero properties.
+* Fix a mid-commit crash in one process also crashing all other processes with
+  the same Realm open.
+* Properly initialize new nullable float and double properties added to
+  existing objects to null rather than 0.
+* Fix a stack overflow when objects with indexed string properties had very
+  long common prefixes.
+* Fix a race condition which could lead to crashes when using async queries or
+  collection notifications.
+* Fix a bug which could lead to incorrect state when an object which links to
+  itself is deleted from the Realm.
+
 1.1.0 Release notes (2016-09-16)
 =============================================================
 
