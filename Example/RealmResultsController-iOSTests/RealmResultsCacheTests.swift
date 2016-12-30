@@ -18,9 +18,9 @@ class CacheDelegateMock: RealmResultsCacheDelegate {
     static let sharedInstance = CacheDelegateMock()
     
     var index = -1
-    var oldIndexPath: NSIndexPath?
-    var indexPath: NSIndexPath?
-    var object: Object?
+    var oldIndexPath: IndexPath?
+    var indexPath: IndexPath?
+    var object: RealmSwift.Object?
     
     func reset() {
         index = -1
@@ -63,7 +63,7 @@ class CacheSpec: QuickSpec {
         var request: RealmRequest<Task>!
         var realm: Realm!
         var predicate: NSPredicate!
-        var sortDescriptors: [SortDescriptor]!
+        var sortDescriptors: [RealmSwift.SortDescriptor]!
         var resolvedTasks: [Task]!
         var notResolvedTasks: [Task]!
         
@@ -71,7 +71,7 @@ class CacheSpec: QuickSpec {
             predicate = NSPredicate(format: "id < %d", 50)
             sortDescriptors = [SortDescriptor(property: "name", ascending: true)]
             request = RealmRequest<Task>(predicate: predicate, realm: realm, sortDescriptors: sortDescriptors)
-            initialObjects = request.execute().toArray().sort { $0.name < $1.name }
+            initialObjects = request.execute().toArray().sorted { $0.name < $1.name }
 
             if onlyResolved {
                 initialObjects = initialObjects.filter { $0.resolved }
@@ -488,12 +488,12 @@ class CacheSpec: QuickSpec {
 
             context("the object is in the cache and will change sections (where new section doesn't exist yet)") {
                 beforeEach {
-                    initWithKeypath(true)
+                    initWithKeypath(onlyResolved: true)
 
                     let task = Task()
                     task.id = resolvedTasks[0].id
                     task.resolved = false
-                    type = cache.updateType(task)
+                    type = cache.updateType(for: task)
                 }
                 it("returns type .Move") {
                     expect(type) == RealmCacheUpdateType.Move
